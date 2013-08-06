@@ -239,7 +239,7 @@
 			postVarsPerFile : {},
 			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
 			swfURL : "/swf/FlashUploader.swf",
-			uploadURL : ""
+			uploadURL : "/upload"
 		};
 		Parent.apply(this, arguments);
 	}
@@ -474,7 +474,7 @@
 			retryCount : 3,
 			postVarsPerFile : {},
 			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
-			uploadURL : ""
+			uploadURL : "/upload"
 		};
 		Parent.apply(this, arguments);
 	}
@@ -813,7 +813,7 @@
 			postVarsPerFile : {},
 			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
 			swfURL : cfg && cfg.swfURL ? cfg.swfURL : "/swf/FlashUploader.swf",
-			uploadURL : ""
+			uploadURL : "/upload"
 		};
 		Parent.apply(this, arguments);
 	}
@@ -919,8 +919,8 @@
 				return a.returnValue = "\u60a8\u6b63\u5728\u4e0a\u4f20\u89c6\u9891\uff0c\u5173\u95ed\u6b64\u9875\u9762\u5c06\u4f1a\u4e2d\u65ad\u4e0a\u4f20\uff0c\u5efa\u8bae\u60a8\u7b49\u5f85\u4e0a\u4f20\u5b8c\u6210\u540e\u518d\u5173\u95ed\u6b64\u9875\u9762";
 		},
 		createUploadTask : function(a) {
-			var b = this.uploadInfo[a].file, self = this;
-			bStreaming ? self.uploadFile(b, "_domain", "__token", "resumeUpload") : self.uploadFile(b, "/upload;" + document.cookie, "__token", "formUpload");
+			var file = this.uploadInfo[a].file, self = this;
+			bStreaming ? self.uploadFile(file, "/upload", "__token", "resumeUpload") : self.uploadFile(file, "/upload;" + document.cookie, "__token", "formUpload");
 		},
 		uploadFile : function(file, url, token, method) {
 			var token = {
