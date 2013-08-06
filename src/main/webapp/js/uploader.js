@@ -238,7 +238,7 @@
 			retryCount : 3,
 			postVarsPerFile : {},
 			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
-			swfURL : "/new_u/swf/FlashUploader.swf",
+			swfURL : "/swf/FlashUploader.swf",
 			uploadURL : ""
 		};
 		Parent.apply(this, arguments);
@@ -812,7 +812,7 @@
 			retryCount : 3,
 			postVarsPerFile : {},
 			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
-			swfURL : cfg && cfg.swfURL ? cfg.swfURL : "/new_u/swf/FlashUploader.swf",
+			swfURL : cfg && cfg.swfURL ? cfg.swfURL : "/swf/FlashUploader.swf",
 			uploadURL : ""
 		};
 		Parent.apply(this, arguments);
@@ -1162,6 +1162,6 @@
 		})();
 		return bFile && (bFormData || bHtml5);
 	}();
-	Provider= bStreaming ? StreamProvider : SWFProvider;
+	Provider= !bStreaming ? StreamProvider : SWFProvider;
 	window.Uploader=Main;
 })();
