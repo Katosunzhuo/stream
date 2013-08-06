@@ -1,12 +1,12 @@
-package com.jiangdx.stream;
+package com.jiangdx.stream.servlet;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Collection;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -16,14 +16,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import com.jiangdx.stream.util.IoUtil;
+
 /**
  * File reserved servlet, mainly reading the request parameter and its file
  * part, stored it.
  */
-@WebServlet(name = "FileUploadServlet", urlPatterns = { "/upload" })
+@WebServlet(name = "StreamServlet", urlPatterns = { "/upload" })
 @MultipartConfig
 public class StreamServlet extends HttpServlet {
 	private static final long serialVersionUID = -8619685235661387895L;
+	static final String FILE_FIELD = "file";
+	/** when the has increased to 10kb, then flush it to the hard-disk. */
+	static final int BUFFER_LENGTH = 10240;
+
+	@Override
+	public void init() throws ServletException {
+		super.init();
+	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse response)
@@ -32,22 +42,28 @@ public class StreamServlet extends HttpServlet {
 
 		// Create path components to save the file
 		final String path = req.getParameter("destination");
-		final Part filePart = req.getPart("file");
-		final String fileName = getFileName(filePart);
+		
+		Part filePart = null;
+		Collection<Part> parts = req.getParts();
+		for (Part part : parts) {
+			if (part != null) {
+				filePart = part;
+				break;
+			}
+		}
+		final String fileName = IoUtil.getFileName(filePart);
 
 		OutputStream out = null;
-		InputStream filecontent = null;
+		InputStream content = null;
 		final PrintWriter writer = response.getWriter();
 
 		try {
-			out = new FileOutputStream(new File(path + File.separator
-					+ fileName));
-			filecontent = filePart.getInputStream();
+			out = new FileOutputStream(IoUtil.getFile(fileName));
+			content = filePart.getInputStream();
 
 			int read = 0;
-			final byte[] bytes = new byte[1024];
-
-			while ((read = filecontent.read(bytes)) != -1) {
+			final byte[] bytes = new byte[BUFFER_LENGTH];
+			while ((read = content.read(bytes)) != -1) {
 				out.write(bytes, 0, read);
 			}
 			writer.println("New file " + fileName + " created at " + path);
@@ -62,35 +78,15 @@ public class StreamServlet extends HttpServlet {
 //			LOGGER.log(Level.SEVERE, "Problems during file upload. Error: {0}",
 //					new Object[] { fne.getMessage() });
 		} finally {
-			if (out != null) {
-				out.close();
-			}
-			if (filecontent != null) {
-				filecontent.close();
-			}
-			if (writer != null) {
-				writer.close();
-			}
+			IoUtil.close(out);
+			IoUtil.close(content);
+			IoUtil.close(writer);
 		}
-	}
-
-	private String getFileName(final Part part) {
-		final String partHeader = part.getHeader("content-disposition");
-		// LOGGER.log(Level.INFO, "Part Header = {0}", partHeader);
-		for (String content : part.getHeader("content-disposition").split(";")) {
-			if (content.trim().startsWith("filename")) {
-				return content.substring(content.indexOf('=') + 1).trim()
-						.replace("\"", "");
-			}
-		}
-		return null;
 	}
 
 	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		super.service(req, resp);
+	public void destroy() {
+		super.destroy();
 	}
 
 }
