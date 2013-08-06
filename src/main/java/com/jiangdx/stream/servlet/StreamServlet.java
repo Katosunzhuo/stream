@@ -1,12 +1,12 @@
 package com.jiangdx.stream.servlet;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Collection;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -39,18 +39,8 @@ public class StreamServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF-8");
-
-		// Create path components to save the file
-		final String path = req.getParameter("destination");
 		
-		Part filePart = null;
-		Collection<Part> parts = req.getParts();
-		for (Part part : parts) {
-			if (part != null) {
-				filePart = part;
-				break;
-			}
-		}
+		Part filePart = IoUtil.getFilePart(req);
 		final String fileName = IoUtil.getFileName(filePart);
 
 		OutputStream out = null;
@@ -58,7 +48,8 @@ public class StreamServlet extends HttpServlet {
 		final PrintWriter writer = response.getWriter();
 
 		try {
-			out = new FileOutputStream(IoUtil.getFile(fileName));
+			File f = IoUtil.getFile(fileName);
+			out = new FileOutputStream(f);
 			content = filePart.getInputStream();
 
 			int read = 0;
@@ -66,17 +57,13 @@ public class StreamServlet extends HttpServlet {
 			while ((read = content.read(bytes)) != -1) {
 				out.write(bytes, 0, read);
 			}
-			writer.println("New file " + fileName + " created at " + path);
-//			LOGGER.log(Level.INFO, "File{0}being uploaded to {1}",
-//					new Object[] { fileName, path });
+			
+			long start = f.length();
+			StringBuilder buf = new StringBuilder("{");
+			buf.append("start:").append(start).append("}");
+			writer.write(buf.toString());
 		} catch (FileNotFoundException fne) {
-			writer.println("You either did not specify a file to upload or are "
-					+ "trying to upload a file to a protected or nonexistent "
-					+ "location.");
 			writer.println("<br/> ERROR: " + fne.getMessage());
-
-//			LOGGER.log(Level.SEVERE, "Problems during file upload. Error: {0}",
-//					new Object[] { fne.getMessage() });
 		} finally {
 			IoUtil.close(out);
 			IoUtil.close(content);

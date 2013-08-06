@@ -3,7 +3,10 @@ package com.jiangdx.stream.util;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
 /**
@@ -12,18 +15,26 @@ import javax.servlet.http.Part;
 public class IoUtil {
 	/** where the file should be put on. */
 	public static final String REPOSITORY = System.getProperty("java.io.tmpdir", "/tmp/upload-repository");
-	
+	static final String CONTENT_HEADER = "content-disposition";
 	/**
 	 * From the uploaded Part, extract its file name.
 	 */
 	public static String getFileName(final Part part) {
-//		final String partHeader = part.getHeader("content-disposition");
-		// LOGGER.log(Level.INFO, "Part Header = {0}", partHeader);
-		for (String content : part.getHeader("content-disposition").split(";")) {
-			if (content.trim().startsWith("filename")) {
-				return content.substring(content.indexOf('=') + 1).trim()
+		for (String cd : part.getHeader(CONTENT_HEADER).split(";")) {
+			if (cd.trim().startsWith("filename")) {
+				return cd.substring(cd.indexOf('=') + 1).trim()
 						.replace("\"", "");
 			}
+		}
+		return null;
+	}
+	
+	public static Part getFilePart(HttpServletRequest request)
+			throws IOException, ServletException {
+		Collection<Part> parts = request.getParts();
+		for (Part part : parts) {
+			if (getFileName(part) != null)
+				return part;
 		}
 		return null;
 	}
