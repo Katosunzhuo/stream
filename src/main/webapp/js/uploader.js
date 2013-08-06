@@ -50,9 +50,19 @@
 		return b[typeof a] || b[Object.prototype.toString.call(a)] || (a ? "object" : "null");
 	}
 	
+	function fAddClass(element, klass) {
+		fHasClass(element, klass) || (element.className += " " + klass);
+	}
+	
 	function fHasClass(element, klass) {
 		return RegExp("(^| )" + klass + "( |$)").test(element.className);
 	}
+	
+	function fRemoveClass(element, klass) {
+		element.className = element.className.replace(RegExp("(^| )" + klass + "( |$)"), " ")
+				.replace(/^\s+|\s+$/g, "");
+	}
+	
 	function fContains(container, klass) {
 		if (!container)
 			return [];
@@ -239,7 +249,7 @@
 			postVarsPerFile : {},
 			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
 			swfURL : "/swf/FlashUploader.swf",
-			uploadURL : "/upload"
+			uploadURL : "/fd"
 		};
 		Parent.apply(this, arguments);
 	}
@@ -299,7 +309,7 @@
 			this.swfReference.on("mouseleave", function() {this.setContainerClass("hover", !1);}, this);
 		},
 		setContainerClass : function(a, b) {
-			b ? n(this.contentBox, this.get("containerClassNames")[a]) : p(
+			b ? fAddClass(this.contentBox, this.get("containerClassNames")[a]) : fRemoveClass(
 					this.contentBox, this.get("containerClassNames")[a]);
 		},
 		setFileFilters : function() {
@@ -779,9 +789,9 @@
 			this.fileStartPosValue = null;
 			this.retriedTimes = 0;
 			this.cancelUpload = false;
-
+console.log(postVars);
 			/** default code: */
-			this.keyValue = "_lllllllllllllllllll000ll";
+			this.keyValue = postVars.token;
 			/** start the request the backend data. */
 			this.resumeUpload();
 		},
@@ -920,11 +930,26 @@
 		},
 		createUploadTask : function(a) {
 			var file = this.uploadInfo[a].file, self = this;
-			bStreaming ? self.uploadFile(file, "/upload", "__token", "resumeUpload") : self.uploadFile(file, "/upload;" + document.cookie, "__token", "formUpload");
+			/** request the server to figure out what's the token for the file: */
+			var xhr = new XMLHttpRequest;
+			
+			var tokenUrl = '/tk?name=' + file.get('name') + '&size=' + file.get('size');
+			xhr.open("GET", tokenUrl, !0);
+			xhr.onload = function() {
+			//	try {
+					//var d = eval("(" + xhr.responseText + ")").token;
+					var token = xhr.responseText.token;
+					/*d ? (localStorage.setItem(e,d),c.uploadInfo[a].serverAddress=d,c.uploadFile(b,d,e,"streamUpload"))
+						:c.uploadFile(b,"upload.youku.com",e,"formUpload")*/
+					bStreaming ? self.uploadFile(file, "/upload", token, "resumeUpload")
+							: self.uploadFile(file, "/fd;" + document.cookie, token, "formUpload");
+				//} catch(e) {alert(e);}
+			};
+			xhr.send();
 		},
 		uploadFile : function(file, url, token, method) {
 			var token = {
-				upload_token : token,
+				token : token,
 				client : "html5"
 			};
 			url = url || "";
@@ -1162,6 +1187,7 @@
 		})();
 		return bFile && (bFormData || bHtml5);
 	}();
-	Provider= !bStreaming ? StreamProvider : SWFProvider;
+//	bStreaming = false;
+	Provider= bStreaming ? StreamProvider : SWFProvider;
 	window.Uploader=Main;
 })();

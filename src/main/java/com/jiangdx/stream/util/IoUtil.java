@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,13 +21,21 @@ public class IoUtil {
 	 * From the uploaded Part, extract its file name.
 	 */
 	public static String getFileName(final Part part) {
+		String key = null;
 		for (String cd : part.getHeader(CONTENT_HEADER).split(";")) {
 			if (cd.trim().startsWith("filename")) {
-				return cd.substring(cd.indexOf('=') + 1).trim()
+				key = cd.substring(cd.indexOf('=') + 1).trim()
 						.replace("\"", "");
+				break;
 			}
 		}
-		return null;
+		return key;
+	}
+	
+	public static String generateKey(String name, String size) {
+		String key = UUID.randomUUID().toString();
+//		key = name.hashCode() + "_" + size;
+		return key;
 	}
 	
 	public static Part getFilePart(HttpServletRequest request)

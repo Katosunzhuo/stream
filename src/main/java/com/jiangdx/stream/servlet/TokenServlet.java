@@ -1,6 +1,5 @@
 package com.jiangdx.stream.servlet;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -12,11 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.jiangdx.stream.util.IoUtil;
 
 /**
- * File uploaded status querying.
+ * According the file name and its size, generate a unique token. And this
+ * token will be refer to user's file.
  */
-public class LookupServlet extends HttpServlet {
-	private static final long serialVersionUID = -813676161252424924L;
-	static final String KEY_FIELD = "key";
+public class TokenServlet extends HttpServlet {
+	private static final long serialVersionUID = 2650340991003623753L;
+	static final String FILE_NAME_FIELD = "name";
+	static final String FILE_SIZE_FIELD = "size";
 
 	@Override
 	public void init() throws ServletException {
@@ -26,13 +27,13 @@ public class LookupServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		String key = req.getParameter(KEY_FIELD);
-		File f = IoUtil.getFile(key);
-		long start = f.length();
+		String name = req.getParameter(FILE_NAME_FIELD);
+		String size = req.getParameter(FILE_SIZE_FIELD);
+		String token = IoUtil.generateKey(name, size);
 		
 		PrintWriter writer = resp.getWriter();
 		StringBuilder buf = new StringBuilder("{");
-		buf.append("start:").append(start).append("}");
+		buf.append("token:").append(token).append("}");
 		writer.write(buf.toString());
 	}
 
