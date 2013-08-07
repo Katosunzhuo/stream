@@ -35,6 +35,12 @@
 				.attachEvent("on" + b, c) : a["on" + b] = c;
 	}
 	
+	function fRemoveEventListener(a, b, c) {
+		a.removeEventListener ? a.removeEventListener(b, c, !1) : a.detachEvent
+				? a.detachEvent("on" + b, c)
+				: a["on" + b] = null;
+	}
+	
 	function fToString(a) {
 		var b = {
 			"undefined" : "undefined",
@@ -574,7 +580,7 @@
 			if (this.get("enabled") && null === this.buttonBinding)
 				this.bindSelectButton(), this.setButtonClass("disabled", !1);
 			else if (!this.get("enabled") && this.buttonBinding)
-				U(this.contentBox, "click", this.buttonBinding),
+				fRemoveEventListener(this.contentBox, "click", this.buttonBinding),
 				this.buttonBinding = null,
 				this.setButtonClass("disabled", !0);
 		},
@@ -682,7 +688,7 @@
 				b.lastModifiedDate && !this.get("dateModified")	&& this.set("dateModified", b.lastModifiedDate);
 			}
 		},
-		resetXHR: function(){
+		resetXhr: function(){
 			if(this.XHR){
 				try{
 					this.XHR.upload.removeEventListener("progress", this.xhrHandler),
@@ -696,39 +702,63 @@
 				this.XHR = null;
 			}
 		},
+		formUpload : function() {
+			this.resetXhr();
+			this.XHR = new XMLHttpRequest;
+			this.uploadEventHandler = fExtend(this.uploadEventHandler, this);
+			var fd = new FormData, fileFileName = this.get("fileFieldName"),
+				url = this.get("uploadURL"), _xhr = this.XHR, _upload = _xhr.upload;
+			this.set("uploadMethod", "formUpload");
+			this.bytesStart = 0;
+			if (!this.preTime)
+				this.preTime = (new Date).getTime();
+			this.startTime = new Date();
+			fd.append(fileFileName, this.file);
+			_xhr.addEventListener("loadstart", this.uploadEventHandler, !1);
+			_upload.addEventListener("progress", this.uploadEventHandler, !1);
+			_xhr.addEventListener("load", this.uploadEventHandler, !1);
+			_xhr.addEventListener("error", this.uploadEventHandler, !1);
+			_upload.addEventListener("error", this.uploadEventHandler, !1);
+			_upload.addEventListener("abort", this.uploadEventHandler, !1);
+			_xhr.addEventListener("abort", this.uploadEventHandler, !1);
+			_xhr.addEventListener("loadend", this.uploadEventHandler, !1);
+			_xhr.addEventListener("readystatechange", this.uploadEventHandler, !1);
+			_xhr.open("POST", url, !0);
+			_xhr.send(fd);
+			this.fire("uploadstart", {xhr : _xhr});
+		},
 		streamUpload: function(pos){
 			/** whether continue uploading. */
 			if(eval(this.cancelUpload)) {return;}
 			var _url = this.get("uploadURL");
-			this.resetXHR();
+			this.resetXhr();
 			this.resume = false;
 			this.bytesStart = pos;
 			this.XHR = new XMLHttpRequest;
 			this.xhrHandler = fExtend(this.uploadEventHandler, this);
 			//register callback function
-			var xhr = this.XHR, upload = xhr.upload;
-			xhr.addEventListener("loadstart", this.xhrHandler, !1);
+			var _xhr = this.XHR, upload = _xhr.upload;
+			_xhr.addEventListener("loadstart", this.xhrHandler, !1);
 			upload.addEventListener("progress", this.xhrHandler, !1);
-			xhr.addEventListener("load", this.xhrHandler, !1);
-			xhr.addEventListener("error", this.xhrHandler, !1);
+			_xhr.addEventListener("load", this.xhrHandler, !1);
+			_xhr.addEventListener("error", this.xhrHandler, !1);
 			upload.addEventListener("error", this.xhrHandler, !1);
 			upload.addEventListener("abort", this.xhrHandler, !1);
-			xhr.addEventListener("abort", this.xhrHandler, !1);
-			xhr.addEventListener("loadend", this.xhrHandler, !1);
-			xhr.addEventListener("readystatechange", this.xhrHandler, !1);
+			_xhr.addEventListener("abort", this.xhrHandler, !1);
+			_xhr.addEventListener("loadend", this.xhrHandler, !1);
+			_xhr.addEventListener("readystatechange", this.xhrHandler, !1);
 			var blob = this.sliceFile(this.file, pos, pos + this.filePiece);
 			var range = "bytes "+ pos + "-"+ (pos + blob.size) + "/" + this.get("size");
-			//set connection parameters
 			this.startTime = new Date();
-			xhr.open("POST", _url, !0);
-			xhr.setRequestHeader("Content-Range", range);
-			xhr.send(blob);
-			0 === pos && this.fire("uploadstart", {xhr : xhr});
+			_xhr.open("POST", _url, !0);
+			_xhr.setRequestHeader("Content-Range", range);
+			_xhr.send(blob);
+			0 === pos && this.fire("uploadstart", {xhr : _xhr});
 		},
 		resumeUpload: function(){
 			/** whether continue uploading. */
 			if(eval(this.cancelUpload) || this.retryTimes <= this.retriedTimes) {return;}
-			this.resetXHR();
+			this.resetXhr();
 			this.XHR = new XMLHttpRequest;
 			this.resume = true;
 			
@@ -817,7 +847,7 @@
 			this.set("fileFieldName", fileFieldName);
 			this.remainTime = this.bytesSpeed = this.bytesPrevLoaded = 0;
 			this.bytesSpeeds = [];
-			this.resetXHR();
+			this.resetXhr();
 			switch (method) {
 				case "formUpload" :
 					this.formUpload();
@@ -833,7 +863,7 @@
 			this.cancelUpload = true;
 			try{
 				this.XHR.abort();
-				this.resetXHR();
+				this.resetXhr();
 			}catch(e){}
 		},
 		sliceFile: function(f, startPos, endPos){
@@ -859,7 +889,7 @@
 			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
 			swfURL : cfg.swfURL ? cfg.swfURL : "/swf/FlashUploader.swf",
 			tokenURL : cfg.tokenURL ? cfg.tokenURL : "/tk",
-			swfUploadURL : cfg.swfUploadURL ? cfg.swfUploadURL : "/fd;",
+			frmUploadURL : cfg.frmUploadURL ? cfg.frmUploadURL : "/fd;",
 			uploadURL : cfg.uploadURL ? cfg.uploadURL : "/upload"
 		};
 		Parent.apply(this, arguments);
@@ -911,8 +941,8 @@
 		renderUI : function(a) {
 		},
 		bindUI : function(a) {
-			var b = this.uploadInfo[a].progressNode, I = this.getNode("upload-cancel", b);
-			fAddEventListener(I, "click", fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : a}));
+			var b = this.uploadInfo[a].progressNode, cancelBtn = this.getNode("upload-cancel", b);
+			this.cancelBtnHandler = fAddEventListener(cancelBtn, "click", fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : a}));
 		},
 		completeUpload : function(a, b) {
 			var onComplete = this.get("onComplete");
@@ -931,14 +961,20 @@
 			b && b.cancelUpload && b.cancelUpload();
 			this.showTips();
 			this.uploadInfo[a] && delete this.uploadInfo[a];
+			fRemoveEventListener(document, "click", this.cancelBtnHandler);
 			this.containerPanel.innerHTML = "";
+			
+			bStreaming	? this.startPanel.style.display = "block"
+				: (this.startPanel.style.height = "auto", this.startPanel.style.width = "970px");
 		},
-		cancelUploadHandler : function(a, b) {
-			var c = a || window.event, d = b.nodeId;
-			if (this.uploadInfo[d].disabled)
+		cancelUploadHandler : function(event, b) {
+			var c = event || window.event, id = b.nodeId, self = this;
+			this.preventDefault(c);
+			this.stopPropagation(c);
+			if (this.uploadInfo[id].disabled)
 				return !1;
-			this.uploadInfo[d] && !this.uploadInfo[d].uploadComplete
-					? alert("cancelUploadHandler....") : this.cancelUpload(d);
+			this.uploadInfo[id] && !this.uploadInfo[id].uploadComplete;
+			this.cancelUpload(id);
 		},
 		showTips : function() {
 //			console.log("====Main.showTips()====");
@@ -964,25 +1000,53 @@
 			if (!b)
 				return a.returnValue = "\u60a8\u6b63\u5728\u4e0a\u4f20\u89c6\u9891\uff0c\u5173\u95ed\u6b64\u9875\u9762\u5c06\u4f1a\u4e2d\u65ad\u4e0a\u4f20\uff0c\u5efa\u8bae\u60a8\u7b49\u5f85\u4e0a\u4f20\u5b8c\u6210\u540e\u518d\u5173\u95ed\u6b64\u9875\u9762";
 		},
-		createUploadTask : function(a) {
-			var file = this.uploadInfo[a].file, self = this;
-			var swfUploadURL = this.get("swfUploadURL");
+		createUploadTask : function(index) {
+			var file = this.uploadInfo[index].file, self = this;
+			var frmUploadURL = this.get("frmUploadURL");
 			var uploadURL = this.get("uploadURL");
 			/** request the server to figure out what's the token for the file: */
 			var xhr = new XMLHttpRequest;
 			
 			var vars = {
-				name: file.get('name'),
-				size: file.get('size')
+				name:	 file.get('name'),
+				type: file.get('type'),
+				size: file.get('size'),
+				modified: file.get("dateModified") + ""
 			}; 
 			var tokenUrl = fAddVars(vars, this.get("tokenURL"));
 			xhr.open("GET", tokenUrl, !0);
 			xhr.onload = function() {
+				var token, server;
 				try {
-					var token = eval("(" + xhr.responseText + ")").token;
-					bStreaming ? self.uploadFile(file, uploadURL, token, "resumeUpload")
-							: self.uploadFile(file, swfUploadURL + document.cookie, token, "formUpload");
-				} catch(e) {alert(e);}
+					token = eval("(" + xhr.responseText + ")").token;
+					if (token) {
+						if (server = localStorage.getItem(token)) {
+							self.uploadInfo[index].serverAddress = server,
+							self.uploadFile(file, server || uploadURL, token, "resumeUpload");
+						} else {
+							/** store the token */						
+							bStreaming ? (localStorage.setItem(token, server),
+												file.uploadInfo[index].serverAddress = server,
+												self.uploadFile(file, uploadURL, token, "resumeUpload"))
+									: self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
+						}
+					} else {
+						/** not found any token */
+						var errorPanel = self.getNode("upload-start-error", this.startPanel);
+						self.cancelUpload(index);
+						errorPanel.innerHTML = "\u521b\u5efa\u4e0a\u4f20\u4efb\u52a1\u5931\u8d25\uff0c\u8bf7\u5c1d\u8bd5\u91cd\u65b0\u4e0a\u4f20";
+						errorPanel.style.display = "block";
+					}
+				} catch(e) {
+					/** streaming, swf, resume methods all failed, try to use FormData */
+					self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
+				}
+			};
+			xhr.onerror = function() {
+				var errorPanel = self.getNode("upload-start-error", this.startPanel);
+				self.cancelUpload(index);
+				errorPanel.innerHTML = "\u521b\u5efa\u4e0a\u4f20\u4efb\u52a1\u5931\u8d25\uff0c\u8bf7\u5c1d\u8bd5\u91cd\u65b0\u4e0a\u4f20";
+				errorPanel.style.display = "block";
 			};
 			xhr.send();
 		},
@@ -1057,6 +1121,12 @@
 				b = Math.floor(b - 3600 * c - 60 * a), c = "" + (!isNaN(c) && 0 < c ? c + "\u5c0f\u65f6" : ""),
 				c = c + (!isNaN(a) && 0 < a ? a + "\u5206" : "");
 			return c += !isNaN(b) && 0 < b ? b + "\u79d2" : "";
+		},
+		preventDefault : function(a) {
+			a.preventDefault ? a.preventDefault() : a.returnValue = !1
+		},
+		stopPropagation : function(a) {
+			a.stopPropagation ? a.stopPropagation() : a.cancelBubble = !0
 		}
 	};
 	
@@ -1226,7 +1296,7 @@
 		})();
 		return bFile && (bFormData || bHtml5);
 	}();
-	bStreaming = false;
+//	bStreaming = false;
 	Provider= bStreaming ? StreamProvider : SWFProvider;
 	window.Uploader=Main;
 })();
