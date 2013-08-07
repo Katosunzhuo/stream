@@ -1026,7 +1026,7 @@
 						} else {
 							/** store the token */						
 							bStreaming ? (localStorage.setItem(token, server),
-												file.uploadInfo[index].serverAddress = server,
+												self.uploadInfo[index].serverAddress = server,
 												self.uploadFile(file, uploadURL, token, "resumeUpload"))
 									: self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
 						}
