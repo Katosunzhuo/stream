@@ -29,8 +29,8 @@ import com.jiangdx.stream.util.IoUtil;
 public class FormDataServlet extends HttpServlet {
 	private static final long serialVersionUID = -1905516389350395696L;
 	static final String FILE_FIELD = "file";
-	/** when the has read to 5M, then flush it to the hard-disk. */
-	static final int BUFFER_LENGTH = 1024 * 1024 * 5;
+	/** when the has read to 10M, then flush it to the hard-disk. */
+	static final int BUFFER_LENGTH = 1024 * 1024 * 10;
 	static final int MAX_FILE_SIZE = 1024 * 1024 * 100;
 
 	@Override
