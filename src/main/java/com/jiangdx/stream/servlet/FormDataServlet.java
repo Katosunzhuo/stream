@@ -1,29 +1,30 @@
 package com.jiangdx.stream.servlet;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 
 import com.jiangdx.stream.util.IoUtil;
 
 /**
  * FormData Uploading reserved servlet, mainly reading the request parameter and
  * its file part, stored it.
+ * PS: use the `streaming api`, this will not store it in a temporary file.
+ * {@link http://commons.apache.org/proper/commons-fileupload/streaming.html }
  */
 public class FormDataServlet extends HttpServlet {
 	private static final long serialVersionUID = -1905516389350395696L;
@@ -41,62 +42,61 @@ public class FormDataServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF-8");
-		DiskFileItemFactory factory = new DiskFileItemFactory();
 
-		// 设置临时目录
-		factory.setRepository(new File(IoUtil.REPOSITORY));
-		// 设置上传文件大小
-		factory.setSizeThreshold(MAX_FILE_SIZE);
-		// 创建一个ServletFileUpload 实例
-		ServletFileUpload sfu = new ServletFileUpload(factory);
+		final PrintWriter writer = response.getWriter();
+		// Check that we have a file upload request
+		boolean isMultipart = ServletFileUpload.isMultipartContent(req);
+		if (!isMultipart) {
+			writer.println("<br/> ERROR: It's not Multipart form.");
+			return;
+		}
 
+		// Now we are ready to parse the request into its constituent items.
+		// Here's how we do it:
+		// Create a new file upload handler
+		ServletFileUpload upload = new ServletFileUpload();
+
+		InputStream in = null;
 		try {
-			// 解析请求,取得FileItem 列表
-			List<FileItem> lis = sfu.parseRequest(req);
-			// 循环遍历
-			for (FileItem item : lis) {
-				// 判断是否是简单的表单字段
+			FileItemIterator iter = upload.getItemIterator(req);
+			while (iter.hasNext()) {
+				FileItemStream item = iter.next();
+				String name = item.getFieldName();
+				in = item.openStream();
 				if (item.isFormField()) {
-					String name = item.getFieldName();
-					String value = item.getString();
+					String value = Streams.asString(in);
 					System.out.println(name + ":" + value);
 				} else {
-					uploading(item, response);
+					String fileName = item.getName();
+					long start = streaming(in, fileName);
+					StringBuilder buf = new StringBuilder("{");
+					buf.append(StreamServlet.START_FIELD).append(":")
+							.append(start).append("}");
+					writer.write(buf.toString());
 				}
 			}
-		} catch (FileUploadException e) {
-			e.printStackTrace();
+		} catch (FileUploadException fne) {
+			writer.println("<br/> ERROR: " + fne.getMessage());
+		} finally {
+			IoUtil.close(in);
+			IoUtil.close(writer);
 		}
 	}
 
-	private void uploading(FileItem item, HttpServletResponse response)
-			throws IOException {
+	private long streaming(InputStream in, String fileName) throws IOException {
 		OutputStream out = null;
-		InputStream content = null;
-		final PrintWriter writer = response.getWriter();
-
 		try {
-			String fileName = item.getName();
 			File f = IoUtil.getFile(fileName);
 			out = new FileOutputStream(f);
-			content = item.getInputStream();
 
 			int read = 0;
 			final byte[] bytes = new byte[BUFFER_LENGTH];
-			while ((read = content.read(bytes)) != -1) {
+			while ((read = in.read(bytes)) != -1) {
 				out.write(bytes, 0, read);
 			}
-
-			long start = f.length();
-			StringBuilder buf = new StringBuilder("{");
-			buf.append("start:").append(start).append("}");
-			writer.write(buf.toString());
-		} catch (FileNotFoundException fne) {
-			writer.println("<br/> ERROR: " + fne.getMessage());
+			return f.length();
 		} finally {
 			IoUtil.close(out);
-			IoUtil.close(content);
-			IoUtil.close(writer);
 		}
 	}
 
