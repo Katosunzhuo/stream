@@ -18,6 +18,7 @@ public class TokenServlet extends HttpServlet {
 	private static final long serialVersionUID = 2650340991003623753L;
 	static final String FILE_NAME_FIELD = "name";
 	static final String FILE_SIZE_FIELD = "size";
+	static final String TOKEN_FIELD = "token";
 
 	@Override
 	public void init() throws ServletException {
@@ -33,7 +34,7 @@ public class TokenServlet extends HttpServlet {
 		
 		PrintWriter writer = resp.getWriter();
 		StringBuilder buf = new StringBuilder("{");
-		buf.append("token:").append(token).append("}");
+		buf.append(TOKEN_FIELD).append(":\"").append(token).append("\"}");
 		writer.write(buf.toString());
 	}
 

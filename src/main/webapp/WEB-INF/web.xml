@@ -15,15 +15,6 @@
 		<url-pattern>/tk</url-pattern>
 	</servlet-mapping>
 	<servlet>
-		<servlet-name>LookupServlet</servlet-name>
-		<servlet-class>com.jiangdx.stream.servlet.LookupServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>LookupServlet</servlet-name>
-		<url-pattern>/lookup</url-pattern>
-	</servlet-mapping>
-	<servlet>
 		<servlet-name>StreamServlet</servlet-name>
 		<servlet-class>com.jiangdx.stream.servlet.StreamServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>

@@ -50,6 +50,32 @@
 		return b[typeof a] || b[Object.prototype.toString.call(a)] || (a ? "object" : "null");
 	}
 	
+	function fAddVars(json, url, c) {
+		var _array = [], _sep = "&", f = function(json, c) {
+			var e = url ? /\[\]$/.test(url) ? url : url + "[" + c + "]" : c;
+			"undefined" != e && "undefined" != c
+				&& _array.push("object" === typeof json
+							? fAddVars(json, e, !0)
+							: "[object Function]" === Object.prototype.toString.call(json)
+								? encodeURIComponent(e) + "=" + encodeURIComponent(json())
+								: encodeURIComponent(e) + "=" + encodeURIComponent(json))
+		};
+		if (!c && url)
+			_sep = /\?/.test(url) ? /\?$/.test(url) ? "" : "&" : "?",
+			_array.push(url),
+			_array.push(fAddVars(json));
+		else if ("[object Array]" === Object.prototype.toString.call(json)
+				&& "undefined" != typeof json)
+			for (var g = 0, c = json.length; g < c; ++g)
+				f(json[g], g);
+		else if ("undefined" != typeof json && null !== json && "object" === typeof json)
+			for (g in json)
+				f(json[g], g);
+		else
+			_array.push(encodeURIComponent(url) + "=" + encodeURIComponent(json));
+		return _array.join(_sep).replace(/^&/, "").replace(/%20/g, "+")
+	}
+	
 	function fAddClass(element, klass) {
 		fHasClass(element, klass) || (element.className += " " + klass);
 	}
@@ -632,14 +658,8 @@
 			this.retryTimes = 50;
 			this.retriedTimes = 0;
 			this.cancelUpload = false;
-			this.uploadAction= "/upload?";
-			this.queryAction= "/lookup?";
-			this.keyField = "key";
-			this.keyValue = null;
 			this.file = null;
 			this.fileId = null;
-			this.fileNameField = "name";
-			this.fileNameValue = null;
 			this.filePiece = 10485760;/** 10M. */
 			this.fileSizeValue = 0;
 			this.fileStartPosValue = null;
@@ -679,8 +699,7 @@
 		streamUpload: function(pos){
 			/** whether continue uploading. */
 			if(eval(this.cancelUpload)) {return;}
-			var _url = this.uploadAction + this.keyField + "=" + this.keyValue +
-						"&" + this.fileNameField + "=" + encodeURIComponent(this.get("name"));
+			var _url = this.get("uploadURL");
 			this.resetXHR();
 			this.resume = false;
 			this.bytesStart = pos;
@@ -712,7 +731,8 @@
 			this.resetXHR();
 			this.XHR = new XMLHttpRequest;
 			this.resume = true;
-			var _url = this.queryAction + this.keyField + "=" + this.keyValue;
+			
+			var _url = this.get("uploadURL");
 			this.xhrHandler = fExtend(this.uploadEventHandler, this);
 			this.XHR.addEventListener("loadstart", this.xhrHandler, !1);
 			this.XHR.addEventListener("load", this.xhrHandler, !1);
@@ -789,11 +809,25 @@
 			this.fileStartPosValue = null;
 			this.retriedTimes = 0;
 			this.cancelUpload = false;
-console.log(postVars);
-			/** default code: */
-			this.keyValue = postVars.token;
-			/** start the request the backend data. */
-			this.resumeUpload();
+
+			postVars.name = this.get("name");
+			var method = this.get("uploadMethod");
+			this.set("uploadURL", fAddVars(postVars, url));
+			this.set("parameters", postVars);
+			this.set("fileFieldName", fileFieldName);
+			this.remainTime = this.bytesSpeed = this.bytesPrevLoaded = 0;
+			this.bytesSpeeds = [];
+			this.resetXHR();
+			switch (method) {
+				case "formUpload" :
+					this.formUpload();
+					break;
+				case "streamUpload" :
+					this.streamUpload();
+					break;
+				case "resumeUpload" :
+					this.resumeUpload()
+			}
 		},
 		stopUpload: function(){
 			this.cancelUpload = true;
@@ -810,20 +844,23 @@ console.log(postVars);
 	};
 	
 	function Main(cfg){
+		cfg = cfg || {};
 		this.uploadInfo = {};
 		this.config = {
 			enabled : !0,
 			multipleFiles : !1,
 			appendNewFiles : !1,
-			fileFilterFunction : cfg ? cfg.fileFilterFunction : null,
+			fileFilterFunction : cfg.fileFilterFunction,
 			fileFieldName : "FileData",
-			uploadedFunc : cfg ? cfg.uploadedFunc : null,
+			onComplete : cfg.onComplete,
 			simLimit : 3,
 			retryCount : 3,
 			postVarsPerFile : {},
 			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
-			swfURL : cfg && cfg.swfURL ? cfg.swfURL : "/swf/FlashUploader.swf",
-			uploadURL : "/upload"
+			swfURL : cfg.swfURL ? cfg.swfURL : "/swf/FlashUploader.swf",
+			tokenURL : cfg.tokenURL ? cfg.tokenURL : "/tk",
+			swfUploadURL : cfg.swfUploadURL ? cfg.swfUploadURL : "/fd;",
+			uploadURL : cfg.uploadURL ? cfg.uploadURL : "/upload"
 		};
 		Parent.apply(this, arguments);
 	}
@@ -878,9 +915,8 @@ console.log(postVars);
 			fAddEventListener(I, "click", fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : a}));
 		},
 		completeUpload : function(a, b) {
-//			console.log("====Main.completeUpload()===");
-			var callbackFunc = this.get("uploadedFunc");
-			if (callbackFunc) {callbackFunc();}
+			var onComplete = this.get("onComplete");
+			if (onComplete) {onComplete();}
 		},
 		disable : function(a) {
 			if (!this.uploadInfo[a].disabled)
@@ -930,20 +966,23 @@ console.log(postVars);
 		},
 		createUploadTask : function(a) {
 			var file = this.uploadInfo[a].file, self = this;
+			var swfUploadURL = this.get("swfUploadURL");
+			var uploadURL = this.get("uploadURL");
 			/** request the server to figure out what's the token for the file: */
 			var xhr = new XMLHttpRequest;
 			
-			var tokenUrl = '/tk?name=' + file.get('name') + '&size=' + file.get('size');
+			var vars = {
+				name: file.get('name'),
+				size: file.get('size')
+			}; 
+			var tokenUrl = fAddVars(vars, this.get("tokenURL"));
 			xhr.open("GET", tokenUrl, !0);
 			xhr.onload = function() {
-			//	try {
-					//var d = eval("(" + xhr.responseText + ")").token;
-					var token = xhr.responseText.token;
-					/*d ? (localStorage.setItem(e,d),c.uploadInfo[a].serverAddress=d,c.uploadFile(b,d,e,"streamUpload"))
-						:c.uploadFile(b,"upload.youku.com",e,"formUpload")*/
-					bStreaming ? self.uploadFile(file, "/upload", token, "resumeUpload")
-							: self.uploadFile(file, "/fd;" + document.cookie, token, "formUpload");
-				//} catch(e) {alert(e);}
+				try {
+					var token = eval("(" + xhr.responseText + ")").token;
+					bStreaming ? self.uploadFile(file, uploadURL, token, "resumeUpload")
+							: self.uploadFile(file, swfUploadURL + document.cookie, token, "formUpload");
+				} catch(e) {alert(e);}
 			};
 			xhr.send();
 		},
@@ -1187,7 +1226,7 @@ console.log(postVars);
 		})();
 		return bFile && (bFormData || bHtml5);
 	}();
-//	bStreaming = false;
+	bStreaming = false;
 	Provider= bStreaming ? StreamProvider : SWFProvider;
 	window.Uploader=Main;
 })();
