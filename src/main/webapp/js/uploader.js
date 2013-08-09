@@ -1349,7 +1349,7 @@
 		}
 		return e;
 	}();
-	var bStreaming = function(){
+	var bStreaming = function() {
 		var bFile = !1, bHtml5 = !1, bFormData = window.FormData ? !0 : !1, bStreaming = !1;
 		"undefined" != typeof File && "undefined" != typeof (new XMLHttpRequest).upload && (bFile = !0);
 		if (bFile && ("slice" in File.prototype || "mozSlice" in File.prototype || "webkitSlice" in File.prototype))
@@ -1361,6 +1361,6 @@
 		return bFile && (bFormData || bHtml5);
 	}();
 //	bStreaming = false;
-	Provider= bStreaming ? StreamProvider : SWFProvider;
-	window.Uploader=Main;
+	Provider = bStreaming ? StreamProvider : SWFProvider;
+	window.Uploader = Main;
 })();
