@@ -16,7 +16,20 @@
  * 		   new Uploader(cfg);
  */ 
 (function(){
-	var Provider, aFilters = [], nIdCount = 0, aOtherBrowsers = ["Maxthon", "SE 2.X", "QQBrowser"];
+	var Provider, aFilters = [], nIdCount = 0, aOtherBrowsers = ["Maxthon", "SE 2.X", "QQBrowser"],
+		nZero = 0, sOneSpace = " ", sLBrace = "{", sRBrace = "}",
+		ga = /(~-(\d+)-~)/g, rLBrace = /\{LBRACE\}/g, rRBrace = /\{RBRACE\}/g,
+		ea = {
+			"&" : "&amp;",
+			"<" : "&lt;",
+			">" : "&gt;",
+			'"' : "&quot;",
+			"'" : "&#x27;",
+			"/" : "&#x2F;",
+			"`" : "&#x60;"
+		}, pa = Array.isArray && /\{\s*\[(?:native code|function)\]\s*\}/i.test(Array.isArray)
+			? Array.isArray
+			: function(a) {return "array" === fToString(a)};
 	
 	function fGenerateId(prefix) {
 		var b = (new Date).getTime() + "_01v_" + ++nIdCount;
@@ -110,6 +123,29 @@
 		b.innerHTML = content;
 		content = b.childNodes;
 		return content[0].parentNode.removeChild(content[0]);
+	}
+	
+	function fMessage(msg, VarVals, c, d) {
+		for (var nLIndex, nRIndex, sepIndex, argName, secondVar, s = [], _argName, length = msg.length;;) {
+			nLIndex = msg.lastIndexOf(sLBrace, length);
+			if (0 > nLIndex)
+				break;
+			nRIndex = msg.indexOf(sRBrace, nLIndex);
+			if (nLIndex + 1 >= nRIndex)
+				break;
+			argName = _argName = msg.substring(nLIndex + 1, nRIndex);
+			secondVar = null;
+			sepIndex = argName.indexOf(sOneSpace);
+			-1 < sepIndex && (secondVar = argName.substring(sepIndex + 1), argName = argName.substring(0, sepIndex));
+			sepIndex = VarVals[argName];
+			c && (sepIndex = c(argName, sepIndex, secondVar));
+			"undefined" === typeof sepIndex && (sepIndex = "~-" + s.length + "-~", s.push(_argName));
+			msg = msg.substring(0, nLIndex) + sepIndex + msg.substring(nRIndex + 1);
+			d || (length = nLIndex - 1);
+		}
+		return msg.replace(ga, function(msg, VarVals, c) {
+					return sLBrace + s[parseInt(c, 10)] + sRBrace
+				}).replace(rLBrace, sLBrace).replace(rRBrace, sRBrace);
 	}
 	
 	function fIsObjOrFun(a, b) {
@@ -547,14 +583,14 @@
 		},
 		bindUI : function() {
 			this.bindSelectButton();
-			//this.setMultipleFiles();
-			//this.setFileFilters();
-			//this.bindDropArea();
-			//this.triggerEnabled();
-			//this.after("multipleFilesChange", this.setMultipleFiles, this);
-			//this.after("fileFiltersChange", this.setFileFilters, this);
-			//this.after("enabledChange", this.triggerEnabled, this);
-			//this.after("dragAndDropAreaChange", this.bindDropArea, this);
+			this.setMultipleFiles();
+			this.setFileFilters();
+			this.bindDropArea();
+			this.triggerEnabled();
+			this.after("multipleFilesChange", this.setMultipleFiles, this);
+			this.after("fileFiltersChange", this.setFileFilters, this);
+			this.after("enabledChange", this.triggerEnabled, this);
+			this.after("dragAndDropAreaChange", this.bindDropArea, this);
 			fAddEventListener(this.fileInputField, "change", fExtend(this.updateFileList, this));
 		},
 		bindDropArea : function() {
@@ -568,13 +604,23 @@
 			this.fileInputField.parentNode.removeChild(this.fileInputField);
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden; width:0px; height: 0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
-			//this.setMultipleFiles();
-			//this.setFileFilters();
+			this.setMultipleFiles();
+			this.setFileFilters();
 			fAddEventListener(this.fileInputField, "change", fExtend(this.updateFileList, this));
 		},
 		bindSelectButton : function() {
 			this.buttonBinding = fExtend(this.openFileSelectDialog, this);
 			fAddEventListener(this.contentBox, "click", this.buttonBinding);
+		},
+		setMultipleFiles : function() {
+			!0 === this.get("multipleFiles")
+					&& this.fileInputField.setAttribute("multiple", "multiple")
+		},
+		setFileFilters : function() {
+			var a = this.get("fileFilters");
+			0 < a.length ? this.fileInputField.setAttribute("accept", a
+							.join(",")) : this.fileInputField.setAttribute(
+					"accept", "")
 		},
 		triggerEnabled : function() {
 			if (this.get("enabled") && null === this.buttonBinding)
@@ -779,7 +825,6 @@
             var g = this;
             2 > this.retriedTimes ? this.resumeUpload()
             					: (this.timeoutHandler && clearTimeout(this.timeoutHandler), this.timeoutHandler = setTimeout(function() {g.resumeUpload()}, 1E4));
-			alert("==retry==");
 		},
 		uploadEventHandler: function(event){
 			var xhr = this.XHR;
@@ -878,13 +923,14 @@
 		this.uploadInfo = {};
 		this.config = {
 			enabled : !0,
-			multipleFiles : !1,
-			appendNewFiles : !1,
+			multipleFiles : !!cfg.multipleFiles,
+			appendNewFiles : !!cfg.appendNewFiles,
 			fileFilterFunction : cfg.fileFilterFunction,
 			fileFieldName : "FileData",
 			onComplete : cfg.onComplete,
-			simLimit : 3,
-			retryCount : 3,
+			maxSize : cfg.maxSize ? cfg.maxSize : 2147483648,
+			simLimit : cfg.simLimit ? cfg.simLimit : 10,
+			retryCount : cfg.retryCount ? cfg.retryCount : 5,
 			postVarsPerFile : {},
 			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
 			swfURL : cfg.swfURL ? cfg.swfURL : "/swf/FlashUploader.swf",
@@ -910,7 +956,6 @@
 			this.startPanel = document.getElementById("upload-start");
 			this.containerPanel = document.getElementById("upload-container");
 			this.template = document.getElementById("upload-template").innerHTML;
-			this.layer = null;//new ba;
 			this.fileProvider = new Provider(this.config);
 			this.fileProvider.render(this.startPanel);
 			this.fileProvider.on("uploadprogress", this.uploadProgress, this);
@@ -921,21 +966,21 @@
 			fAddEventListener(window, "beforeunload", fExtend(this.unloadHandler, this));
 		},
 		startUpload : function(a) {
-			var file_id = a.get("id"), c = fCreateContentEle("<div id='" + file_id + "'></div>");
-			c.innerHTML = this.template;
+			var file_id = a.get("id"), bar = fCreateContentEle("<div id='" + file_id + "'></div>");
+			bar.innerHTML = this.template;
 			this.uploadInfo[file_id] = {
 				uploadToken : "",
 				fileUploaded : !1,
 				uploadComplete : !1,
 				file : a,
 				disabled : !1,
-				progressNode : this.getNode("upload-progress", c),
-				successNode : this.getNode("upload-success", c)
+				progressNode : this.getNode("upload-progress", bar),
+				successNode : this.getNode("upload-success", bar)
 			};
 			this.renderUI(file_id);
 			this.bindUI(file_id);
 			bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");
-			this.containerPanel.appendChild(c);
+			this.containerPanel.appendChild(bar);
 			this.createUploadTask(file_id);
 		},
 		renderUI : function(a) {
@@ -1101,9 +1146,28 @@
 			for (c = 0; c < a.length; c++)
 				this.validateFile(a[c]) && this.startUpload(a[c]);
 		},
-		validateFile : function(a) {
-//			console.log("====Main.validateFile()===");
-			return true;
+		validateFile : function(uploader) {
+			var name = uploader.get("name"), size = uploader.get("size"),
+				ext = -1 !== name.indexOf(".") ? name.replace(/.*[.]/, "").toLowerCase() : "",
+				filters = aFilters, valid = !1, msg = "";
+			this.getNode("upload-start-error", this.startPanel).style.display = "none";
+			if (uploader instanceof SWFUploader && this.get("maxSize") < size)
+				msg = fMessage("\u60a8\u7684\u89c6\u9891\u6587\u4ef6\u5927\u5c0f\u8d85\u8fc7{fileSize}\u4e86\uff0c\u8bf7\u4f7f\u7528\u6700\u5927\u652f\u630110G\u89c6\u9891\u7684\u4f18\u9177\u5ba2\u6237\u7aef\u4e0a\u4f20^_^",
+						{fileSize : "2G"});
+			else if (uploader instanceof StreamUploader && this.get("maxSize") < size)
+				msg = fMessage("\u60a8\u7684\u89c6\u9891\u6587\u4ef6\u5927\u5c0f\u8d85\u8fc7{fileSize}\u4e86\uff0c\u8bf7\u4f7f\u7528\u6700\u5927\u652f\u630110G\u89c6\u9891\u7684\u4f18\u9177\u5ba2\u6237\u7aef\u4e0a\u4f20^_^",
+						{fileSize : "2G"});
+			else {
+				filters.length || (valid = !0);
+				for (uploader = 0; uploader < filters.length; uploader++)
+					filters[uploader].toLowerCase() == "." + ext && (valid = !0);
+				valid || (msg = fMessage("\u89c6\u9891\u6587\u4ef6\u683c\u5f0f\u4e0d\u652f\u6301\uff01\u652f\u6301\u7684\u6587\u4ef6\u683c\u5f0f\uff1awmv, avi, dat, asf, rm, rmvb, ram, mpg, mpeg, 3gp, mov, mp4, m4v, dvix, dv, dat, mkv, flv, vob, ram, qt, divx, cpk, fli, flc, mod",
+								{fileName : name}))
+			}
+			if (!valid && msg)
+				this.getNode("upload-start-error", this.startPanel).innerHTML = msg,
+				this.getNode("upload-start-error", this.startPanel).style.display = "block";
+			return valid;
 		},
 		formatSpeed : function(a) {
 			var b = 0;
