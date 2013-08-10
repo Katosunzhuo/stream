@@ -364,14 +364,23 @@
 					});
 		},
 		bindUI : function() {
-			this.swfReference.on("swfReady", function() {
-						this.setMultipleFiles();
-						this.setFileFilters();
-						this.triggerEnabled();
-						this.after("multipleFilesChange", this.setMultipleFiles, this);
-						this.after("fileFiltersChange", this.setFileFilters, this);
-						this.after("enabledChange", this.triggerEnabled, this);
-					}, this);
+			Browser.ie ? (
+				this.swfReference.on("swfReady", this.setMultipleFiles(), this),
+				this.swfReference.on("swfReady", this.setFileFilters(), this),
+				this.swfReference.on("swfReady", this.triggerEnabled(), this),
+				this.after("multipleFilesChange", this.setMultipleFiles, this),
+				this.after("fileFiltersChange", this.setFileFilters, this),
+				this.after("enabledChange", this.triggerEnabled, this)
+			) : (
+				this.swfReference.on("swfReady", function() {
+					this.setMultipleFiles();
+					this.setFileFilters();
+					this.triggerEnabled();
+					this.after("multipleFilesChange", this.setMultipleFiles, this);
+					this.after("fileFiltersChange", this.setFileFilters, this);
+					this.after("enabledChange", this.triggerEnabled, this);
+				}, this)
+			);
 			this.swfReference.on("fileselect", this.updateFileList, this);
 			this.swfReference.on("mouseenter", function() {this.setContainerClass("hover", !0);}, this);
 			this.swfReference.on("mouseleave", function() {this.setContainerClass("hover", !1);}, this);
@@ -964,6 +973,8 @@
 			this.fileProvider.on("fileselect", this.fileSelect, this);
 			this.showTips();
 			fAddEventListener(window, "beforeunload", fExtend(this.unloadHandler, this));
+			this.waiting = [];
+			this.uploading = !1;
 		},
 		startUpload : function(a) {
 			var file_id = a.get("id"), bar = fCreateContentEle("<div id='" + file_id + "'></div>");
@@ -981,6 +992,7 @@
 			this.bindUI(file_id);
 			bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");
 			this.containerPanel.appendChild(bar);
+			this.waiting.push(file_id);
 			this.createUploadTask(file_id);
 		},
 		renderUI : function(a) {
@@ -989,7 +1001,14 @@
 			var b = this.uploadInfo[a].progressNode, cancelBtn = this.getNode("upload-cancel", b);
 			this.cancelBtnHandler = fAddEventListener(cancelBtn, "click", fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : a}));
 		},
-		completeUpload : function(a, b) {
+		completeUpload : function(a, b) {//onUploadComplete
+			var onComplete = this.get("onComplete");
+			if (onComplete) {onComplete();}
+			
+			this.uploading = !1;
+			this.createUploadTask();
+		},
+		onQueueComplete : function(a, b) {
 			var onComplete = this.get("onComplete");
 			if (onComplete) {onComplete();}
 		},
@@ -1046,6 +1065,11 @@
 				return a.returnValue = "\u60a8\u6b63\u5728\u4e0a\u4f20\u89c6\u9891\uff0c\u5173\u95ed\u6b64\u9875\u9762\u5c06\u4f1a\u4e2d\u65ad\u4e0a\u4f20\uff0c\u5efa\u8bae\u60a8\u7b49\u5f85\u4e0a\u4f20\u5b8c\u6210\u540e\u518d\u5173\u95ed\u6b64\u9875\u9762";
 		},
 		createUploadTask : function(index) {
+			if(this.uploading) return;
+			index = this.waiting.shift();
+			if(index == null) return;
+			this.uploading = !0;
+			
 			var file = this.uploadInfo[index].file, self = this;
 			var frmUploadURL = this.get("frmUploadURL");
 			var uploadURL = this.get("uploadURL");
@@ -1272,7 +1296,7 @@
 				if (/PhantomJS/.test(a) && (d = a.match(/PhantomJS\/([^\s]*)/))
 						&& d[1])
 					e.phantomjs = b(d[1]);
-				if (/ Mobile\//.test(a) || /iPad|iPod|iPhone/.test(a)) {
+				if (/Mobile\//.test(a) || /iPad|iPod|iPhone/.test(a)) {
 					if (e.mobile = "Apple", (d = a.match(/OS ([^\s]*)/))
 							&& d[1] && (d = b(d[1].replace("_", "."))), e.ios = d, e.os = "ios", e.ipad = e.ipod = e.iphone = 0, (d = a
 							.match(/iPad|iPod|iPhone/))
@@ -1360,7 +1384,6 @@
 		})();
 		return bFile && (bFormData || bHtml5);
 	}();
-//	bStreaming = false;
 	Provider = bStreaming ? StreamProvider : SWFProvider;
 	window.Uploader = Main;
 })();
