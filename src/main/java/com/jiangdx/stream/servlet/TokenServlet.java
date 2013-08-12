@@ -19,7 +19,12 @@ public class TokenServlet extends HttpServlet {
 	static final String FILE_NAME_FIELD = "name";
 	static final String FILE_SIZE_FIELD = "size";
 	static final String TOKEN_FIELD = "token";
-
+	static final String SERVER_FIELD = "server";
+	
+	/** mark it whether cross domain for uploading */
+	boolean cross = false;
+	String server = "http://192.168.138.129:5080";
+	
 	@Override
 	public void init() throws ServletException {
 		super.init();
@@ -34,7 +39,12 @@ public class TokenServlet extends HttpServlet {
 		
 		PrintWriter writer = resp.getWriter();
 		StringBuilder buf = new StringBuilder("{");
-		buf.append(TOKEN_FIELD).append(":\"").append(token).append("\"}");
+		buf.append(TOKEN_FIELD).append(":\"").append(token).append("\"");
+		if (cross)
+			buf.append(",").append(SERVER_FIELD).append(":\"")
+			.append(server).append("\"");
+		buf.append("}");
+		
 		writer.write(buf.toString());
 	}
 

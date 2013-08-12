@@ -1088,17 +1088,13 @@
 				var token, server;
 				try {
 					token = eval("(" + xhr.responseText + ")").token;
+					server = eval("(" + xhr.responseText + ")").server;
 					if (token) {
-						if (server = localStorage.getItem(token)) {
-							self.uploadInfo[index].serverAddress = server,
-							self.uploadFile(file, server || uploadURL, token, "resumeUpload");
-						} else {
-							/** store the token */						
-							bStreaming ? (localStorage.setItem(token, server),
-												self.uploadInfo[index].serverAddress = server,
-												self.uploadFile(file, uploadURL, token, "resumeUpload"))
-									: self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
-						}
+						if(server == null || server == "") {server = uploadURL;}
+						else {server += uploadURL;}
+						bStreaming ? (self.uploadInfo[index].serverAddress = server,
+										self.uploadFile(file, server || uploadURL, token, "resumeUpload"))
+								: self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
 					} else {
 						/** not found any token */
 						var errorPanel = self.getNode("upload-start-error", this.startPanel);
@@ -1153,6 +1149,7 @@
 			this.getNode("time", progressNode).innerHTML = "\u5269\u4f59\u65f6\u95f4\uff1a0";
 			/** uploaded flag and its callback function. */
 			this.uploadInfo[id].fileUploaded = !0,
+			
 			this.completeUpload(id);
 		},
 		getNode : function(a, b) {
