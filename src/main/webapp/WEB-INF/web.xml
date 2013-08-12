@@ -9,6 +9,14 @@
 		<servlet-name>TokenServlet</servlet-name>
 		<servlet-class>com.jiangdx.stream.servlet.TokenServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
+		<init-param>
+			<param-name>CROSS</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SERVER</param-name>
+			<param-value>http://192.168.138.129:5080</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>TokenServlet</servlet-name>

@@ -22,12 +22,15 @@ public class TokenServlet extends HttpServlet {
 	static final String SERVER_FIELD = "server";
 	
 	/** mark it whether cross domain for uploading */
+	static final String CROSS = "CROSS";
+	static final String SERVER = "SERVER";
 	boolean cross = false;
-	String server = "http://192.168.138.129:5080";
+	String server = null;
 	
 	@Override
 	public void init() throws ServletException {
-		super.init();
+		cross = Boolean.parseBoolean(getInitParameter(CROSS));
+		server = getInitParameter(SERVER);
 	}
 
 	@Override
