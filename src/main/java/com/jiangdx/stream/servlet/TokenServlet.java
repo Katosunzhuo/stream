@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.jiangdx.stream.util.IoUtil;
+import com.jiangdx.stream.util.TokenUtil;
 
 /**
  * According the file name and its size, generate a unique token. And this
@@ -30,7 +30,7 @@ public class TokenServlet extends HttpServlet {
 			throws ServletException, IOException {
 		String name = req.getParameter(FILE_NAME_FIELD);
 		String size = req.getParameter(FILE_SIZE_FIELD);
-		String token = IoUtil.generateKey(name, size);
+		String token = TokenUtil.generateToken(name, size);
 		
 		PrintWriter writer = resp.getWriter();
 		StringBuilder buf = new StringBuilder("{");

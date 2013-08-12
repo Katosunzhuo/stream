@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,7 +24,7 @@ public class StreamServlet extends HttpServlet {
 	/** when the has increased to 10kb, then flush it to the hard-disk. */
 	static final int BUFFER_LENGTH = 10240;
 	static final String START_FIELD = "start";
-	static final String CONTENT_RANGE_HEADER = "content-range";
+	public static final String CONTENT_RANGE_HEADER = "content-range";
 
 	@Override
 	public void init() throws ServletException {
@@ -47,8 +45,7 @@ public class StreamServlet extends HttpServlet {
 			File f = IoUtil.getFile(key);
 			long start = f.length();
 			StringBuilder buf = new StringBuilder("{");
-			buf.append(START_FIELD).append(":").append(start)
-					.append("}");
+			buf.append(START_FIELD).append(":").append(start).append("}");
 			writer.write(buf.toString());
 		} catch (FileNotFoundException fne) {
 			writer.println("<br/> ERROR: " + fne.getMessage());
@@ -64,7 +61,7 @@ public class StreamServlet extends HttpServlet {
 
 		final String token = req.getParameter(TokenServlet.TOKEN_FIELD);
 		final String fileName = req.getParameter(TokenServlet.FILE_NAME_FIELD);
-		Range range = parseRange(req);
+		Range range = IoUtil.parseRange(req);
 		
 		OutputStream out = null;
 		InputStream content = null;
@@ -99,25 +96,6 @@ public class StreamServlet extends HttpServlet {
 		}
 	}
 	
-	private Range parseRange(HttpServletRequest req) throws IOException {
-		String range = req.getHeader(CONTENT_RANGE_HEADER);
-		String regex = "bytes \\d+-\\d+/\\d+";
-		Pattern p = Pattern.compile(regex);
-		Matcher m = p.matcher(range);
-		if (m.find()) {
-			range = m.group().replace("bytes ", "");
-			String[] rangeSize = range.split("/");
-			String[] fromTo = rangeSize[0].split("-");
-
-			long from = Long.parseLong(fromTo[0]);
-			long to = Long.parseLong(fromTo[1]);
-			long size = Long.parseLong(rangeSize[1]);
-
-			return new Range(from, to, size);
-		}
-		throw new IOException("Illegal Access!");
-	}
-
 	@Override
 	public void destroy() {
 		super.destroy();
