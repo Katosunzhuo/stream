@@ -1084,8 +1084,12 @@
 			}; 
 			var tokenUrl = fAddVars(vars, this.get("tokenURL"));
 			xhr.open("GET", tokenUrl, !0);
-			xhr.onload = function() {
-				var token, server;
+			/** IE7,8 兼容*/
+			xhr.onreadystatechange = function() {
+			    if (xhr.readyState != 4 || xhr.status != 200)
+			        return false;
+			    
+			    var token, server;
 				try {
 					token = eval("(" + xhr.responseText + ")").token;
 					server = eval("(" + xhr.responseText + ")").server;
@@ -1108,7 +1112,7 @@
 					/** streaming, swf, resume methods all failed, try to use FormData */
 					self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
 				}
-			};
+			}
 			xhr.onerror = function() {
 				var errorPanel = self.getNode("upload-start-error", this.startPanel);
 				self.cancelUpload(index);
