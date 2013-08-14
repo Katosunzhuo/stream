@@ -30,8 +30,7 @@ public class StreamServlet extends HttpServlet {
 
 	@Override
 	public void init() throws ServletException {
-		super.init();
-		origins = getServletConfig().getInitParameter(CROSS_ORIGIN);
+		origins = getServletContext().getInitParameter(CROSS_ORIGIN);
 	}
 	
 	/**
@@ -105,7 +104,6 @@ public class StreamServlet extends HttpServlet {
 		resp.setContentType("application/json");
 		resp.setHeader("Access-Control-Allow-Headers", "Content-Range,Content-Type");
 		resp.setHeader("Access-Control-Allow-Origin", origins);
-		resp.setHeader("Access-Control-Allow-Credentials", "true");
 		resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
 	}
 
