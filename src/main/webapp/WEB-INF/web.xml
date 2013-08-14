@@ -4,7 +4,12 @@
 
 <web-app>
 	<display-name>Archetype Created Web Application</display-name>
-  
+  	
+  	<!-- Application parameters of CROSS_ORIGIN -->
+  	<context-param>
+  		<param-name>CROSS_ORIGIN</param-name>
+		<param-value>*</param-value>
+  	</context-param>
 	<servlet>
 		<servlet-name>TokenServlet</servlet-name>
 		<servlet-class>com.jiangdx.stream.servlet.TokenServlet</servlet-class>
