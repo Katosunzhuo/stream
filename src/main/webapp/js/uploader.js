@@ -364,23 +364,23 @@
 					});
 		},
 		bindUI : function() {
-			Browser.ie ? (
+			/*Browser.ie ? (
 				this.swfReference.on("swfReady", this.setMultipleFiles(), this),
 				this.swfReference.on("swfReady", this.setFileFilters(), this),
 				this.swfReference.on("swfReady", this.triggerEnabled(), this),
 				this.after("multipleFilesChange", this.setMultipleFiles, this),
 				this.after("fileFiltersChange", this.setFileFilters, this),
 				this.after("enabledChange", this.triggerEnabled, this)
-			) : (
-				this.swfReference.on("swfReady", function() {
-					this.setMultipleFiles();
-					this.setFileFilters();
-					this.triggerEnabled();
-					this.after("multipleFilesChange", this.setMultipleFiles, this);
-					this.after("fileFiltersChange", this.setFileFilters, this);
-					this.after("enabledChange", this.triggerEnabled, this);
-				}, this)
-			);
+			) : (*/
+			this.swfReference.on("swfReady", function() {
+				this.setMultipleFiles();
+				this.setFileFilters();
+				this.triggerEnabled();
+				this.after("multipleFilesChange", this.setMultipleFiles, this);
+				this.after("fileFiltersChange", this.setFileFilters, this);
+				this.after("enabledChange", this.triggerEnabled, this);
+			}, this);
+		//	);
 			this.swfReference.on("fileselect", this.updateFileList, this);
 			this.swfReference.on("mouseenter", function() {this.setContainerClass("hover", !0);}, this);
 			this.swfReference.on("mouseleave", function() {this.setContainerClass("hover", !1);}, this);
