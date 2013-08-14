@@ -1090,10 +1090,12 @@
 					token = eval("(" + xhr.responseText + ")").token;
 					server = eval("(" + xhr.responseText + ")").server;
 					if (token) {
-						if(server == null || server == "") {server = uploadURL;}
-						else {server += uploadURL;}
+						if(server != null && server != "") {
+							frmUploadURL = server + frmUploadURL;
+							uploadURL = server + uploadURL;
+						}
 						bStreaming ? (self.uploadInfo[index].serverAddress = server,
-										self.uploadFile(file, server || uploadURL, token, "resumeUpload"))
+										self.uploadFile(file, uploadURL, token, "resumeUpload"))
 								: self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
 					} else {
 						/** not found any token */

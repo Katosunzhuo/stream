@@ -2,12 +2,16 @@ package com.jiangdx.stream.util;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.jiangdx.stream.servlet.FormDataServlet;
 import com.jiangdx.stream.servlet.Range;
 import com.jiangdx.stream.servlet.StreamServlet;
 
@@ -74,4 +78,23 @@ public class IoUtil {
 		throw new IOException("Illegal Access!");
 	}
 
+	/**
+	 * From the InputStream, write its data to the given file.
+	 */
+	public static long streaming(InputStream in, String fileName) throws IOException {
+		OutputStream out = null;
+		try {
+			File f = getFile(fileName);
+			out = new FileOutputStream(f);
+
+			int read = 0;
+			final byte[] bytes = new byte[FormDataServlet.BUFFER_LENGTH];
+			while ((read = in.read(bytes)) != -1) {
+				out.write(bytes, 0, read);
+			}
+			return f.length();
+		} finally {
+			close(out);
+		}
+	}
 }
