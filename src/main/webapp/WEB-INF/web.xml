@@ -20,7 +20,7 @@
 		</init-param>
 		<init-param>
 			<param-name>SERVER</param-name>
-			<param-value>http://192.168.138.129:5080</param-value>
+			<param-value>http://www.jiangdx.com:8080</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>

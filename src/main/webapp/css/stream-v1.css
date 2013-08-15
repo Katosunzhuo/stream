@@ -1,0 +1,185 @@
+@charset "utf-8";
+
+body {
+	color: #000;
+	line-height: 166.6%;
+	float: left;
+	font-family: verdana;
+	font-size: 12px;
+}
+
+ul,ol {
+	list-style: none;
+}
+
+ul,ol,li,p,img {
+	border: 0 none;
+	margin: 0;
+	padding: 0;
+}
+
+.gSys-scroll {
+	height: 220px;
+	overflow: auto;
+}
+
+.gSys-inner-netfolder .upload .g-file {
+	border-color: #ccc;
+}
+
+.g-file {
+	cursor: default;
+	position: relative;
+	zoom: 1;
+	padding: 10px 20px 10px 35px;
+	border-bottom-width: 1px;
+	border-bottom-style: dotted;
+}
+
+.g-file .info:before,.g-file .info:after {
+	clear: both;
+	content: ".";
+	font-size: 0;
+	display: block;
+	height: 0;
+	overflow: hidden;
+	visibility: hidden;
+}
+
+.g-file .flname {
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.txt-info {
+	color: #7D7D7D;
+}
+
+.g-file .progress {
+	zoom: 1;
+	overflow: hidden;
+}
+
+.g-file .lnk {
+	margin-right: 5px;
+}
+
+.gSys-inner-netfolder .ext {
+	float: right;
+}
+
+a {
+	color: #158144;
+}
+
+.gSys-inner-netfolder .upload .g-file .g-probar {
+	width: 300px;
+}
+
+.g-file .g-probar,.g-file .num {
+	float: left;
+	margin-right: 10px;
+}
+
+.g-file .g-probar {
+	margin-top: 5px;
+	width: 250px;
+}
+
+.g-file .num {
+	margin-right: 15px;
+}
+
+.g-probar {
+	position: relative;
+	border: 1px solid #ccc;
+	background: #fff;
+	width: 55px;
+	height: 10px;
+	overflow: hidden;
+}
+
+.g-probar span {
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 8px;
+	border: 1px solid #fff;
+	font-size: 0;
+	background-position: 0 -149px;
+	background-image: url(./img/bgx.png);
+	background-repeat: repeat-x;
+	background-color: #A5DD3D;
+}
+
+.g-probar,.g-probar span {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-khtml-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.g-file .info {
+	zoom: 1;
+}
+
+.g-file .info .upld {
+	width: 120px;
+}
+
+.g-file .info span {
+	float: left;
+	margin-right: 8px;
+}
+
+.g-file .info .upld {
+	width: 120px;
+}
+
+.gSys-inner-netfolder .upload .gSys-tips .g-probar {
+	width: 80px;
+	margin-top: -1px;
+}
+
+.g-probar,.ico {
+	-moz-box-align: center;
+	display: inline-block;
+	vertical-align: middle;
+	zoom: 1;
+}
+
+.gSys-tips {
+	border: 1px solid #ccc;
+	border-width: 1px 0 0;
+	padding: 3px 5px 3px 25px;
+	position: relative;
+	zoom: 1;
+}
+
+.bg-tips {
+	background-color: #FFFFE1;
+}
+
+.txt-tips {
+	color: #565656;
+}
+
+.cont {
+	background-color: #FFFFFF;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #50A05B;
+	clear: both;
+	overflow: hidden;
+}
+
+.ico-uploading {
+	left: 11px;
+	position: absolute;
+	top: 11px;
+	background: url("./img/upload.gif") no-repeat scroll 0 1px
+		transparent !important;
+	height: 18px;
+	width: 18px;
+}
