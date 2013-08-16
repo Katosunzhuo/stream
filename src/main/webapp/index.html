@@ -1,64 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>New Style SWF/HTML5 Stream Uploading DEMO</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Flash、Html5上传文件Demo</title>
-<meta http-equiv="Access-Control-Allow-Origin" content="*">
-<link href="/css/up_v3.css" rel="stylesheet" type="text/css">
+<link href="/css/stream-v1.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-	<div id="upload-start" style="overflow: hidden; position: relative">
-		<div class="upload-start-error">请选择文件</div>
-	</div>
-	<div id="upload-container"></div>
-	<div id="upload-template" style="display: none">
-		<div class="upload-progress">
-			<!--uploadProgress start-->
-			<div class="upTips" style="display: none">
-				<p></p>
-				<span class="f_14">视频文件已上传，请确认视频信息后，点击 <b><a
-						href="https://pispower.onecloud.cn/QUpload/~ajax/saveVideoMetaData/"
-						class="top-save">保存</a></b> ，以完成视频上传
-				</span>
-			</div>
 
-			<div class="upProgress">
-				<div class="f_14 upTitle" style="height: 20px"></div>
-				<ul class="upItems">
-					<li>
-						<div class="progressTop">
-							<div class="progress active">
-								<div class="bar" style="width: 0%;"></div>
-							</div>
-						</div> <span class="f_36"></span>
-						<p class="cancel">
-							<a href="javascript:void(0)" class="cGrey upload-cancel">取消上传</a>
-						</p>
-					</li>
-					<li class="remark uploadF_12">
-						<p class="speed">上传速度：0</p>
-						<p class="uploaded">已上传：0/0</p>
-						<p class="time">预计剩余时间：0</p>
-					</li>
-				</ul>
-			</div>
-			<!--uploadProgress end-->
+	<div class="stream-main-upload-box">
+		<div class="stream-files-scroll">
+			<ul id="i_stream_files_container">
+				<li id="liWpFile1" class="stream-cell-file">
+					<b class="stream-uploading-ico"></b>
+					<div class="stream-file-name"><strong>md5sum.txt</strong></div>
+					<div class="stream-process">
+						<a class="stream-cancel" onclick="oFileUploader.deleteOneTask(1)" href="javascript:void(0)">删除</a>
+						<span class="stream-process-bar"><span style="width: 100%;"></span></span>
+						<span class="stream-percent">100%</span>
+					</div>
+					<div class="stream-cell-infos">
+						<span class="stream-cell-info">速度：<em>66B</em></span>
+						<span class="stream-cell-info">已上传：<em>66B</em></span>
+						<span class="stream-cell-info">剩余时间：<em>66B</em></span>
+					</div>
+				</li>
+			</ul>
 		</div>
-		<div class="upload-success" style="display: none;">
-			<!--uploadTitle start-->
-			<div class="uploadTitle">
-				<h3>上传视频</h3>
-			</div>
-			<!--uploadTitle end-->
+		<div id="i_stream_total_container" class="stream-total-tips">
+			上传总进度：<span class="stream-process-bar"><span style="width: 100%;"></span></span>
+			<span class="stream-percent">100%</span>，已上传<strong>66B</strong>，总文件大小<strong>66B</strong>
 		</div>
 	</div>
-<script type="text/javascript" src="/js/uploader.js"></script>
-<script type="text/javascript">
-	var config = {
-		multipleFiles: true,
-		simLimit: 10000
-	};
-	var _t = new Uploader(config);
-</script>
+
 </body>
-</html>
