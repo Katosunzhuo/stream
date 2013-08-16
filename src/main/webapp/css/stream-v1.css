@@ -73,7 +73,7 @@ a {
 
 .stream-cell-file .stream-process-bar {
 	margin-top: 5px;
-	width: 250px;
+	width: 430px;
 }
 
 .stream-process-bar {
@@ -111,7 +111,7 @@ a {
 }
 
 .stream-cell-file .stream-cell-infos .stream-cell-info {
-	width: 120px;
+	width: 150px;
 }
 
 .stream-cell-file .stream-cell-infos span {
@@ -120,7 +120,7 @@ a {
 }
 
 .stream-total-tips .stream-process-bar {
-	width: 80px;
+	width: 200px;
 	margin-top: -1px;
 }
 
@@ -142,7 +142,7 @@ a {
 }
 
 .stream-main-upload-box {
-	width: 450px;
+	width: 600px;
 	background-color: #FFFFFF;
 	border-style: solid;
 	border-width: 1px;

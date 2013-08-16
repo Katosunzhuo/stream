@@ -315,7 +315,6 @@
 			simLimit : 1,
 			retryCount : 3,
 			postVarsPerFile : {},
-			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
 			swfURL : "/swf/FlashUploader.swf",
 			uploadURL : "/fd"
 		};
@@ -560,7 +559,6 @@
 			simLimit : 1,
 			retryCount : 3,
 			postVarsPerFile : {},
-			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
 			uploadURL : "/upload"
 		};
 		Parent.apply(this, arguments);
@@ -843,9 +841,11 @@
 					
 					var uploaded = 0;
 					var respJson = null;
-					if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 308)) {
-						uploaded = (respJson = eval("(" + xhr.responseText + ")")) ? respJson.start : -1;
-					} else {alert("--return--:\n" + xhr.responseText);return;}
+					try {
+						if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 308)) {
+							uploaded = (respJson = eval("(" + xhr.responseText + ")")) ? respJson.start : -1;
+					} else {return;}
+					} catch(e) {this.retry();}
 					//check whether upload complete yet
 					if(uploaded < this.get("size") -1) {
 						this.retriedTimes = 0;
@@ -941,7 +941,6 @@
 			simLimit : cfg.simLimit ? cfg.simLimit : 10,
 			retryCount : cfg.retryCount ? cfg.retryCount : 5,
 			postVarsPerFile : {},
-			selectButtonLabel : "\u9009\u62e9\u6587\u4ef6",
 			swfURL : cfg.swfURL ? cfg.swfURL : "/swf/FlashUploader.swf",
 			tokenURL : cfg.tokenURL ? cfg.tokenURL : "/tk",
 			frmUploadURL : cfg.frmUploadURL ? cfg.frmUploadURL : "/fd;",
@@ -963,43 +962,43 @@
 		name : "uploader",
 		initializer : function() {
 			this.startPanel = document.getElementById("upload-start");
-			this.containerPanel = document.getElementById("upload-container");
-			this.template = document.getElementById("upload-template").innerHTML;
+			this.containerPanel = document.getElementById("i_stream_files_container");
+			this.template = document.getElementById("i_stream_cell_file_template").innerHTML;
 			this.fileProvider = new Provider(this.config);
 			this.fileProvider.render(this.startPanel);
 			this.fileProvider.on("uploadprogress", this.uploadProgress, this);
 			this.fileProvider.on("uploadcomplete", this.uploadComplete, this);
 			this.fileProvider.on("uploaderror", this.uploadError, this);
 			this.fileProvider.on("fileselect", this.fileSelect, this);
-			this.showTips();
 			fAddEventListener(window, "beforeunload", fExtend(this.unloadHandler, this));
 			this.waiting = [];
 			this.uploading = !1;
 		},
 		startUpload : function(a) {
-			var file_id = a.get("id"), bar = fCreateContentEle("<div id='" + file_id + "'></div>");
-			bar.innerHTML = this.template;
+			var file_id = a.get("id"), cell_file = fCreateContentEle("<li id='" + file_id + "' class='stream-cell-file'></li>");
+			cell_file.innerHTML = this.template;
 			this.uploadInfo[file_id] = {
 				uploadToken : "",
 				fileUploaded : !1,
 				uploadComplete : !1,
 				file : a,
 				disabled : !1,
-				progressNode : this.getNode("upload-progress", bar),
-				successNode : this.getNode("upload-success", bar)
+				progressNode : this.getNode("stream-process", cell_file),
+				cellInfosNode : this.getNode("stream-cell-infos", cell_file)
 			};
+			this.getNode("stream-file-name", cell_file).getElementsByTagName("strong")[0].innerHTML = a.get("name");
 			this.renderUI(file_id);
 			this.bindUI(file_id);
 			bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");
-			this.containerPanel.appendChild(bar);
+			this.containerPanel.appendChild(cell_file);
 			this.waiting.push(file_id);
 			this.createUploadTask(file_id);
 		},
-		renderUI : function(a) {
+		renderUI : function(file_id) {
 		},
-		bindUI : function(a) {
-			var b = this.uploadInfo[a].progressNode, cancelBtn = this.getNode("upload-cancel", b);
-			this.cancelBtnHandler = fAddEventListener(cancelBtn, "click", fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : a}));
+		bindUI : function(file_id) {
+			var b = this.uploadInfo[file_id].progressNode, cancelBtn = this.getNode("stream-cancel", b);
+			this.cancelBtnHandler = fAddEventListener(cancelBtn, "click", fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : file_id}));
 		},
 		completeUpload : function(a, b) {//onUploadComplete
 			var onComplete = this.get("onComplete");
@@ -1041,7 +1040,6 @@
 			this.cancelUpload(id);
 		},
 		showTips : function() {
-//			console.log("====Main.showTips()====");
 		},
 		selectorBtnHandler : function(a, b) {
 			var d = b.nodeId;
@@ -1132,27 +1130,29 @@
 		},
 		uploadProgress : function(a) {
 			var id = a.target.get("id"), progressNode = this.uploadInfo[id].progressNode,
-				c = this.formatSpeed(a.bytesSpeed), d = this.formatBytes(a.bytesLoaded),
-				e = this.formatBytes(a.bytesTotal), f = this.formatTime(a.remainTime),
+				cellInfosNode = this.uploadInfo[id].cellInfosNode,
+				c = this.formatSpeed(a.bytesSpeed), loaded = this.formatBytes(a.bytesLoaded),
+				total = this.formatBytes(a.bytesTotal), _remainTime = this.formatTime(a.remainTime),
 				a = Math.min(99.99, a.percentLoaded);
 			100 > a && (a = parseFloat(a).toFixed(2));
-			d = Math.min(d, e);
-			d = parseFloat(d).toFixed(2);
-			e = parseFloat(e).toFixed(2);
-			this.getNode("bar", progressNode).style.width = a + "%";
-			this.getNode("f_36", progressNode).innerHTML = a + "%";
-			this.getNode("speed", progressNode).innerHTML = "\u4e0a\u4f20\u901f\u5ea6\uff1a" + c;
-			if (f)
-				this.getNode("time", progressNode).innerHTML = "\u5269\u4f59\u65f6\u95f4\uff1a"	+ f;
-			this.getNode("uploaded", progressNode).innerHTML = "\u5df2\u4e0a\u4f20\uff1a" + d + "MB/" + e + "MB";
+			loaded = Math.min(loaded, total);
+			loaded = parseFloat(loaded).toFixed(2);
+			total = parseFloat(total).toFixed(2);
+			this.getNode("stream-progress-bar", progressNode).style.width = a + "%";
+			this.getNode("stream-percent", progressNode).innerHTML = a + "%";
+			this.getNode("stream-speed", cellInfosNode).innerHTML = c;
+			if (_remainTime)
+				this.getNode("stream-remain-time", cellInfosNode).innerHTML = _remainTime;
+			this.getNode("stream-uploaded", cellInfosNode).innerHTML = loaded + "/" + total;
 		},
 		uploadComplete : function(a) {
 			var id = a.target.get("id"), progressNode = this.uploadInfo[id].progressNode,
-				d = a.target.get("size"), a = eval("(" + a.data + ")"), d = this.formatBytes(d);
-			this.getNode("bar", progressNode).style.width = "100%";
-			this.getNode("f_36", progressNode).innerHTML = "100%";
-			this.getNode("uploaded", progressNode).innerHTML = "\u5df2\u4e0a\u4f20\uff1a" + d + "MB/" + d + "MB";
-			this.getNode("time", progressNode).innerHTML = "\u5269\u4f59\u65f6\u95f4\uff1a0";
+				cellInfosNode = this.uploadInfo[id].cellInfosNode,
+				size = a.target.get("size"), a = eval("(" + a.data + ")"), fmtSize = this.formatBytes(size);
+			this.getNode("stream-progress-bar", progressNode).style.width = "100%";
+			this.getNode("stream-percent", progressNode).innerHTML = "100%";
+			this.getNode("stream-uploaded", cellInfosNode).innerHTML = fmtSize + "/" + fmtSize;
+			this.getNode("stream-remain-time", cellInfosNode).innerHTML = "0";
 			/** uploaded flag and its callback function. */
 			this.uploadInfo[id].fileUploaded = !0,
 			
@@ -1203,9 +1203,22 @@
 				: (b = Math.round(100 * (a / 1024))	/ 100, b = Math.max(0, b), b = isNaN(b) ? 0 : parseFloat(b).toFixed(2), a = b + "KB/s");
 			return a;
 		},
-		formatBytes : function(a) {
-			a = Math.round(100 * (a / 1048576)) / 100;
-			return a = isNaN(a) ? 0 : parseFloat(a).toFixed(2);
+		formatBytes : function(size) {
+			if (size < 100) {
+				return (size + 'B');
+			} else if (size < 102400) {
+				size = Math.round(100 * (size / 1024)) / 100;
+				size = isNaN(size) ? 0 : parseFloat(size).toFixed(2);
+				return (size + 'K');
+			} else if (size < 1047527424) {
+				size = Math.round(100 * (size / 1048576)) / 100;
+				size = isNaN(size) ? 0 : parseFloat(size).toFixed(2);
+				return (size + 'M');
+			}
+			
+			size = Math.round(100 * (size / 1073741824)) / 100;
+			size = isNaN(size) ? 0 : parseFloat(size).toFixed(2);
+			return (size + 'G');
 		},
 		formatTime : function(a) {
 			var b = a || 0, c = Math.floor(b / 3600), a = Math.floor((b - 3600 * c) / 60),
