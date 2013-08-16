@@ -7,32 +7,28 @@
 </head>
 <body>
 
-	<div class="cont gSys-inner-netfolder">
-		<div class="gSys-body upload">
-			<div class="gSys-scroll" style="position: relative;">
-				<ul id="uploadUl">
-					<li id="liWpFile1" class="g-file g-file-wait">
-						<b class="ico-uploading"></b>
-						<div class="flname">
-							<strong>md5sum.txt</strong>
-						</div>
-						<div class="progress">
-							<a class="ext lnk" onclick="oFileUploader.deleteOneTask(1)" href="javascript:void(0)">删除</a>
-							<span class="g-probar"><span style="width: 100%;"></span></span>
-							<span class="num">100%</span>
-						</div>
-						<div class="info txt-info">
-							<span class="upld">速度：<em>66B</em></span>
-							<span class="upld">已上传：<em>66B</em></span>
-							<span class="upld">剩余时间：<em>66B</em></span>
-						</div>
-					</li>
-				</ul>
-			</div>
-			<div id="divUploadAll" class="gSys-tips bg-tips txt-tips">
-				上传总进度：<span class="g-probar"><span style="width: 100%;"></span></span>
-				<span class="num">100%</span>，已上传<strong>66B</strong>，总文件大小<strong>66B</strong>
-			</div>
+	<div class="stream-main-upload-box">
+		<div class="stream-files-scroll">
+			<ul id="i_stream_files_container">
+				<li id="liWpFile1" class="stream-cell-file">
+					<b class="stream-uploading-ico"></b>
+					<div class="stream-file-name"><strong>md5sum.txt</strong></div>
+					<div class="stream-process">
+						<a class="stream-cancel" onclick="oFileUploader.deleteOneTask(1)" href="javascript:void(0)">删除</a>
+						<span class="stream-process-bar"><span style="width: 100%;"></span></span>
+						<span class="stream-percent">100%</span>
+					</div>
+					<div class="stream-cell-infos">
+						<span class="stream-cell-info">速度：<em>66B</em></span>
+						<span class="stream-cell-info">已上传：<em>66B</em></span>
+						<span class="stream-cell-info">剩余时间：<em>66B</em></span>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div id="i_stream_total_container" class="stream-total-tips">
+			上传总进度：<span class="stream-process-bar"><span style="width: 100%;"></span></span>
+			<span class="stream-percent">100%</span>，已上传<strong>66B</strong>，总文件大小<strong>66B</strong>
 		</div>
 	</div>
 
