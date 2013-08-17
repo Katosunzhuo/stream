@@ -18,7 +18,7 @@ ul,ol,li,img {
 }
 
 .stream-files-scroll {
-	height: 220px;
+	height: 450px;
 	overflow: auto;
 }
 
@@ -111,7 +111,7 @@ a {
 }
 
 .stream-cell-file .stream-cell-infos .stream-cell-info {
-	width: 150px;
+	width: 170px;
 }
 
 .stream-cell-file .stream-cell-infos span {
@@ -142,7 +142,7 @@ a {
 }
 
 .stream-main-upload-box {
-	width: 600px;
+	width: 605px;
 	background-color: #FFFFFF;
 	border-style: solid;
 	border-width: 1px;

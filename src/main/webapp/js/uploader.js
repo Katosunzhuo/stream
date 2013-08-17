@@ -716,7 +716,6 @@
 			this.XHR = null;
 			this.retryTimes = 50;
 			this.retriedTimes = 0;
-			this.cancelUpload = false;
 			this.file = null;
 			this.fileId = null;
 			this.filePiece = 10485760;/** 10M. */
@@ -724,7 +723,6 @@
 			this.fileStartPosValue = null;
 			
 			this.maxPiece = 10485760; // 10M
-			this.startTime = null;
 			this.endTime = null;
 			this.durationTime = 2000;
 			this.xhrHandler = null;
@@ -763,9 +761,7 @@
 				url = this.get("uploadURL"), _xhr = this.XHR, _upload = _xhr.upload;
 			this.set("uploadMethod", "formUpload");
 			this.bytesStart = 0;
-			if (!this.preTime)
-				this.preTime = (new Date).getTime();
-			this.startTime = new Date();
+			this.preTime = (new Date).getTime();
 			fd.append(fileFileName, this.file);
 			_xhr.addEventListener("loadstart", this.uploadEventHandler, !1);
 			_upload.addEventListener("progress", this.uploadEventHandler, !1);
@@ -782,7 +778,6 @@
 		},
 		streamUpload: function(pos){
 			/** whether continue uploading. */
-			if(eval(this.cancelUpload)) {return;}
 			var _url = this.get("uploadURL");
 			this.resetXhr();
 			this.resume = false;
@@ -802,7 +797,7 @@
 			_xhr.addEventListener("readystatechange", this.xhrHandler, !1);
 			var blob = this.sliceFile(this.file, pos, pos + this.filePiece);
 			var range = "bytes "+ pos + "-"+ (pos + blob.size) + "/" + this.get("size");
-			this.startTime = new Date();
+			this.preTime = (new Date).getTime();
 			_xhr.open("POST", _url, !0);
 			_xhr.setRequestHeader("Content-Range", range);
 			_xhr.send(blob);
@@ -810,7 +805,7 @@
 		},
 		resumeUpload: function(){
 			/** whether continue uploading. */
-			if(eval(this.cancelUpload) || this.retryTimes <= this.retriedTimes) {return;}
+			if(this.retryTimes <= this.retriedTimes) {return;}
 			this.resetXhr();
 			this.XHR = new XMLHttpRequest;
 			this.resume = true;
@@ -823,11 +818,12 @@
 			this.XHR.addEventListener("error", this.xhrHandler, !1);
 			this.XHR.addEventListener("loadend", this.xhrHandler, !1);
 			this.XHR.addEventListener("readystatechange", this.xhrHandler, !1);
+			this.preTime = (new Date).getTime();
 			this.XHR.open("GET", _url, !0);
 			this.XHR.send(null);
 		},
 		retry: function(){
-			if(eval(this.cancelUpload) || this.retryTimes <= this.retriedTimes) {return;}
+			if(this.retryTimes <= this.retriedTimes) {return;}
             this.retriedTimes++;
             var g = this;
             2 > this.retriedTimes ? this.resumeUpload()
@@ -864,16 +860,16 @@
 					break;
 				case "progress":
 					var total = this.get("size"), loaded = this.bytesStart + event.loaded,
-						d = (new Date).getTime(), remainSeconds = (d - this.preTime) / 1E3, f = 0;
-					if (1 <= remainSeconds || 0 === this.bytesSpeeds.length) {
-						this.bytesSpeed = Math.round((loaded - this.bytesPrevLoaded) / remainSeconds);
+						now = (new Date).getTime(), cost = (now - this.preTime) / 1E3, totalSpeeds = 0;
+					if (0.68 <= cost || 0 === this.bytesSpeeds.length) {
+						this.bytesSpeed = Math.round((loaded - this.bytesPrevLoaded) / cost);
 						this.bytesPrevLoaded = loaded;
-						this.preTime = d;
+						this.preTime = now;
 						5 < this.bytesSpeeds.length && this.bytesSpeeds.shift();
 						this.bytesSpeeds.push(this.bytesSpeed);
-						for (d = 0; d < this.bytesSpeeds.length; d++)
-							f += this.bytesSpeeds[d];
-						this.bytesSpeed = Math.round(f / this.bytesSpeeds.length);
+						for (var i = 0; i < this.bytesSpeeds.length; i++)
+							totalSpeeds += this.bytesSpeeds[i];
+						this.bytesSpeed = Math.round(totalSpeeds / this.bytesSpeeds.length);
 						this.remainTime = Math.ceil((total - loaded) / this.bytesSpeed);
 					}
 					this.fire("uploadprogress", {
@@ -892,7 +888,6 @@
 		startUpload: function(url, postVars, fileFieldName){
 			this.fileStartPosValue = null;
 			this.retriedTimes = 0;
-			this.cancelUpload = false;
 
 			postVars.name = this.get("name");
 			var method = this.get("uploadMethod");
@@ -913,17 +908,13 @@
 					this.resumeUpload()
 			}
 		},
-		stopUpload: function(){
-			this.cancelUpload = true;
-			try{
-				this.XHR.abort();
-				this.resetXhr();
-			}catch(e){}
-		},
 		sliceFile: function(f, startPos, endPos){
 			startPos = startPos || 0;
 			endPos = endPos || 0;
 			return f.slice ? f.slice(startPos, endPos) : f.webkitSlice ? f.webkitSlice(startPos, endPos) : f.mozSlice ? f.mozSlice(startPos, endPos) : f;
+		},
+		cancelUpload : function() {
+			this.XHR && (this.XHR.abort(), this.resetXhr());
 		}
 	};
 	
@@ -963,6 +954,7 @@
 		initializer : function() {
 			this.startPanel = document.getElementById("upload-start");
 			this.containerPanel = document.getElementById("i_stream_files_container");
+			this.totalContainerPanel = document.getElementById("i_stream_total_container");
 			this.template = document.getElementById("i_stream_cell_file_template").innerHTML;
 			this.fileProvider = new Provider(this.config);
 			this.fileProvider.render(this.startPanel);
@@ -973,6 +965,8 @@
 			fAddEventListener(window, "beforeunload", fExtend(this.unloadHandler, this));
 			this.waiting = [];
 			this.uploading = !1;
+			this.totalFileSize = 0;
+			this.totalUploadedSize = 0;
 		},
 		startUpload : function(a) {
 			var file_id = a.get("id"), cell_file = fCreateContentEle("<li id='" + file_id + "' class='stream-cell-file'></li>");
@@ -983,6 +977,7 @@
 				uploadComplete : !1,
 				file : a,
 				disabled : !1,
+				actived : !1,
 				progressNode : this.getNode("stream-process", cell_file),
 				cellInfosNode : this.getNode("stream-cell-infos", cell_file)
 			};
@@ -992,6 +987,9 @@
 			bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");
 			this.containerPanel.appendChild(cell_file);
 			this.waiting.push(file_id);
+			this.totalFileSize += a.get("size");
+			var _total = this.formatBytes(this.totalFileSize);
+			this.getNode("_stream-total-size", this.totalContainerPanel).innerHTML = _total;
 			this.createUploadTask(file_id);
 		},
 		renderUI : function(file_id) {
@@ -1001,15 +999,14 @@
 			this.cancelBtnHandler = fAddEventListener(cancelBtn, "click", fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : file_id}));
 		},
 		completeUpload : function(a, b) {//onUploadComplete
-			var onComplete = this.get("onComplete");
-			if (onComplete) {onComplete();}
-			
+			(this.get("onComplete") || this.onComplete(a, b));
+			this.waiting.length == 0 && (this.get("onQueueComplete") || this.onQueueComplete(a, b));
 			this.uploading = !1;
 			this.createUploadTask();
 		},
 		onQueueComplete : function(a, b) {
-			var onComplete = this.get("onComplete");
-			if (onComplete) {onComplete();}
+		},
+		onComplete : function(a, b) {
 		},
 		disable : function(a) {
 			if (!this.uploadInfo[a].disabled)
@@ -1019,15 +1016,32 @@
 			if (this.uploadInfo[a].disabled)
 				this.uploadInfo[a].disabled = !1;
 		},
-		cancelUpload : function(a) {
-			var b = this.uploadInfo[a].file;
-			b && b.cancelUpload && b.cancelUpload();
-			this.showTips();
-			this.uploadInfo[a] && delete this.uploadInfo[a];
+		cancelUpload : function(file_id) {
+			var provider = this.uploadInfo[file_id].file, actived = this.uploadInfo[file_id].actived;
+			provider && provider.cancelUpload && provider.cancelUpload();
+			this.uploadInfo[file_id] && delete this.uploadInfo[file_id];
 			fRemoveEventListener(document, "click", this.cancelBtnHandler);
-			this.containerPanel.innerHTML = "";
+			this.containerPanel.removeChild(document.getElementById(file_id));
+			if (actived) {
+				this.uploading = !1;
+				this.createUploadTask();
+			} else {
+				for(var i in this.waiting)
+					if (this.waiting[i] === file_id)
+						this.waiting.splice(i, 1);
+			}
+			var size = provider.config.size;
+			this.totalFileSize -= size;
+			var _loaded = this.formatBytes(this.totalUploadedSize);
+			var percent = this.totalUploadedSize * 10000 / this.totalFileSize / 100;
+			100 > percent && (percent = parseFloat(percent).toFixed(2));
+			var _total = this.formatBytes(this.totalFileSize);
+			this.getNode("_stream-total-size", this.totalContainerPanel).innerHTML = _total;
+			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
+			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
+			this.getNode("stream-process-bar", this.totalContainerPanel).getElementsByTagName("span")[0].style.width = percent + "%";
 			
-			bStreaming	? this.startPanel.style.display = "block"
+			bStreaming ? this.startPanel.style.display = "block"
 				: (this.startPanel.style.height = "auto", this.startPanel.style.width = "970px");
 		},
 		cancelUploadHandler : function(event, b) {
@@ -1038,8 +1052,6 @@
 				return !1;
 			this.uploadInfo[id] && !this.uploadInfo[id].uploadComplete;
 			this.cancelUpload(id);
-		},
-		showTips : function() {
 		},
 		selectorBtnHandler : function(a, b) {
 			var d = b.nodeId;
@@ -1068,6 +1080,7 @@
 			if(index == null) return;
 			this.uploading = !0;
 			
+			this.uploadInfo[index].actived = !0;
 			var file = this.uploadInfo[index].file, self = this;
 			var frmUploadURL = this.get("frmUploadURL");
 			var uploadURL = this.get("uploadURL");
@@ -1130,20 +1143,24 @@
 		},
 		uploadProgress : function(a) {
 			var id = a.target.get("id"), progressNode = this.uploadInfo[id].progressNode,
-				cellInfosNode = this.uploadInfo[id].cellInfosNode,
-				c = this.formatSpeed(a.bytesSpeed), loaded = this.formatBytes(a.bytesLoaded),
+				cellInfosNode = this.uploadInfo[id].cellInfosNode, bytesLoaded = a.bytesLoaded,
+				c = this.formatSpeed(a.bytesSpeed), loaded = this.formatBytes(bytesLoaded),
 				total = this.formatBytes(a.bytesTotal), _remainTime = this.formatTime(a.remainTime),
 				a = Math.min(99.99, a.percentLoaded);
 			100 > a && (a = parseFloat(a).toFixed(2));
-			loaded = Math.min(loaded, total);
-			loaded = parseFloat(loaded).toFixed(2);
-			total = parseFloat(total).toFixed(2);
 			this.getNode("stream-progress-bar", progressNode).style.width = a + "%";
 			this.getNode("stream-percent", progressNode).innerHTML = a + "%";
 			this.getNode("stream-speed", cellInfosNode).innerHTML = c;
 			if (_remainTime)
 				this.getNode("stream-remain-time", cellInfosNode).innerHTML = _remainTime;
 			this.getNode("stream-uploaded", cellInfosNode).innerHTML = loaded + "/" + total;
+			
+			var _loaded = this.formatBytes(this.totalUploadedSize + bytesLoaded);
+			var percent = (this.totalUploadedSize + bytesLoaded) * 10000 / this.totalFileSize / 100;
+			100 > percent && (percent = parseFloat(percent).toFixed(2));
+			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
+			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
+			this.getNode("stream-process-bar", this.totalContainerPanel).getElementsByTagName("span")[0].style.width = percent + "%";
 		},
 		uploadComplete : function(a) {
 			var id = a.target.get("id"), progressNode = this.uploadInfo[id].progressNode,
@@ -1152,9 +1169,18 @@
 			this.getNode("stream-progress-bar", progressNode).style.width = "100%";
 			this.getNode("stream-percent", progressNode).innerHTML = "100%";
 			this.getNode("stream-uploaded", cellInfosNode).innerHTML = fmtSize + "/" + fmtSize;
-			this.getNode("stream-remain-time", cellInfosNode).innerHTML = "0";
+			this.getNode("stream-remain-time", cellInfosNode).innerHTML = "00:00:00";
+			this.getNode("stream-cancel", progressNode).innerHTML = "";
 			/** uploaded flag and its callback function. */
-			this.uploadInfo[id].fileUploaded = !0,
+			this.uploadInfo[id].fileUploaded = !0;
+			
+			this.totalUploadedSize += size;
+			var _loaded = this.formatBytes(this.totalUploadedSize);
+			var percent = this.totalUploadedSize * 10000 / this.totalFileSize / 100;
+			100 > percent && (percent = parseFloat(percent).toFixed(2));
+			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
+			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
+			this.getNode("stream-process-bar", this.totalContainerPanel).getElementsByTagName("span")[0].style.width = percent + "%";
 			
 			this.completeUpload(id);
 		},
@@ -1220,11 +1246,11 @@
 			size = isNaN(size) ? 0 : parseFloat(size).toFixed(2);
 			return (size + 'G');
 		},
-		formatTime : function(a) {
-			var b = a || 0, c = Math.floor(b / 3600), a = Math.floor((b - 3600 * c) / 60),
-				b = Math.floor(b - 3600 * c - 60 * a), c = "" + (!isNaN(c) && 0 < c ? c + "\u5c0f\u65f6" : ""),
-				c = c + (!isNaN(a) && 0 < a ? a + "\u5206" : "");
-			return c += !isNaN(b) && 0 < b ? b + "\u79d2" : "";
+		formatTime : function(time) {
+			var total = time || 0, hour = Math.floor(total / 3600), minute = Math.floor((total - 3600 * hour) / 60),
+				second = Math.floor(total - 3600 * hour - 60 * minute), hour = "" + (!isNaN(hour) && 0 < hour ? (hour < 10 ? ("0" + hour + ":") : (hour + ":")): "00:"),
+				hour = hour + (!isNaN(minute) && 0 < minute ? (minute < 10 ? ("0" + minute + ":") : minute + ":") : "00:");
+			return hour += !isNaN(second) && 0 < second ? (second < 10 ? ("0" + second + "") : second): "00";
 		},
 		preventDefault : function(a) {
 			a.preventDefault ? a.preventDefault() : a.returnValue = !1

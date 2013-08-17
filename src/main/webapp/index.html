@@ -7,7 +7,8 @@
 </head>
 <body>
 	<div id="upload-start" style="overflow: hidden; position: relative">
-		<div class="upload-start-error">请选择文件</div>
+		<div>请选择文件</div>
+		<div class="upload-start-error" style="display: none;"></div>
 	</div>
 
 	<div class="stream-main-upload-box">
@@ -16,8 +17,9 @@
 			</ul>
 		</div>
 		<div id="i_stream_total_container" class="stream-total-tips">
-			上传总进度：<span class="stream-process-bar"><span style="width: 100%;"></span></span>
-			<span class="stream-percent">100%</span>，已上传<strong>66B</strong>，总文件大小<strong>66B</strong>
+			上传总进度：<span class="stream-process-bar"><span style="width: 0%;"></span></span>
+			<span class="stream-percent">0%</span>，已上传<strong class="_stream-total-uploaded">&nbsp;</strong>
+			，总文件大小<strong class="_stream-total-size">&nbsp;</strong>
 		</div>
 	</div>
 	
@@ -27,14 +29,14 @@
 <br>
 <br>
 
-	<div class="stream-main-upload-box">
+	<div class="stream-main-upload-box" style="display: none;">
 		<div class="stream-files-scroll">
 			<ul id="">
 				<li id="i_stream_cell_file_template" class="stream-cell-file">
 					<b class="stream-uploading-ico"></b>
 					<div class="stream-file-name"><strong></strong></div>
 					<div class="stream-process">
-						<a class="stream-cancel" onclick="oFileUploader.deleteOneTask(1)" href="javascript:void(0)">删除</a>
+						<a class="stream-cancel" href="javascript:void(0)">删除</a>
 						<span class="stream-process-bar"><span class="stream-progress-bar" style="width: 0%;"></span></span>
 						<span class="stream-percent">0%</span>
 					</div>
@@ -45,10 +47,6 @@
 					</div>
 				</li>
 			</ul>
-		</div>
-		<div id="i_stream_total_container" class="stream-total-tips">
-			上传总进度：<span class="stream-process-bar"><span style="width: 100%;"></span></span>
-			<span class="stream-percent">100%</span>，已上传<strong>66B</strong>，总文件大小<strong>66B</strong>
 		</div>
 	</div>
 
