@@ -10,7 +10,7 @@
  * @example
  * 		1. new Uploader();
  * 		2. var cfg = {
- * 				fileFilterFunction : function(){alert("fileFilterFunction")}
+ * 				extFilters : [".txt", ".gz"],
  * 				fileFieldName : "FileData"
  * 			};
  * 		   new Uploader(cfg);
@@ -123,6 +123,11 @@
 		b.innerHTML = content;
 		content = b.childNodes;
 		return content[0].parentNode.removeChild(content[0]);
+	}
+	
+	function fShowMessage(msg) {
+		var o = document.getElementById("i_stream_message_container");
+		o.innerHTML += "<br>" + msg;
 	}
 	
 	function fMessage(msg, VarVals, c, d) {
@@ -302,7 +307,6 @@
 			enabled : !0,
 			multipleFiles : !0,
 			appendNewFiles : !0,
-			fileFilterFunction : null,
 			buttonClassNames : {
 				hover : "uploader-button-hover",
 				active : "uploader-button-active",
@@ -552,7 +556,6 @@
 			enabled : !0,
 			multipleFiles : !0,
 			appendNewFiles : !0,
-			fileFilterFunction : null,
 			dragAndDropArea : "",
 			fileFilters : aFilters,
 			fileFieldName : "FileData",
@@ -920,14 +923,20 @@
 	
 	function Main(cfg){
 		cfg = cfg || {};
+		aFilters = fIsArray(cfg.extFilters) ? cfg.extFilters : aFilters;
 		this.uploadInfo = {};
 		this.config = {
 			enabled : !0,
 			multipleFiles : !!cfg.multipleFiles,
 			appendNewFiles : !!cfg.appendNewFiles,
-			fileFilterFunction : cfg.fileFilterFunction,
 			fileFieldName : "FileData",
+			onSelect : cfg.onSelect,
+			onMaxSizeExceed : cfg.onMaxSizeExceed,
+			onFileCountExceed : cfg.onFileCountExceed,
+			onExtNameMismatch : cfg.onExtNameMismatch,
 			onComplete : cfg.onComplete,
+			onQueueComplete: cfg.onQueueComplete,
+			onUploadError: cfg.onUploadError,
 			maxSize : cfg.maxSize ? cfg.maxSize : 2147483648,
 			simLimit : cfg.simLimit ? cfg.simLimit : 10,
 			retryCount : cfg.retryCount ? cfg.retryCount : 5,
@@ -998,15 +1007,31 @@
 			var b = this.uploadInfo[file_id].progressNode, cancelBtn = this.getNode("stream-cancel", b);
 			this.cancelBtnHandler = fAddEventListener(cancelBtn, "click", fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : file_id}));
 		},
-		completeUpload : function(a, b) {//onUploadComplete
-			(this.get("onComplete") || this.onComplete(a, b));
-			this.waiting.length == 0 && (this.get("onQueueComplete") || this.onQueueComplete(a, b));
+		completeUpload : function(file_id) {
+			this.get("onComplete") ? this.get("onComplete")(this.uploadInfo[file_id].file.config) : this.onComplete(this.uploadInfo[file_id].file.config);
+			this.waiting.length == 0 && (this.get("onQueueComplete") ? this.get("onQueueComplete")(this.uploadInfo[file_id].file.config) : this.onQueueComplete(this.uploadInfo[file_id].file.config));
 			this.uploading = !1;
 			this.createUploadTask();
 		},
-		onQueueComplete : function(a, b) {
+		onSelect : function(list) {
+			fShowMessage("selected files: " + list.length);
 		},
-		onComplete : function(a, b) {
+		onFileCountExceed : function(selected, limit) {
+			fShowMessage("File counts:" + selected + ", but limited:" + limit);
+		},
+		onMaxSizeExceed : function(size, limited, name) {
+			fShowMessage("File:" + name + " size is:" + size +" Exceed limited:" + limited);
+		},
+		onExtNameMismatch: function(name, filters) {
+			fShowMessage("Allow ext name: [" + filters.toString() + "], not for " + name);
+		},
+		onComplete : function(info) {
+			fShowMessage("File:" + info.name + ", Size:" + info.size + " onComplete	[OK]");
+		},
+		onQueueComplete : function(info) {
+			fShowMessage("onQueueComplete	---==>		[OK]");
+		},
+		onUploadError : function(a, b) {
 		},
 		disable : function(a) {
 			if (!this.uploadInfo[a].disabled)
@@ -1057,7 +1082,6 @@
 			var d = b.nodeId;
 			if (this.uploadInfo[d].disabled)
 				return !1;
-			this.removeSuccessMessage(d);
 		},
 		selectorHandler : function(a, b) {
 			var c = a || window.event,
@@ -1188,14 +1212,18 @@
 			return fContains(b || this.containerPanel, a)[0] || null;
 		},
 		uploadError : function() {
-			alert("====Main.uploadError()===");
+			this.get("onUploadError") ? this.get("onUploadError")() : this.onUploadError();
 		},
 		fileSelect : function(a) {
 			var a = a.fileList, b = 0, c;
+			this.get("onSelect") ? this.get("onSelect")(a) : this.onSelect(a);
 			for (c in this.uploadInfo)
 				b++;
-			if (b == this.get("simLimit") || a.length > this.get("simLimit"))
+			if (b == this.get("simLimit") || a.length > this.get("simLimit")) {
+				this.get("onFileCountExceed") ? this.get("onFileCountExceed")(a.length, this.get("simLimit"))
+						: this.onFileCountExceed(a.length, this.get("simLimit"));
 				return !1;
+			}
 			for (c = 0; c < a.length; c++)
 				this.validateFile(a[c]) && this.startUpload(a[c]);
 		},
@@ -1204,22 +1232,15 @@
 				ext = -1 !== name.indexOf(".") ? name.replace(/.*[.]/, "").toLowerCase() : "",
 				filters = aFilters, valid = !1, msg = "";
 			this.getNode("upload-start-error", this.startPanel).style.display = "none";
-			if (uploader instanceof SWFUploader && this.get("maxSize") < size)
-				msg = fMessage("\u60a8\u7684\u89c6\u9891\u6587\u4ef6\u5927\u5c0f\u8d85\u8fc7{fileSize}\u4e86\uff0c\u8bf7\u4f7f\u7528\u6700\u5927\u652f\u630110G\u89c6\u9891\u7684\u4f18\u9177\u5ba2\u6237\u7aef\u4e0a\u4f20^_^",
-						{fileSize : "2G"});
-			else if (uploader instanceof StreamUploader && this.get("maxSize") < size)
-				msg = fMessage("\u60a8\u7684\u89c6\u9891\u6587\u4ef6\u5927\u5c0f\u8d85\u8fc7{fileSize}\u4e86\uff0c\u8bf7\u4f7f\u7528\u6700\u5927\u652f\u630110G\u89c6\u9891\u7684\u4f18\u9177\u5ba2\u6237\u7aef\u4e0a\u4f20^_^",
-						{fileSize : "2G"});
+			if (this.get("maxSize") < size)
+				this.get("onMaxSizeExceed") ? this.get("onMaxSizeExceed")(size, this.get("maxSize"), name) : this.onMaxSizeExceed(size, this.get("maxSize"), name);
 			else {
 				filters.length || (valid = !0);
-				for (uploader = 0; uploader < filters.length; uploader++)
-					filters[uploader].toLowerCase() == "." + ext && (valid = !0);
-				valid || (msg = fMessage("\u89c6\u9891\u6587\u4ef6\u683c\u5f0f\u4e0d\u652f\u6301\uff01\u652f\u6301\u7684\u6587\u4ef6\u683c\u5f0f\uff1awmv, avi, dat, asf, rm, rmvb, ram, mpg, mpeg, 3gp, mov, mp4, m4v, dvix, dv, dat, mkv, flv, vob, ram, qt, divx, cpk, fli, flc, mod",
-								{fileName : name}))
+				for (var i = 0; i < filters.length; i++)
+					filters[i].toLowerCase() == "." + ext && (valid = !0);
+				if (!valid)
+					this.get("onExtNameMismatch") ? this.get("onExtNameMismatch")(name, filters) : this.onExtNameMismatch(name, filters);
 			}
-			if (!valid && msg)
-				this.getNode("upload-start-error", this.startPanel).innerHTML = msg,
-				this.getNode("upload-start-error", this.startPanel).style.display = "block";
 			return valid;
 		},
 		formatSpeed : function(a) {
