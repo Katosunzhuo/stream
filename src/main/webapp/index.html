@@ -21,13 +21,10 @@
 			<span class="stream-percent">0%</span>，已上传<strong class="_stream-total-uploaded">&nbsp;</strong>
 			，总文件大小<strong class="_stream-total-size">&nbsp;</strong>
 		</div>
-		<div id="i_stream_message_container">
-		</div>
 	</div>
-	
-<br>
-<br>
-<br>
+
+	<div id="i_stream_message_container">
+	</div>
 <br>
 <br>
 
@@ -57,15 +54,16 @@
 	var config = {
 		multipleFiles: true,
 		maxSize: 5000000000,
-		simLimit: 1000,
-		extFilters: [".txt", ".rpm", ".mvmb", ".gz", ".rar", ".zip", ".avi"],
-		onSelect: function(list) {/*alert('onSelect')*/},
-		onMaxSizeExceed: function(size, limited, name) {/*alert('onMaxSizeExceed')*/},
-		onFileCountExceed: function(selected, limit) {/*alert('onFileCountExceed')*/},
-		onExtNameMismatch: function(name, filters) {/*alert('onExtNameMismatch')*/},
-		onComplete: function(info) {/*alert('onComplete')*/},
-		onQueueComplete: function() {/*alert('onQueueComplete')*/},
-		onUploadError: function() {alert('onUploadError')}
+		simLimit: 1000//,
+		/*extFilters: [".txt", ".rpm", ".mvmb", ".gz", ".rar", ".zip", ".avi"],
+		onSelect: function(list) {alert('onSelect')},
+		onMaxSizeExceed: function(size, limited, name) {alert('onMaxSizeExceed')},
+		onFileCountExceed: function(selected, limit) {alert('onFileCountExceed')},
+		onExtNameMismatch: function(name, filters) {alert('onExtNameMismatch')},
+		onCancel : function(file) {alert('Canceled:  ' + file.name)},
+		onComplete: function(file) {alert('onComplete')},
+		onQueueComplete: function() {alert('onQueueComplete')},*/
+		//onUploadError: function(status, msg) {alert('onUploadError')}
 	};
 	var _t = new Uploader(config);
 </script>

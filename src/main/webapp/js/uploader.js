@@ -127,7 +127,7 @@
 	
 	function fShowMessage(msg) {
 		var o = document.getElementById("i_stream_message_container");
-		o.innerHTML += "<br>" + msg;
+		o && (o.innerHTML += "<br>" + msg);
 	}
 	
 	function fMessage(msg, VarVals, c, d) {
@@ -717,7 +717,7 @@
 		name: "executor",
 		initializer: function(file){
 			this.XHR = null;
-			this.retryTimes = 50;
+			this.retryTimes = 10;
 			this.retriedTimes = 0;
 			this.file = null;
 			this.fileId = null;
@@ -725,8 +725,6 @@
 			this.fileSizeValue = 0;
 			this.fileStartPosValue = null;
 			
-			this.maxPiece = 10485760; // 10M
-			this.endTime = null;
 			this.durationTime = 2000;
 			this.xhrHandler = null;
 			
@@ -807,8 +805,6 @@
 			0 === pos && this.fire("uploadstart", {xhr : _xhr});
 		},
 		resumeUpload: function(){
-			/** whether continue uploading. */
-			if(this.retryTimes <= this.retriedTimes) {return;}
 			this.resetXhr();
 			this.XHR = new XMLHttpRequest;
 			this.resume = true;
@@ -826,7 +822,6 @@
 			this.XHR.send(null);
 		},
 		retry: function(){
-			if(this.retryTimes <= this.retriedTimes) {return;}
             this.retriedTimes++;
             var g = this;
             2 > this.retriedTimes ? this.resumeUpload()
@@ -836,8 +831,6 @@
 			var xhr = this.XHR;
 			switch(event.type){
 				case "load":
-					this.endTime = new Date();
-					
 					var uploaded = 0;
 					var respJson = null;
 					try {
@@ -855,8 +848,13 @@
 					}
 					break;
 				case "error":
-					xhr = null;
-					this.retry();
+					this.retriedTimes < this.retryTimes ? this.retry()
+						: this.fire("uploaderror", {
+									originEvent : event,
+									status : xhr.status,
+									statusText : xhr.statusText,
+									source : "io"
+								});
 					break;
 				case "abort":
 					this.fire("uploadcancel", {originEvent : event});
@@ -865,6 +863,7 @@
 					var total = this.get("size"), loaded = this.bytesStart + event.loaded,
 						now = (new Date).getTime(), cost = (now - this.preTime) / 1E3, totalSpeeds = 0;
 					if (0.68 <= cost || 0 === this.bytesSpeeds.length) {
+						this.bytesPrevLoaded = Math.max(this.bytesStart, this.bytesPrevLoaded);
 						this.bytesSpeed = Math.round((loaded - this.bytesPrevLoaded) / cost);
 						this.bytesPrevLoaded = loaded;
 						this.preTime = now;
@@ -934,6 +933,7 @@
 			onMaxSizeExceed : cfg.onMaxSizeExceed,
 			onFileCountExceed : cfg.onFileCountExceed,
 			onExtNameMismatch : cfg.onExtNameMismatch,
+			onCancel : cfg.onCancel,
 			onComplete : cfg.onComplete,
 			onQueueComplete: cfg.onQueueComplete,
 			onUploadError: cfg.onUploadError,
@@ -1025,13 +1025,17 @@
 		onExtNameMismatch: function(name, filters) {
 			fShowMessage("Allow ext name: [" + filters.toString() + "], not for " + name);
 		},
+		onCancel : function(info) {
+			fShowMessage("Canceled: " + info.name);
+		},
 		onComplete : function(info) {
 			fShowMessage("File:" + info.name + ", Size:" + info.size + " onComplete	[OK]");
 		},
 		onQueueComplete : function(info) {
 			fShowMessage("onQueueComplete	---==>		[OK]");
 		},
-		onUploadError : function(a, b) {
+		onUploadError : function(status, msg) {
+			fShowMessage("Error Occur.  Status:" + status + ", Message: " + msg);
 		},
 		disable : function(a) {
 			if (!this.uploadInfo[a].disabled)
@@ -1076,6 +1080,7 @@
 			if (this.uploadInfo[id].disabled)
 				return !1;
 			this.uploadInfo[id] && !this.uploadInfo[id].uploadComplete;
+			this.get("onCancel") ? this.get("onCancel")(this.uploadInfo[id].file.config) : this.onCancel(this.uploadInfo[id].file.config);
 			this.cancelUpload(id);
 		},
 		selectorBtnHandler : function(a, b) {
@@ -1211,8 +1216,8 @@
 		getNode : function(a, b) {
 			return fContains(b || this.containerPanel, a)[0] || null;
 		},
-		uploadError : function() {
-			this.get("onUploadError") ? this.get("onUploadError")() : this.onUploadError();
+		uploadError : function(evt) {
+			this.get("onUploadError") ? this.get("onUploadError")(evt.status, evt.statusText) : this.onUploadError(evt.status, evt.statusText);
 		},
 		fileSelect : function(a) {
 			var a = a.fileList, b = 0, c;
