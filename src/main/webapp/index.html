@@ -52,30 +52,32 @@
 <script type="text/javascript" src="/js/stream-v1.js"></script>
 <script type="text/javascript">
 /**
- * 
+ * 配置文件（如果没有默认字样，说明默认值就是注释下的值）
+ * 但是，on*（onSelect， onMaxSizeExceed...）等函数的默认行为
+ * 是在ID为i_stream_message_container的页面元素中写日志
  */
 	var config = {
-		multipleFiles: true,
-		maxSize: 5000000000,
-		retryCount : 5, /** HTML5上传失败的重试次数 */
-//		postVarsPerFile : { /** 上传文件时传入的参数 */
+		multipleFiles: true//, /** 多个文件一起上传, 默认: false */
+//		maxSize: 2147483648, /** 单个文件的最大大小： 2G */
+//		retryCount : 5, /** HTML5上传失败的重试次数 */
+//		postVarsPerFile : { /** 上传文件时传入的参数，默认: {} */
 //			param1: "val1",
 //			param2: "val2"
 //		},
 //		swfURL : "/swf/FlashUploader.swf", /** SWF文件的位置 */
 //		tokenURL : "/tk", /** 根据文件名、大小等信息获取Token的URI（用于生成断点续传、跨域的令牌） */
-//		frmUploadURL : "/fd2;", /** Flash上传的URI */
+//		frmUploadURL : "/fd;", /** Flash上传的URI */
 //		uploadURL : "/upload", /** HTML5上传的URI */
-		simLimit: 1000, /** 单次最大上传文件个数 */
-		extFilters: [".txt", ".rpm", ".mvmb", ".gz", ".rar", ".zip", ".avi"]/*,
-		onSelect: function(list) {alert('onSelect')},
-		onMaxSizeExceed: function(size, limited, name) {alert('onMaxSizeExceed')},
-		onFileCountExceed: function(selected, limit) {alert('onFileCountExceed')},
-		onExtNameMismatch: function(name, filters) {alert('onExtNameMismatch')},
-		onCancel : function(file) {alert('Canceled:  ' + file.name)},
-		onComplete: function(file) {alert('onComplete')},
-		onQueueComplete: function() {alert('onQueueComplete')},*/
-//		onUploadError: function(status, msg) {alert('onUploadError')}
+//		simLimit: 10, /** 单次最大上传文件个数 */
+//		extFilters: [".txt", ".rpm", ".rmvb", ".gz", ".rar", ".zip", ".avi", ".mkv", ".mp3"], /** 允许的文件扩展名, 默认: [] */
+//		onSelect: function(list) {alert('onSelect')}, /** 选择文件后的响应事件 */
+//		onMaxSizeExceed: function(size, limited, name) {alert('onMaxSizeExceed')}, /** 文件大小超出的响应事件 */
+//		onFileCountExceed: function(selected, limit) {alert('onFileCountExceed')}, /** 文件数量超出的响应事件 */
+//		onExtNameMismatch: function(name, filters) {alert('onExtNameMismatch')}, /** 文件的扩展名不匹配的响应事件 */
+//		onCancel : function(file) {alert('Canceled:  ' + file.name)}, /** 取消上传文件的响应事件 */
+//		onComplete: function(file) {alert('onComplete')}, /** 单个文件上传完毕的响应事件 */
+//		onQueueComplete: function() {alert('onQueueComplete')}, /** 所以文件上传完毕的响应事件 */
+//		onUploadError: function(status, msg) {alert('onUploadError')} /** 文件上传出错的响应事件 */
 	};
 	var _t = new Stream(config);
 </script>

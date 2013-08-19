@@ -1448,7 +1448,6 @@
 		})();
 		return bFile && (bFormData || bHtml5);
 	}();
-	bStreaming=false;
 	Provider = bStreaming ? StreamProvider : SWFProvider;
-	window.Stream = Main;
+	window.Stream = window.Uploader = Main; /** window.Uploader是SWF组件的关键字(保留) */
 })();
