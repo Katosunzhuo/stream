@@ -937,14 +937,14 @@
 			onComplete : cfg.onComplete,
 			onQueueComplete: cfg.onQueueComplete,
 			onUploadError: cfg.onUploadError,
-			maxSize : cfg.maxSize ? cfg.maxSize : 2147483648,
-			simLimit : cfg.simLimit ? cfg.simLimit : 10,
-			retryCount : cfg.retryCount ? cfg.retryCount : 5,
+			maxSize : cfg.maxSize || 2147483648,
+			simLimit : cfg.simLimit || 10,
+			retryCount : cfg.retryCount || 5,
 			postVarsPerFile : {},
-			swfURL : cfg.swfURL ? cfg.swfURL : "/swf/FlashUploader.swf",
-			tokenURL : cfg.tokenURL ? cfg.tokenURL : "/tk",
-			frmUploadURL : cfg.frmUploadURL ? cfg.frmUploadURL : "/fd;",
-			uploadURL : cfg.uploadURL ? cfg.uploadURL : "/upload"
+			swfURL : cfg.swfURL || "/swf/FlashUploader.swf",
+			tokenURL : cfg.tokenURL || "/tk",
+			frmUploadURL : cfg.frmUploadURL || "/fd;",
+			uploadURL : cfg.uploadURL || "/upload"
 		};
 		Parent.apply(this, arguments);
 	}
@@ -1448,6 +1448,7 @@
 		})();
 		return bFile && (bFormData || bHtml5);
 	}();
+	bStreaming=false;
 	Provider = bStreaming ? StreamProvider : SWFProvider;
 	window.Stream = Main;
 })();

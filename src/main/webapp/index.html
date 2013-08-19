@@ -51,11 +51,23 @@
 
 <script type="text/javascript" src="/js/stream-v1.js"></script>
 <script type="text/javascript">
+/**
+ * 
+ */
 	var config = {
 		multipleFiles: true,
 		maxSize: 5000000000,
-		simLimit: 1000//,
-		/*extFilters: [".txt", ".rpm", ".mvmb", ".gz", ".rar", ".zip", ".avi"],
+		retryCount : 5, /** HTML5上传失败的重试次数 */
+//		postVarsPerFile : { /** 上传文件时传入的参数 */
+//			param1: "val1",
+//			param2: "val2"
+//		},
+//		swfURL : "/swf/FlashUploader.swf", /** SWF文件的位置 */
+//		tokenURL : "/tk", /** 根据文件名、大小等信息获取Token的URI（用于生成断点续传、跨域的令牌） */
+//		frmUploadURL : "/fd2;", /** Flash上传的URI */
+//		uploadURL : "/upload", /** HTML5上传的URI */
+		simLimit: 1000, /** 单次最大上传文件个数 */
+		extFilters: [".txt", ".rpm", ".mvmb", ".gz", ".rar", ".zip", ".avi"]/*,
 		onSelect: function(list) {alert('onSelect')},
 		onMaxSizeExceed: function(size, limited, name) {alert('onMaxSizeExceed')},
 		onFileCountExceed: function(selected, limit) {alert('onFileCountExceed')},
@@ -63,7 +75,7 @@
 		onCancel : function(file) {alert('Canceled:  ' + file.name)},
 		onComplete: function(file) {alert('onComplete')},
 		onQueueComplete: function() {alert('onQueueComplete')},*/
-		//onUploadError: function(status, msg) {alert('onUploadError')}
+//		onUploadError: function(status, msg) {alert('onUploadError')}
 	};
 	var _t = new Stream(config);
 </script>
