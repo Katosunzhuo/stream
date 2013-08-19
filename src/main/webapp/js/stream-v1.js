@@ -8,12 +8,12 @@
  *  Browswer. This js function mainly borrow from youku.com's uploader.min.js
  *  and try to re-create it for fullfiting my requirement. 
  * @example
- * 		1. new Uploader();
+ * 		1. new Stream();
  * 		2. var cfg = {
  * 				extFilters : [".txt", ".gz"],
  * 				fileFieldName : "FileData"
  * 			};
- * 		   new Uploader(cfg);
+ * 		   new Stream(cfg);
  */ 
 (function(){
 	var Provider, aFilters = [], nIdCount = 0, aOtherBrowsers = ["Maxthon", "SE 2.X", "QQBrowser"],
@@ -1094,14 +1094,10 @@
 				d = b.nodeId, e = b.type, 
 				f = this.uploadInfo[d].progressNode;
 		},
-		unloadHandler : function(a) {
-			var a = a || window.event, b = !0, c;
-			for (c in this.uploadInfo) {
-				b = !1;
-				break;
-			}
-			if (!b)
-				return a.returnValue = "\u60a8\u6b63\u5728\u4e0a\u4f20\u89c6\u9891\uff0c\u5173\u95ed\u6b64\u9875\u9762\u5c06\u4f1a\u4e2d\u65ad\u4e0a\u4f20\uff0c\u5efa\u8bae\u60a8\u7b49\u5f85\u4e0a\u4f20\u5b8c\u6210\u540e\u518d\u5173\u95ed\u6b64\u9875\u9762";
+		unloadHandler : function(evt) {
+			var evt = evt || window.event;
+			if (this.waiting.length > 0)
+				return evt.returnValue = "\u60A8\u6B63\u5728\u4E0A\u4F20\u6587\u4EF6\uFF0C\u5173\u95ED\u6B64\u9875\u9762\u5C06\u4F1A\u4E2D\u65AD\u4E0A\u4F20\uFF0C\u5EFA\u8BAE\u60A8\u7B49\u5F85\u4E0A\u4F20\u5B8C\u6210\u540E\u518D\u5173\u95ED\u6B64\u9875\u9762";
 		},
 		createUploadTask : function(index) {
 			if(this.uploading) return;
@@ -1453,5 +1449,5 @@
 		return bFile && (bFormData || bHtml5);
 	}();
 	Provider = bStreaming ? StreamProvider : SWFProvider;
-	window.Uploader = Main;
+	window.Stream = Main;
 })();

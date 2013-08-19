@@ -3,7 +3,7 @@
 	 "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-	<display-name>Archetype Created Web Application</display-name>
+	<display-name>Stream Uploader Application</display-name>
   	
   	<!-- Application parameters of CROSS_ORIGIN -->
   	<context-param>
@@ -13,7 +13,7 @@
 	<servlet>
 		<servlet-name>TokenServlet</servlet-name>
 		<servlet-class>com.jiangdx.stream.servlet.TokenServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
+		<load-on-startup>0</load-on-startup>
 		<init-param>
 			<param-name>CROSS</param-name>
 			<param-value>false</param-value>
@@ -30,7 +30,7 @@
 	<servlet>
 		<servlet-name>StreamServlet</servlet-name>
 		<servlet-class>com.jiangdx.stream.servlet.StreamServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
+		<load-on-startup>0</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>StreamServlet</servlet-name>
@@ -39,7 +39,7 @@
 	<servlet>
 		<servlet-name>FormDataServlet</servlet-name>
 		<servlet-class>com.jiangdx.stream.servlet.FormDataServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
+		<load-on-startup>0</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>FormDataServlet</servlet-name>
