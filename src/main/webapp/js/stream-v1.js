@@ -605,10 +605,33 @@
 		},
 		bindDropArea : function() {
 			var a = this.get("dragAndDropArea");
-			null !== a	&& (fAddEventListener(a, "drop", fExtend(this.ddEventHandler, this)),
-							fAddEventListener(a, "dragenter", fExtend(this.ddEventHandler, this)),
-							fAddEventListener(a, "dragover", fExtend(this.ddEventHandler, this)),
-							fAddEventListener(a, "dragleave", fExtend(this.ddEventHandler, this)));
+			null !== a	&& (fAddEventListener(a, "drop", fExtend(this.dragEventHandler, this)),
+							fAddEventListener(a, "dragenter", fExtend(this.dragEventHandler, this)),
+							fAddEventListener(a, "dragover", fExtend(this.dragEventHandler, this)),
+							fAddEventListener(a, "dragleave", fExtend(this.dragEventHandler, this)));
+		},
+		dragEventHandler : function(evt) {
+			evt = evt || window.event;
+			evt.preventDefault ? evt.preventDefault() : evt.returnValue = !1;
+			evt.stopPropagation ? evt.stopPropagation() : evt.cancelBubble = !0;
+			switch (evt.type) {
+				case "dragenter" :
+					this.fire("dragenter");
+					break;
+				case "dragover" :
+					this.fire("dragover");
+					break;
+				case "dragleave" :
+					this.fire("dragleave");
+					break;
+				case "drop" :
+					for (var files = evt.dataTransfer.files, list = [], c = 0; c < files.length; c++)
+						list.push(new StreamUploader(files[c]));
+					0 < list.length && this.fire("fileselect", {
+								fileList : list
+							});
+					this.fire("drop");
+			}
 		},
 		rebindFileField : function() {
 			this.fileInputField.parentNode.removeChild(this.fileInputField);
@@ -928,6 +951,7 @@
 			enabled : !0,
 			multipleFiles : !!cfg.multipleFiles,
 			appendNewFiles : !!cfg.appendNewFiles,
+			dragAndDropArea: document,
 			fileFieldName : "FileData",
 			onSelect : cfg.onSelect,
 			onMaxSizeExceed : cfg.onMaxSizeExceed,
