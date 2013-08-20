@@ -962,7 +962,7 @@
 			onQueueComplete: cfg.onQueueComplete,
 			onUploadError: cfg.onUploadError,
 			maxSize : cfg.maxSize || 2147483648,
-			simLimit : cfg.simLimit || 10,
+			simLimit : cfg.simLimit || 100,
 			retryCount : cfg.retryCount || 5,
 			postVarsPerFile : {},
 			swfURL : cfg.swfURL || "/swf/FlashUploader.swf",
