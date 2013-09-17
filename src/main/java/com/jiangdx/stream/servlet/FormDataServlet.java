@@ -51,6 +51,7 @@ public class FormDataServlet extends HttpServlet {
 		// Create a new file upload handler
 		ServletFileUpload upload = new ServletFileUpload();
 		InputStream in = null;
+		String key = null;
 		try {
 			FileItemIterator iter = upload.getItemIterator(req);
 			while (iter.hasNext()) {
@@ -60,9 +61,11 @@ public class FormDataServlet extends HttpServlet {
 				if (item.isFormField()) {
 					String value = Streams.asString(in);
 					System.out.println(name + ":" + value);
+					if (TokenServlet.TOKEN_FIELD.equals(name))
+						key = value;
 				} else {
 					String fileName = item.getName();
-					long start = IoUtil.streaming(in, fileName);
+					long start = IoUtil.streaming(in, key, fileName);
 					StringBuilder buf = new StringBuilder("{");
 					buf.append(StreamServlet.START_FIELD).append(":")
 							.append(start).append("}");

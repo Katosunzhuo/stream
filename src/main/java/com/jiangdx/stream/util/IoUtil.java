@@ -101,10 +101,10 @@ public class IoUtil {
 	/**
 	 * From the InputStream, write its data to the given file.
 	 */
-	public static long streaming(InputStream in, String fileName) throws IOException {
+	public static long streaming(InputStream in, String key, String fileName) throws IOException {
 		OutputStream out = null;
 		try {
-			File f = getFile(fileName);
+			File f = getFile(key);
 			out = new FileOutputStream(f);
 
 			int read = 0;
@@ -112,6 +112,9 @@ public class IoUtil {
 			while ((read = in.read(bytes)) != -1) {
 				out.write(bytes, 0, read);
 			}
+			/** rename the file */
+			f.renameTo(getFile(fileName));
+			
 			return f.length();
 		} finally {
 			close(out);
