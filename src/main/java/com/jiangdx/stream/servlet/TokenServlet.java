@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jiangdx.stream.util.IoUtil;
 import com.jiangdx.stream.util.TokenUtil;
 
 /**
@@ -47,6 +48,9 @@ public class TokenServlet extends HttpServlet {
 			buf.append(",").append(SERVER_FIELD).append(":\"")
 			.append(server).append("\"");
 		buf.append("}");
+		
+		/** save the token. */
+		IoUtil.getFile(token);
 		
 		writer.write(buf.toString());
 	}

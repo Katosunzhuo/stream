@@ -2,6 +2,7 @@ package com.jiangdx.stream.util;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,25 @@ public class IoUtil {
 			f.getParentFile().mkdirs();
 		if (!f.exists())
 			f.createNewFile();
+		
+		return f;
+	}
+
+	/**
+	 * Acquired the file.
+	 * @param key
+	 * @return
+	 * @throws FileNotFoundException If key not found, will throws this.
+	 */
+	public static File getTokenedFile(String key) throws FileNotFoundException {
+		if (key == null || key.isEmpty())
+			return null;
+
+		File f = new File(REPOSITORY + File.separator + key);
+		if (!f.getParentFile().exists())
+			f.getParentFile().mkdirs();
+		if (!f.exists())
+			throw new FileNotFoundException("File `" +f + "` not exist.");
 		
 		return f;
 	}

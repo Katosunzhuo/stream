@@ -42,15 +42,21 @@ public class StreamServlet extends HttpServlet {
 		doOptions(req, resp);
 
 		final String key = req.getParameter(TokenServlet.TOKEN_FIELD);
+		final String size = req.getParameter(TokenServlet.FILE_SIZE_FIELD);
+		final String fileName = req.getParameter(TokenServlet.FILE_NAME_FIELD);
 		final PrintWriter writer = resp.getWriter();
 		try {
-			File f = IoUtil.getFile(key);
+			File f = IoUtil.getTokenedFile(key);
 			long start = f.length();
+			/** file size is 0 bytes. */
+			if (key.endsWith("_0") && "0".equals(size) && 0 == start)
+				f.renameTo(IoUtil.getFile(fileName));
+
 			StringBuilder buf = new StringBuilder("{");
 			buf.append(START_FIELD).append(":").append(start).append("}");
 			writer.write(buf.toString());
 		} catch (FileNotFoundException fne) {
-			writer.println("<br/> ERROR: " + fne.getMessage());
+			writer.write("{msg: \"wrong token\"}");
 		} finally {
 			IoUtil.close(writer);
 		}
@@ -69,7 +75,7 @@ public class StreamServlet extends HttpServlet {
 		InputStream content = null;
 		final PrintWriter writer = resp.getWriter();
 		try {
-			File f = IoUtil.getFile(token);
+			File f = IoUtil.getTokenedFile(token);
 			if (f.length() != range.getFrom())
 				throw new IOException("File from position error!");
 			
