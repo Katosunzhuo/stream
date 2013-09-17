@@ -446,7 +446,7 @@
 					this.fire("uploadcancel", a);
 			}
 		},
-		upload : function(uploader, url, c) {
+		upload : function(uploader, url, postVars) {
 			var url = url || this.get("uploadURL"), postVars = postVars || this.get("postVarsPerFile"), id = uploader.id,
 				postVars = postVars.hasOwnProperty(id) ? postVars[id] : postVars;
 			uploader instanceof SWFUploader
@@ -915,6 +915,7 @@
 			this.retriedTimes = 0;
 
 			postVars.name = this.get("name");
+			postVars.size = this.get("size");
 			var method = this.get("uploadMethod");
 			this.set("uploadURL", fAddVars(postVars, url));
 			this.set("parameters", postVars);
@@ -1088,6 +1089,8 @@
 			var _loaded = this.formatBytes(this.totalUploadedSize);
 			var percent = this.totalUploadedSize * 10000 / this.totalFileSize / 100;
 			100 > percent && (percent = parseFloat(percent).toFixed(2));
+			if (this.totalFileSize === 0)
+				percent = 100;
 			var _total = this.formatBytes(this.totalFileSize);
 			this.getNode("_stream-total-size", this.totalContainerPanel).innerHTML = _total;
 			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
@@ -1227,6 +1230,8 @@
 			var _loaded = this.formatBytes(this.totalUploadedSize);
 			var percent = this.totalUploadedSize * 10000 / this.totalFileSize / 100;
 			100 > percent && (percent = parseFloat(percent).toFixed(2));
+			if (this.totalFileSize === 0)
+				percent = 100;
 			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
 			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
 			this.getNode("stream-process-bar", this.totalContainerPanel).getElementsByTagName("span")[0].style.width = percent + "%";
