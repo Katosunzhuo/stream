@@ -50,7 +50,7 @@
 	
 	function fRemoveEventListener(a, b, c) {
 		a.removeEventListener ? a.removeEventListener(b, c, !1) : a.detachEvent
-				? a.detachEvent("on" + b, c || function(){})
+				? a.detachEvent("on" + b, c)
 				: a["on" + b] = null;
 	}
 	
@@ -861,7 +861,7 @@
 							uploaded = (respJson = eval("(" + xhr.responseText + ")")) ? respJson.start : -1;
 						} else {return;}
 						/** the response can't process the request, so throws out the error. */
-						if (!!respJson.success) {
+						if (respJson.success == false) {
 							this.fire("uploaderror", {
 								originEvent : event,
 								status : xhr.status,
@@ -1039,7 +1039,8 @@
 		},
 		bindUI : function(file_id) {
 			var b = this.uploadInfo[file_id].progressNode, cancelBtn = this.getNode("stream-cancel", b);
-			this.cancelBtnHandler = fAddEventListener(cancelBtn, "click", fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : file_id}));
+			this.cancelBtnHandler = fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : file_id});
+			fAddEventListener(cancelBtn, "click", this.cancelBtnHandler);
 		},
 		completeUpload : function(file_id) {
 			this.get("onComplete") ? this.get("onComplete")(this.uploadInfo[file_id].file.config) : this.onComplete(this.uploadInfo[file_id].file.config);
