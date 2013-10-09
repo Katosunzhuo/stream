@@ -859,7 +859,16 @@
 					try {
 						if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 308)) {
 							uploaded = (respJson = eval("(" + xhr.responseText + ")")) ? respJson.start : -1;
-					} else {return;}
+						} else {return;}
+						/** the response can't process the request, so throws out the error. */
+						if (!!respJson.success) {
+							this.fire("uploaderror", {
+								originEvent : event,
+								status : xhr.status,
+								statusText : xhr.responseText,
+								source : respJson.message
+							});
+						}
 					} catch(e) {this.retry();}
 					//check whether upload complete yet
 					if(uploaded < this.get("size") -1) {

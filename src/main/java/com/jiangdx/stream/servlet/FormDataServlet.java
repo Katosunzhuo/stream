@@ -14,6 +14,8 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.jiangdx.stream.util.IoUtil;
 
@@ -46,6 +48,10 @@ public class FormDataServlet extends HttpServlet {
 			writer.println("<br/> ERROR: It's not Multipart form.");
 			return;
 		}
+		JSONObject json = new JSONObject();
+		long start = 0;
+		boolean success = true;
+		String message = "";
 		// Now we are ready to parse the request into its constituent items.
 		// Here's how we do it:
 		// Create a new file upload handler
@@ -65,16 +71,21 @@ public class FormDataServlet extends HttpServlet {
 						key = value;
 				} else {
 					String fileName = item.getName();
-					long start = IoUtil.streaming(in, key, fileName);
-					StringBuilder buf = new StringBuilder("{");
-					buf.append(StreamServlet.START_FIELD).append(":")
-							.append(start).append("}");
-					writer.write(buf.toString());
+					start = IoUtil.streaming(in, key, fileName);
 				}
 			}
 		} catch (FileUploadException fne) {
-			writer.println("<br/> ERROR: " + fne.getMessage());
+			success = false;
+			message = "Error: " + fne.getLocalizedMessage();
 		} finally {
+			try {
+				if (success)
+					json.put(StreamServlet.START_FIELD, start);
+				json.put(TokenServlet.SUCCESS, success);
+				json.put(TokenServlet.MESSAGE, message);
+			} catch (JSONException e) {}
+			
+			writer.write(json.toString());
 			IoUtil.close(in);
 			IoUtil.close(writer);
 		}

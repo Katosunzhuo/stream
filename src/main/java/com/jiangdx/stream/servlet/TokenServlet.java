@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.jiangdx.stream.util.IoUtil;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.jiangdx.stream.util.TokenUtil;
 
 /**
@@ -21,6 +23,8 @@ public class TokenServlet extends HttpServlet {
 	static final String FILE_SIZE_FIELD = "size";
 	static final String TOKEN_FIELD = "token";
 	static final String SERVER_FIELD = "server";
+	static final String SUCCESS = "success";
+	static final String MESSAGE = "message";
 	
 	/** mark it whether cross domain for uploading */
 	static final String CROSS = "CROSS";
@@ -42,17 +46,19 @@ public class TokenServlet extends HttpServlet {
 		String token = TokenUtil.generateToken(name, size);
 		
 		PrintWriter writer = resp.getWriter();
-		StringBuilder buf = new StringBuilder("{");
-		buf.append(TOKEN_FIELD).append(":\"").append(token).append("\"");
-		if (cross)
-			buf.append(",").append(SERVER_FIELD).append(":\"")
-			.append(server).append("\"");
-		buf.append("}");
 		
-		/** save the token. */
-		IoUtil.getFile(token);
+		JSONObject json = new JSONObject();
+		try {
+			json.put(TOKEN_FIELD, token);
+			if (cross)
+				json.put(SERVER_FIELD, server);
+			json.put(SUCCESS, true);
+			json.put(MESSAGE, "");
+		} catch (JSONException e) {
+		}
+		/** TODO: save the token. */
 		
-		writer.write(buf.toString());
+		writer.write(json.toString());
 	}
 
 	@Override

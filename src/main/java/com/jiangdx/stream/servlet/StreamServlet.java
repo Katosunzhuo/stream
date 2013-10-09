@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.jiangdx.stream.util.IoUtil;
 
 /**
@@ -41,23 +44,35 @@ public class StreamServlet extends HttpServlet {
 			throws ServletException, IOException {
 		doOptions(req, resp);
 
-		final String key = req.getParameter(TokenServlet.TOKEN_FIELD);
+		final String token = req.getParameter(TokenServlet.TOKEN_FIELD);
 		final String size = req.getParameter(TokenServlet.FILE_SIZE_FIELD);
 		final String fileName = req.getParameter(TokenServlet.FILE_NAME_FIELD);
 		final PrintWriter writer = resp.getWriter();
+		
+		/** TODO: validate your token. */
+		
+		JSONObject json = new JSONObject();
+		long start = 0;
+		boolean success = true;
+		String message = "";
 		try {
-			File f = IoUtil.getTokenedFile(key);
-			long start = f.length();
+			File f = IoUtil.getFile(token);
+			start = f.length();
 			/** file size is 0 bytes. */
-			if (key.endsWith("_0") && "0".equals(size) && 0 == start)
+			if (token.endsWith("_0") && "0".equals(size) && 0 == start)
 				f.renameTo(IoUtil.getFile(fileName));
-
-			StringBuilder buf = new StringBuilder("{");
-			buf.append(START_FIELD).append(":").append(start).append("}");
-			writer.write(buf.toString());
 		} catch (FileNotFoundException fne) {
-			writer.write("{msg: \"wrong token\"}");
+			message = "Error: " + fne.getMessage();
+			success = false;
 		} finally {
+			try {
+				if (success)
+					json.put(START_FIELD, start);
+				json.put(TokenServlet.SUCCESS, success);
+				json.put(TokenServlet.MESSAGE, message);
+			} catch (JSONException e) {}
+			
+			writer.write(json.toString());
 			IoUtil.close(writer);
 		}
 	}
@@ -74,8 +89,15 @@ public class StreamServlet extends HttpServlet {
 		OutputStream out = null;
 		InputStream content = null;
 		final PrintWriter writer = resp.getWriter();
+		
+		/** TODO: validate your token. */
+		
+		JSONObject json = new JSONObject();
+		long start = 0;
+		boolean success = true;
+		String message = "";
 		try {
-			File f = IoUtil.getTokenedFile(token);
+			File f = IoUtil.getFile(token);
 			if (f.length() != range.getFrom())
 				throw new IOException("File from position error!");
 			
@@ -83,21 +105,25 @@ public class StreamServlet extends HttpServlet {
 			content = req.getInputStream();
 			int read = 0;
 			final byte[] bytes = new byte[BUFFER_LENGTH];
-			while ((read = content.read(bytes)) != -1) {
+			while ((read = content.read(bytes)) != -1)
 				out.write(bytes, 0, read);
-			}
 
-			long start = f.length();
+			start = f.length();
 			/** rename the file */
 			if (range.getSize() == start)
 				f.renameTo(IoUtil.getFile(fileName));
-
-			StringBuilder buf = new StringBuilder("{");
-			buf.append(START_FIELD).append(":").append(start).append("}");
-			writer.write(buf.toString());
 		} catch (FileNotFoundException fne) {
-			writer.println("<br/> ERROR: " + fne.getMessage());
+			message = "Error: " + fne.getMessage();
+			success = false;
 		} finally {
+			try {
+				if (success)
+					json.put(START_FIELD, start);
+				json.put(TokenServlet.SUCCESS, success);
+				json.put(TokenServlet.MESSAGE, message);
+			} catch (JSONException e) {}
+			
+			writer.write(json.toString());
 			IoUtil.close(out);
 			IoUtil.close(content);
 			IoUtil.close(writer);

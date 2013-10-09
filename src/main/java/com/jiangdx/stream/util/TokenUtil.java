@@ -9,7 +9,7 @@ import java.io.IOException;
 public class TokenUtil {
 
 	/**
-	 * 生成Token， name的Hash值加密+_+size的值
+	 * 生成Token， A(hashcode>0)|B + |name的Hash值| +_+size的值
 	 * @param name
 	 * @param size
 	 * @return
@@ -19,8 +19,9 @@ public class TokenUtil {
 			throws IOException {
 		if (name == null || size == null)
 			return "";
+		int code = name.hashCode();
 		try {
-			return name.hashCode() + "_" + size.trim();
+			return (code > 0 ? "A" : "B") + Math.abs(code) + "_" + size.trim();
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
