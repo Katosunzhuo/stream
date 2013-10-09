@@ -50,7 +50,7 @@
 	
 	function fRemoveEventListener(a, b, c) {
 		a.removeEventListener ? a.removeEventListener(b, c, !1) : a.detachEvent
-				? a.detachEvent("on" + b, c)
+				? a.detachEvent("on" + b, c || function(){})
 				: a["on" + b] = null;
 	}
 	
