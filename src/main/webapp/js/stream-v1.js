@@ -900,6 +900,7 @@
 						this.bytesPrevLoaded = loaded;
 						this.preTime = now;
 						5 < this.bytesSpeeds.length && this.bytesSpeeds.shift();
+						5 > this.bytesSpeeds.length && (this.bytesSpeed = this.bytesSpeed / 2);
 						this.bytesSpeeds.push(this.bytesSpeed);
 						for (var i = 0; i < this.bytesSpeeds.length; i++)
 							totalSpeeds += this.bytesSpeeds[i];
