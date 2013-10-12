@@ -45,7 +45,7 @@ public class FormDataServlet extends HttpServlet {
 		// Check that we have a file upload request
 		boolean isMultipart = ServletFileUpload.isMultipartContent(req);
 		if (!isMultipart) {
-			writer.println("<br/> ERROR: It's not Multipart form.");
+			writer.println("ERROR: It's not Multipart form.");
 			return;
 		}
 		JSONObject json = new JSONObject();
@@ -57,7 +57,9 @@ public class FormDataServlet extends HttpServlet {
 		// Create a new file upload handler
 		ServletFileUpload upload = new ServletFileUpload();
 		InputStream in = null;
-		String key = null;
+		String token = req.getParameter(TokenServlet.TOKEN_FIELD);
+		/** TODO: validate your token. */
+		
 		try {
 			FileItemIterator iter = upload.getItemIterator(req);
 			while (iter.hasNext()) {
@@ -67,11 +69,9 @@ public class FormDataServlet extends HttpServlet {
 				if (item.isFormField()) {
 					String value = Streams.asString(in);
 					System.out.println(name + ":" + value);
-					if (TokenServlet.TOKEN_FIELD.equals(name))
-						key = value;
 				} else {
 					String fileName = item.getName();
-					start = IoUtil.streaming(in, key, fileName);
+					start = IoUtil.streaming(in, token, fileName);
 				}
 			}
 		} catch (FileUploadException fne) {

@@ -103,6 +103,7 @@ public class IoUtil {
 	 */
 	public static long streaming(InputStream in, String key, String fileName) throws IOException {
 		OutputStream out = null;
+		long size = 0;
 		try {
 			File f = getFile(key);
 			out = new FileOutputStream(f);
@@ -112,12 +113,14 @@ public class IoUtil {
 			while ((read = in.read(bytes)) != -1) {
 				out.write(bytes, 0, read);
 			}
+			out.flush();
 			/** rename the file */
 			f.renameTo(getFile(fileName));
 			
-			return f.length();
+			size = getFile(fileName).length();
 		} finally {
 			close(out);
 		}
+		return size;
 	}
 }

@@ -827,7 +827,13 @@
 			_xhr.send(blob);
 			0 === pos && this.fire("uploadstart", {xhr : _xhr});
 		},
-		resumeUpload: function(){
+		resumeUpload: function() {
+			/** when Browse has `File`, but has not `File.slice` */
+			if (!bFileSlice) {
+				this.formUpload();
+				return;
+			}
+			
 			this.resetXhr();
 			this.XHR = new XMLHttpRequest;
 			this.resume = true;
@@ -851,25 +857,34 @@
             					: (this.timeoutHandler && clearTimeout(this.timeoutHandler), this.timeoutHandler = setTimeout(function() {g.resumeUpload()}, 1E4));
 		},
 		uploadEventHandler: function(event){
-			var xhr = this.XHR;
+			var xhr = this.XHR, method = this.get("uploadMethod");;
 			switch(event.type){
 				case "load":
 					var uploaded = 0;
 					var respJson = null;
+					var bError = !1;
 					try {
 						if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 308)) {
 							uploaded = (respJson = eval("(" + xhr.responseText + ")")) ? respJson.start : -1;
 						} else {return;}
 						/** the response can't process the request, so throws out the error. */
-						if (respJson.success == false) {
-							this.fire("uploaderror", {
-								originEvent : event,
-								status : xhr.status,
-								statusText : xhr.responseText,
-								source : respJson.message
-							});
+						bError = respJson.success == false;
+					} catch(e) {
+						bError = "formUpload" === method || this.retriedTimes > this.retryTimes;
+						if (!bError) {
+							this.retry();
+							return;
 						}
-					} catch(e) {this.retry();}
+					}
+					if (bError) {
+						this.fire("uploaderror", {
+							originEvent : event,
+							status : xhr.status,
+							statusText : xhr.responseText,
+							source : respJson.message
+						});
+						return;
+					}
 					//check whether upload complete yet
 					if(uploaded < this.get("size") -1) {
 						this.retriedTimes = 0;
@@ -1172,7 +1187,7 @@
 							frmUploadURL = server + frmUploadURL;
 							uploadURL = server + uploadURL;
 						}
-						bStreaming ? (self.uploadInfo[index].serverAddress = server,
+						bStreaming && bFileSlice ? (self.uploadInfo[index].serverAddress = server,
 										self.uploadFile(file, uploadURL, token, "resumeUpload"))
 								: self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
 					} else {
@@ -1477,10 +1492,11 @@
 		}
 		return e;
 	}();
+	var bFileSlice = !1;
 	var bStreaming = function() {
 		var bFile = !1, bHtml5 = !1, bFormData = window.FormData ? !0 : !1, bStreaming = !1;
 		"undefined" != typeof File && "undefined" != typeof (new XMLHttpRequest).upload && (bFile = !0);
-		if (bFile && ("slice" in File.prototype || "mozSlice" in File.prototype || "webkitSlice" in File.prototype))
+		if (bFile && (bFileSlice = "slice" in File.prototype || "mozSlice" in File.prototype || "webkitSlice" in File.prototype))
 			bHtml5 = !0;
 		(function() {
 			for (var a = 0; a < aOtherBrowsers.length; a++)
