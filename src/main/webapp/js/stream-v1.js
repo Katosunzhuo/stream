@@ -1213,7 +1213,7 @@
 		uploadFile : function(file, url, token, method) {
 			var token = {
 				token : token,
-				client : "html5"
+				client : method == "formUpload" ? "form" : "html5"
 			};
 			url = url || "";
 			method && file instanceof StreamUploader && file.set("uploadMethod", method);
@@ -1411,7 +1411,8 @@
 				e.mobile = "gecko";
 			if ((d = a.match(/AppleWebKit\/([^\s]*)/)) && d[1]) {
 				e.webkit = b(d[1]);
-				e.safari = e.webkit;
+				if ((d = a.match(/Version\/([^\s]*)/)) && d[1])
+					e.safari = d[1];
 				if (/PhantomJS/.test(a) && (d = a.match(/PhantomJS\/([^\s]*)/))
 						&& d[1])
 					e.phantomjs = b(d[1]);
@@ -1502,6 +1503,8 @@
 			for (var a = 0; a < aOtherBrowsers.length; a++)
 				-1 !== navigator.userAgent.indexOf(aOtherBrowsers[a]) && (bHtml5 = !1);
 		})();
+		/** some browsers has problems. */
+		(bFormData && Browser.os === "windows" && Browser.safari === "5.1.7") && (bFormData = !1);
 		return bFile && (bFormData || bHtml5);
 	}();
 	Provider = bStreaming ? StreamProvider : SWFProvider;
