@@ -6,6 +6,25 @@
 <link href="/css/stream-v1.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+	<p>小伙伴们，上传文件需要流量，所以不要上传太大的文件，由于BAE的免费额度为：200M<br>
+	   今天看了streaming.duapp.com的流量为1.7G（16：00～18：00上传），超出限制，<br>
+	   可能要被停了。新申请五个应用，最大单个文件10M...<br>
+	   http://streaming1.duapp.com<br>
+	   http://streaming2.duapp.com<br>
+	   http://streaming3.duapp.com<br>
+	   http://streaming4.duapp.com<br>
+	   http://streaming5.duapp.com<br><br>
+	   （伙伴们，测试的时候，不要只用一个域名，太容易超出流量了！）	<br>	  
+	   			  
+	   域名http://sampler.duapp.com(跨域上传到http://streaming.duapp.com)<br>
+	   	  http://streaming.duapp.com<br>
+	   	  暂时停用！<br><br>
+	  谢谢支持！<br>
+	  
+	  联系我： rain_man_happy￥126.com<br>
+	  ------------------------------------------------------------------------------------------------------ 	  			   		
+	</p>
+
 	<div id="upload-start" style="overflow: hidden; position: relative">
 		<div>请选择文件</div>
 		<div class="upload-start-error" style="display: none;"></div>
@@ -57,8 +76,8 @@
  * 是在ID为i_stream_message_container的页面元素中写日志
  */
 	var config = {
-		multipleFiles: true//, /** 多个文件一起上传, 默认: false */
-//		maxSize: 2147483648, /** 单个文件的最大大小： 2G */
+		multipleFiles: true, /** 多个文件一起上传, 默认: false */
+		maxSize: 10485760//, /** 单个文件的最大大小，默认:2G */
 //		retryCount : 5, /** HTML5上传失败的重试次数 */
 //		postVarsPerFile : { /** 上传文件时传入的参数，默认: {} */
 //			param1: "val1",
