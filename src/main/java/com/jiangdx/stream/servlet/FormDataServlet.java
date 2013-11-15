@@ -68,6 +68,8 @@ public class FormDataServlet extends HttpServlet {
 				in = item.openStream();
 				if (item.isFormField()) {
 					String value = Streams.asString(in);
+					if (TokenServlet.TOKEN_FIELD.equals(name))
+						token = value;
 					System.out.println(name + ":" + value);
 				} else {
 					String fileName = item.getName();
