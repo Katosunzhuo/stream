@@ -6,67 +6,18 @@
 <link href="/css/stream-v1.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-	<p>小伙伴们，上传文件需要流量，所以不要上传太大的文件，由于BAE的免费额度为：200M<br>
-	   今天看了streaming.duapp.com的流量为1.7G（16：00～18：00上传），超出限制，<br>
-	   可能要被停了。新申请五个应用，最大单个文件10M...<br>
-	   http://streaming1.duapp.com<br>
-	   http://streaming2.duapp.com<br>
-	   http://streaming3.duapp.com<br>
-	   http://streaming4.duapp.com<br>
-	   http://streaming5.duapp.com<br><br>
-	   （伙伴们，测试的时候，不要只用一个域名，太容易超出流量了！）	<br>	  
-	   			  
-	   域名http://sampler.duapp.com(跨域上传到http://streaming.duapp.com)<br>
-	   	  http://streaming.duapp.com<br>
-	   	  暂时停用！<br><br>
-	  谢谢支持！<br>
-	  
-	  联系我： rain_man_happy￥126.com<br>
-	  ------------------------------------------------------------------------------------------------------ 	  			   		
-	</p>
-
 	<div id="upload-start" style="overflow: hidden; position: relative">
 		<div>请选择文件</div>
 		<div class="upload-start-error" style="display: none;"></div>
 	</div>
 
-	<div class="stream-main-upload-box">
-		<div class="stream-files-scroll">
-			<ul id="i_stream_files_container">
-			</ul>
-		</div>
-		<div id="i_stream_total_container" class="stream-total-tips">
-			上传总进度：<span class="stream-process-bar"><span style="width: 0%;"></span></span>
-			<span class="stream-percent">0%</span>，已上传<strong class="_stream-total-uploaded">&nbsp;</strong>
-			，总文件大小<strong class="_stream-total-size">&nbsp;</strong>
-		</div>
+	<div id="i_stream_files_queue">
 	</div>
 
 	<div id="i_stream_message_container">
 	</div>
 <br>
-<br>
 
-	<div class="stream-main-upload-box" style="display: none;">
-		<div class="stream-files-scroll">
-			<ul id="">
-				<li id="i_stream_cell_file_template" class="stream-cell-file">
-					<b class="stream-uploading-ico"></b>
-					<div class="stream-file-name"><strong></strong></div>
-					<div class="stream-process">
-						<a class="stream-cancel" href="javascript:void(0)">删除</a>
-						<span class="stream-process-bar"><span class="stream-progress-bar" style="width: 0%;"></span></span>
-						<span class="stream-percent">0%</span>
-					</div>
-					<div class="stream-cell-infos">
-						<span class="stream-cell-info">速度：<em class="stream-speed"></em></span>
-						<span class="stream-cell-info">已上传：<em class="stream-uploaded"></em></span>
-						<span class="stream-cell-info">剩余时间：<em class="stream-remain-time"></em></span>
-					</div>
-				</li>
-			</ul>
-		</div>
-	</div>
 
 <script type="text/javascript" src="/js/stream-v1.js"></script>
 <script type="text/javascript">

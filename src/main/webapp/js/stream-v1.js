@@ -29,7 +29,25 @@
 			"`" : "&#x60;"
 		}, pa = Array.isArray && /\{\s*\[(?:native code|function)\]\s*\}/i.test(Array.isArray)
 			? Array.isArray
-			: function(a) {return "array" === fToString(a)};
+			: function(a) {return "array" === fToString(a)},
+		sCellFileTemplate = '<b class="stream-uploading-ico"></b>' +
+					'<div class="stream-file-name"><strong></strong></div>' +
+					'<div class="stream-process">' +
+					'	<a class="stream-cancel" href="javascript:void(0)">删除</a>' +
+					'	<span class="stream-process-bar"><span class="stream-progress-bar" style="width: 0%;"></span></span>' +
+					'	<span class="stream-percent">0%</span>' +
+					'</div>' +
+					'<div class="stream-cell-infos">' +
+					'	<span class="stream-cell-info">速度：<em class="stream-speed"></em></span>' +
+					'	<span class="stream-cell-info">已上传：<em class="stream-uploaded"></em></span>' +
+					'	<span class="stream-cell-info">剩余时间：<em class="stream-remain-time"></em></span>' +
+					'</div>',
+		sTotalContainer = '<div id="#totalContainerId#" class="stream-total-tips">' +
+			'	上传总进度：<span class="stream-process-bar"><span style="width: 0%;"></span></span>' +
+			'	<span class="stream-percent">0%</span>，已上传<strong class="_stream-total-uploaded">&nbsp;</strong>' +
+			'	，总文件大小<strong class="_stream-total-size">&nbsp;</strong>' +
+			'</div>',
+		sFilesContainer	= '<div class="stream-files-scroll"><ul id="#filesContainerId#"></ul></div>';
 	
 	function fGenerateId(prefix) {
 		var b = (new Date).getTime() + "_01v_" + ++nIdCount;
@@ -979,6 +997,8 @@
 			appendNewFiles : !!cfg.appendNewFiles,
 			dragAndDropArea: document,
 			fileFieldName : "FileData",
+			browseFileId : cfg.browseFileId || "i_select_files",
+			filesQueueId : cfg.filesQueueId || "i_stream_files_queue",
 			onSelect : cfg.onSelect,
 			onMaxSizeExceed : cfg.onMaxSizeExceed,
 			onFileCountExceed : cfg.onFileCountExceed,
@@ -1012,9 +1032,18 @@
 		name : "uploader",
 		initializer : function() {
 			this.startPanel = document.getElementById("upload-start");
-			this.containerPanel = document.getElementById("i_stream_files_container");
-			this.totalContainerPanel = document.getElementById("i_stream_total_container");
-			this.template = document.getElementById("i_stream_cell_file_template").innerHTML;
+			var filesQueuePanel = document.getElementById(this.config.filesQueueId);
+			fAddClass(filesQueuePanel, "stream-main-upload-box");
+			var filesContainerId = fGenerateId("files-container"),
+			    totalContainerId = fGenerateId("total-container");
+			var filesQueue = fCreateContentEle(sFilesContainer.replace("#filesContainerId#", filesContainerId)),
+				totalQueue = fCreateContentEle(sTotalContainer.replace("#totalContainerId#", totalContainerId));
+			filesQueuePanel.appendChild(filesQueue);
+			filesQueuePanel.appendChild(totalQueue);
+			
+			this.containerPanel = document.getElementById(filesContainerId);
+			this.totalContainerPanel = document.getElementById(totalContainerId);
+			this.template = sCellFileTemplate;
 			this.fileProvider = new Provider(this.config);
 			this.fileProvider.render(this.startPanel);
 			this.fileProvider.on("uploadprogress", this.uploadProgress, this);
