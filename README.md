@@ -1,6 +1,6 @@
-#stream
+#Stream 上传插件
 
-Stream 上传插件
+
 Stream 是解决不同浏览器上传文件的插件，是Uploadify的Flash版和Html5版的结合！
 
 Stream 简介
