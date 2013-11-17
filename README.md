@@ -1,12 +1,11 @@
 #Stream 上传插件
 
-
 Stream 是解决不同浏览器上传文件的插件，是Uploadify的Flash版和Html5版的结合！
 
-Stream 简介
+#Stream 简介
 Stream 是根据某网的文件上传插件加工而来，支持不同平台（Windows, Linux, Mac, Android, iOS）下，主流浏览器（IE7+, Chrome, Firefox, Safari, 其他）的上传工作，当然在Html5标准下，还支持文件的断点续传功能，有效解决大文件的Web上传问题！
 
-主要特征
+#主要特征
 1. 支持HTML5、Flash两种方式（跨域）上传
 
 2. 多文件一起上传
