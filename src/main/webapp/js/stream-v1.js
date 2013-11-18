@@ -1010,6 +1010,7 @@
 			onFileCountExceed : cfg.onFileCountExceed,
 			onExtNameMismatch : cfg.onExtNameMismatch,
 			onCancel : cfg.onCancel,
+			onStop : cfg.onStop,
 			onCancelAll : cfg.onCancelAll,
 			onComplete : cfg.onComplete,
 			onQueueComplete: cfg.onQueueComplete,
