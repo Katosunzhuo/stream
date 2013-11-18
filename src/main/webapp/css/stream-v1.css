@@ -17,6 +17,11 @@ ul,ol,li,img {
 	padding: 0;
 }
 
+.stream-browse-files {
+	overflow: hidden;
+	position: relative;
+}
+
 .stream-files-scroll {
 	height: 450px;
 	overflow: auto;

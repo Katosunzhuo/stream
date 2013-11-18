@@ -6,9 +6,7 @@
 <link href="/css/stream-v1.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-	<div id="upload-start" style="overflow: hidden; position: relative">
-		<div>请选择文件</div>
-		<div class="upload-start-error" style="display: none;"></div>
+	<div id="i_select_files">
 	</div>
 
 	<div id="i_stream_files_queue">
@@ -27,6 +25,11 @@
  * 是在ID为i_stream_message_container的页面元素中写日志
  */
 	var config = {
+		browseFileId : "i_select_files", /** 选择文件的ID, 默认: i_select_files */
+		browseFileBtn : "<div>请选择文件</div>", /** 显示选择文件的样式, 默认: `<div>请选择文件</div>` */
+		filesQueueId : "i_stream_files_queue", /** 文件上传容器的ID, 默认: i_stream_files_queue */
+		filesQueueHeight : 200, /** 文件上传容器的高度（px）, 默认: 450 */
+		messagerId : "i_stream_message_container", /** 消息显示容器的ID, 默认: i_stream_message_container */
 		multipleFiles: true, /** 多个文件一起上传, 默认: false */
 		maxSize: 10485760//, /** 单个文件的最大大小，默认:2G */
 //		retryCount : 5, /** HTML5上传失败的重试次数 */

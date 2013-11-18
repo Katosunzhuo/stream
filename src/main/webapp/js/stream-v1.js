@@ -30,6 +30,7 @@
 		}, pa = Array.isArray && /\{\s*\[(?:native code|function)\]\s*\}/i.test(Array.isArray)
 			? Array.isArray
 			: function(a) {return "array" === fToString(a)},
+		sStreamMessagerId = "i_stream_message_container",
 		sCellFileTemplate = '<b class="stream-uploading-ico"></b>' +
 					'<div class="stream-file-name"><strong></strong></div>' +
 					'<div class="stream-process">' +
@@ -47,7 +48,8 @@
 			'	<span class="stream-percent">0%</span>，已上传<strong class="_stream-total-uploaded">&nbsp;</strong>' +
 			'	，总文件大小<strong class="_stream-total-size">&nbsp;</strong>' +
 			'</div>',
-		sFilesContainer	= '<div class="stream-files-scroll"><ul id="#filesContainerId#"></ul></div>';
+		sUploadStartError = '<div class="upload-start-error" style="display: none;"></div>',	
+		sFilesContainer	= '<div class="stream-files-scroll" style="height: #filesQueueHeight#px;"><ul id="#filesContainerId#"></ul></div>';
 	
 	function fGenerateId(prefix) {
 		var b = (new Date).getTime() + "_01v_" + ++nIdCount;
@@ -144,7 +146,7 @@
 	}
 	
 	function fShowMessage(msg) {
-		var o = document.getElementById("i_stream_message_container");
+		var o = document.getElementById(sStreamMessagerId);
 		o && (o.innerHTML += "<br>" + msg);
 	}
 	
@@ -998,7 +1000,10 @@
 			dragAndDropArea: document,
 			fileFieldName : "FileData",
 			browseFileId : cfg.browseFileId || "i_select_files",
+			browseFileBtn : cfg.browseFileBtn || "<div>请选择文件</div>",
 			filesQueueId : cfg.filesQueueId || "i_stream_files_queue",
+			filesQueueHeight : cfg.filesQueueHeight || 450,
+			messagerId : cfg.messagerId || "i_stream_message_container",
 			onSelect : cfg.onSelect,
 			onMaxSizeExceed : cfg.onMaxSizeExceed,
 			onFileCountExceed : cfg.onFileCountExceed,
@@ -1031,12 +1036,16 @@
 		constructor : Main,
 		name : "uploader",
 		initializer : function() {
-			this.startPanel = document.getElementById("upload-start");
+			sStreamMessagerId = this.config.messagerId;
+			this.startPanel = document.getElementById(this.config.browseFileId);
+			fAddClass(this.startPanel, "stream-browse-files");
+			this.startPanel.appendChild(fCreateContentEle(this.config.browseFileBtn));
+			this.startPanel.appendChild(fCreateContentEle(sUploadStartError));
 			var filesQueuePanel = document.getElementById(this.config.filesQueueId);
 			fAddClass(filesQueuePanel, "stream-main-upload-box");
 			var filesContainerId = fGenerateId("files-container"),
 			    totalContainerId = fGenerateId("total-container");
-			var filesQueue = fCreateContentEle(sFilesContainer.replace("#filesContainerId#", filesContainerId)),
+			var filesQueue = fCreateContentEle(sFilesContainer.replace("#filesContainerId#", filesContainerId).replace("#filesQueueHeight#", this.config.filesQueueHeight)),
 				totalQueue = fCreateContentEle(sTotalContainer.replace("#totalContainerId#", totalContainerId));
 			filesQueuePanel.appendChild(filesQueue);
 			filesQueuePanel.appendChild(totalQueue);
