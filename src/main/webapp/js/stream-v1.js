@@ -677,11 +677,10 @@
 		},
 		triggerEnabled : function() {
 			if (this.get("enabled") && null === this.buttonBinding)
-				this.bindSelectButton(), this.setButtonClass("disabled", !1);
+				this.bindSelectButton();
 			else if (!this.get("enabled") && this.buttonBinding)
 				fRemoveEventListener(this.contentBox, "click", this.buttonBinding),
-				this.buttonBinding = null,
-				this.setButtonClass("disabled", !0);
+				this.buttonBinding = null;
 		},
 		updateFileList : function(a) {
 			for (var a = a.target.files, b = [], c = 0; c < a.length; c++)
@@ -998,6 +997,7 @@
 			multipleFiles : !!cfg.multipleFiles,
 			appendNewFiles : !!cfg.appendNewFiles,
 			autoRemoveCompleted : !!cfg.autoRemoveCompleted,
+			autoUploading : cfg.autoUploading == null ? true : !!cfg.autoUploading,
 			dragAndDropArea: document,
 			fileFieldName : "FileData",
 			browseFileId : cfg.browseFileId || "i_select_files",
@@ -1010,6 +1010,7 @@
 			onFileCountExceed : cfg.onFileCountExceed,
 			onExtNameMismatch : cfg.onExtNameMismatch,
 			onCancel : cfg.onCancel,
+			onCancelAll : cfg.onCancelAll,
 			onComplete : cfg.onComplete,
 			onQueueComplete: cfg.onQueueComplete,
 			onUploadError: cfg.onUploadError,
@@ -1066,7 +1067,7 @@
 			this.totalFileSize = 0;
 			this.totalUploadedSize = 0;
 		},
-		startUpload : function(a) {
+		addStreamTask : function(a) {
 			var file_id = a.get("id"), cell_file = fCreateContentEle("<li id='" + file_id + "' class='stream-cell-file'></li>");
 			cell_file.innerHTML = this.template;
 			this.uploadInfo[file_id] = {
@@ -1085,12 +1086,22 @@
 			bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");
 			this.containerPanel.appendChild(cell_file);
 			this.waiting.push(file_id);
-			this.totalFileSize += a.get("size");
-			var _total = this.formatBytes(this.totalFileSize);
-			this.getNode("_stream-total-size", this.totalContainerPanel).innerHTML = _total;
-			this.createUploadTask(file_id);
+			this.config.autoUploading && this.upload(file_id);
 		},
 		renderUI : function(file_id) {
+			var progressNode = this.uploadInfo[file_id].progressNode,
+				cellInfosNode = this.uploadInfo[file_id].cellInfosNode,
+				size = this.uploadInfo[file_id].file.get("size"),
+				total = this.formatBytes(size);
+			this.getNode("stream-progress-bar", progressNode).style.width = "-";
+			this.getNode("stream-percent", progressNode).innerHTML = "-";
+			this.getNode("stream-speed", cellInfosNode).innerHTML = "-";
+			this.getNode("stream-remain-time", cellInfosNode).innerHTML = "--:--:--";
+			this.getNode("stream-uploaded", cellInfosNode).innerHTML = "0/" + total;
+			/** total file size */
+			this.totalFileSize += size;
+			var _total = this.formatBytes(this.totalFileSize);
+			this.getNode("_stream-total-size", this.totalContainerPanel).innerHTML = _total;
 		},
 		bindUI : function(file_id) {
 			var b = this.uploadInfo[file_id].progressNode, cancelBtn = this.getNode("stream-cancel", b);
@@ -1102,7 +1113,7 @@
 			this.waiting.length == 0 && (this.get("onQueueComplete") ? this.get("onQueueComplete")(this.uploadInfo[file_id].file.config) : this.onQueueComplete(this.uploadInfo[file_id].file.config));
 			this.config.autoRemoveCompleted && (file_id = document.getElementById(file_id), file_id.parentNode.removeChild(file_id));
 			this.uploading = !1;
-			this.createUploadTask();
+			this.upload();
 		},
 		onSelect : function(list) {
 			fShowMessage("selected files: " + list.length);
@@ -1119,6 +1130,12 @@
 		onCancel : function(info) {
 			fShowMessage("Canceled: " + info.name);
 		},
+		onStop : function() {
+			fShowMessage("Stopped!");
+		},
+		onCancelAll : function(numbers) {
+			fShowMessage(numbers + " files Canceled! ");
+		},
 		onComplete : function(info) {
 			fShowMessage("File:" + info.name + ", Size:" + info.size + " onComplete	[OK]");
 		},
@@ -1128,23 +1145,45 @@
 		onUploadError : function(status, msg) {
 			fShowMessage("Error Occur.  Status:" + status + ", Message: " + msg, true);
 		},
-		disable : function(a) {
-			if (!this.uploadInfo[a].disabled)
-				this.uploadInfo[a].disabled = !0;
+		disable : function() {
+			this.fileProvider.set("enabled", !1), this.fileProvider.triggerEnabled(), fAddClass(this.startPanel.children[0], "stream-disable-browser");
 		},
-		enable : function(a) {
-			if (this.uploadInfo[a].disabled)
-				this.uploadInfo[a].disabled = !1;
+		enable : function() {
+			this.fileProvider.set("enabled", !0), this.fileProvider.triggerEnabled(), fRemoveClass(this.startPanel.children[0], "stream-disable-browser");
 		},
-		cancelUpload : function(file_id) {
+		stop : function() {
+			if (!this.uploading) return false;
+			this.uploading = !1;
+			var files = this.uploadInfo, number = 0;
+			/** cancel the unfinished uploading files */
+			for(var fileId in files) {
+				/** add the `file_id` to `waiting` @ index of 0 */
+				if (!files[fileId].fileUploaded) {
+					this.cancelOne(fileId, true) && this.waiting.unshift(fileId);
+					break;	
+				}
+			}
+			this.get("onStop") ? this.get("onStop")() : this.onStop();
+		},
+		cancel : function() {
+			var files = this.uploadInfo, number = 0;
+			/** cancel the unfinished uploading files */
+			for(var fileId in files)
+				!files[fileId].fileUploaded && (++number) && this.cancelOne(fileId);
+			this.get("onCancelAll") ? this.get("onCancelAll")(number) : this.onCancelAll(number);
+		},
+		cancelOne : function(file_id, stopping) {
 			var provider = this.uploadInfo[file_id].file, actived = this.uploadInfo[file_id].actived;
 			provider && provider.cancelUpload && provider.cancelUpload();
+			if (!!stopping) return true;
+			
+			this.get("onCancel") ? this.get("onCancel")(this.uploadInfo[file_id].file.config) : this.onCancel(this.uploadInfo[file_id].file.config);
 			this.uploadInfo[file_id] && delete this.uploadInfo[file_id];
 			fRemoveEventListener(document, "click", this.cancelBtnHandler);
 			this.containerPanel.removeChild(document.getElementById(file_id));
 			if (actived) {
 				this.uploading = !1;
-				this.createUploadTask();
+				this.upload();
 			} else {
 				for(var i in this.waiting)
 					if (this.waiting[i] === file_id)
@@ -1173,8 +1212,7 @@
 			if (this.uploadInfo[id].disabled)
 				return !1;
 			this.uploadInfo[id] && !this.uploadInfo[id].uploadComplete;
-			this.get("onCancel") ? this.get("onCancel")(this.uploadInfo[id].file.config) : this.onCancel(this.uploadInfo[id].file.config);
-			this.cancelUpload(id);
+			this.cancelOne(id);
 		},
 		selectorBtnHandler : function(a, b) {
 			var d = b.nodeId;
@@ -1192,7 +1230,7 @@
 			if (this.waiting.length > 0)
 				return evt.returnValue = "\u60A8\u6B63\u5728\u4E0A\u4F20\u6587\u4EF6\uFF0C\u5173\u95ED\u6B64\u9875\u9762\u5C06\u4F1A\u4E2D\u65AD\u4E0A\u4F20\uFF0C\u5EFA\u8BAE\u60A8\u7B49\u5F85\u4E0A\u4F20\u5B8C\u6210\u540E\u518D\u5173\u95ED\u6B64\u9875\u9762";
 		},
-		createUploadTask : function(index) {
+		upload : function(index) {
 			if(this.uploading) return;
 			index = this.waiting.shift();
 			if(index == null) return;
@@ -1233,7 +1271,7 @@
 					} else {
 						/** not found any token */
 						var errorPanel = self.getNode("upload-start-error", this.startPanel);
-						self.cancelUpload(index);
+						self.cancelOne(index);
 						errorPanel.innerHTML = "\u521b\u5efa\u4e0a\u4f20\u4efb\u52a1\u5931\u8d25\uff0c\u8bf7\u5c1d\u8bd5\u91cd\u65b0\u4e0a\u4f20";
 						errorPanel.style.display = "block";
 					}
@@ -1244,7 +1282,7 @@
 			}
 			xhr.onerror = function() {
 				var errorPanel = self.getNode("upload-start-error", this.startPanel);
-				self.cancelUpload(index);
+				self.cancelOne(index);
 				errorPanel.innerHTML = "\u521b\u5efa\u4e0a\u4f20\u4efb\u52a1\u5931\u8d25\uff0c\u8bf7\u5c1d\u8bd5\u91cd\u65b0\u4e0a\u4f20";
 				errorPanel.style.display = "block";
 			};
@@ -1321,7 +1359,7 @@
 				return !1;
 			}
 			for (c = 0; c < a.length; c++)
-				this.validateFile(a[c]) && this.startUpload(a[c]);
+				this.validateFile(a[c]) && this.addStreamTask(a[c]);
 		},
 		validateFile : function(uploader) {
 			var name = uploader.get("name"), size = uploader.get("size"),

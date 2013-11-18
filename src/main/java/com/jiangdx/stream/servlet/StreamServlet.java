@@ -115,6 +115,9 @@ public class StreamServlet extends HttpServlet {
 		} catch (FileNotFoundException fne) {
 			message = "Error: " + fne.getMessage();
 			success = false;
+		} catch (IOException io) {
+			message = "IO Error: " + io.getMessage();
+			success = false;
 		} finally {
 			try {
 				if (success)

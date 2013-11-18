@@ -22,6 +22,10 @@ ul,ol,li,img {
 	position: relative;
 }
 
+.stream-disable-browser {
+	color: #909090;
+}
+
 .stream-files-scroll {
 	height: 450px;
 	overflow: auto;
