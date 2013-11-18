@@ -1111,7 +1111,7 @@
 		completeUpload : function(file_id) {
 			this.get("onComplete") ? this.get("onComplete")(this.uploadInfo[file_id].file.config) : this.onComplete(this.uploadInfo[file_id].file.config);
 			this.waiting.length == 0 && (this.get("onQueueComplete") ? this.get("onQueueComplete")(this.uploadInfo[file_id].file.config) : this.onQueueComplete(this.uploadInfo[file_id].file.config));
-			this.config.autoRemoveCompleted && (file_id = document.getElementById(file_id), file_id.parentNode.removeChild(file_id));
+			this.config.autoRemoveCompleted && (file_id = document.getElementById(file_id), file_id.parentNode && file_id.parentNode.removeChild(file_id));
 			this.uploading = !1;
 			this.upload();
 		},
@@ -1159,13 +1159,14 @@
 			for(var fileId in files) {
 				/** add the `file_id` to `waiting` @ index of 0 */
 				if (!files[fileId].fileUploaded) {
-					this.cancelOne(fileId, true) && this.waiting.unshift(fileId);
+					this.cancelOne(fileId, true) && this.uploadInfo[fileId] && this.waiting.unshift(fileId);
 					break;	
 				}
 			}
 			this.get("onStop") ? this.get("onStop")() : this.onStop();
 		},
 		cancel : function() {
+			this.uploading = !1;
 			var files = this.uploadInfo, number = 0;
 			/** cancel the unfinished uploading files */
 			for(var fileId in files)
@@ -1298,7 +1299,9 @@
 			this.fileProvider.upload(file, url, token);
 		},
 		uploadProgress : function(a) {
-			var id = a.target.get("id"), progressNode = this.uploadInfo[id].progressNode,
+			var id = a.target.get("id");
+			if (!this.uploadInfo[id]) return false;
+			var progressNode = this.uploadInfo[id].progressNode,
 				cellInfosNode = this.uploadInfo[id].cellInfosNode, bytesLoaded = a.bytesLoaded,
 				c = this.formatSpeed(a.bytesSpeed), loaded = this.formatBytes(bytesLoaded),
 				total = this.formatBytes(a.bytesTotal), _remainTime = this.formatTime(a.remainTime),
@@ -1319,7 +1322,9 @@
 			this.getNode("stream-process-bar", this.totalContainerPanel).getElementsByTagName("span")[0].style.width = percent + "%";
 		},
 		uploadComplete : function(a) {
-			var id = a.target.get("id"), progressNode = this.uploadInfo[id].progressNode,
+			var id = a.target.get("id");
+			if (!this.uploadInfo[id]) return false;
+			var progressNode = this.uploadInfo[id].progressNode,
 				cellInfosNode = this.uploadInfo[id].cellInfosNode,
 				size = a.target.get("size"), a = eval("(" + a.data + ")"), fmtSize = this.formatBytes(size);
 			this.getNode("stream-progress-bar", progressNode).style.width = "100%";
