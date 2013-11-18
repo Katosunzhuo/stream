@@ -145,9 +145,9 @@
 		return content[0].parentNode.removeChild(content[0]);
 	}
 	
-	function fShowMessage(msg) {
+	function fShowMessage(msg, warning) {
 		var o = document.getElementById(sStreamMessagerId);
-		o && (o.innerHTML += "<br>" + msg);
+		o && (o.innerHTML += "<br>" + (!!warning ? ("<span style='color:red;'>" + msg + "</span>"): msg));
 	}
 	
 	function fMessage(msg, VarVals, c, d) {
@@ -1106,13 +1106,13 @@
 			fShowMessage("selected files: " + list.length);
 		},
 		onFileCountExceed : function(selected, limit) {
-			fShowMessage("File counts:" + selected + ", but limited:" + limit);
+			fShowMessage("File counts:" + selected + ", but limited:" + limit, true);
 		},
 		onMaxSizeExceed : function(size, limited, name) {
-			fShowMessage("File:" + name + " size is:" + size +" Exceed limited:" + limited);
+			fShowMessage("File:" + name + " size is:" + size +" Exceed limited:" + limited, true);
 		},
 		onExtNameMismatch: function(name, filters) {
-			fShowMessage("Allow ext name: [" + filters.toString() + "], not for " + name);
+			fShowMessage("Allow ext name: [" + filters.toString() + "], not for " + name, true);
 		},
 		onCancel : function(info) {
 			fShowMessage("Canceled: " + info.name);
@@ -1124,7 +1124,7 @@
 			fShowMessage("onQueueComplete	---==>		[OK]");
 		},
 		onUploadError : function(status, msg) {
-			fShowMessage("Error Occur.  Status:" + status + ", Message: " + msg);
+			fShowMessage("Error Occur.  Status:" + status + ", Message: " + msg, true);
 		},
 		disable : function(a) {
 			if (!this.uploadInfo[a].disabled)
