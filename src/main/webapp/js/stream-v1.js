@@ -997,6 +997,7 @@
 			enabled : !0,
 			multipleFiles : !!cfg.multipleFiles,
 			appendNewFiles : !!cfg.appendNewFiles,
+			autoRemoveCompleted : !!cfg.autoRemoveCompleted,
 			dragAndDropArea: document,
 			fileFieldName : "FileData",
 			browseFileId : cfg.browseFileId || "i_select_files",
@@ -1099,6 +1100,7 @@
 		completeUpload : function(file_id) {
 			this.get("onComplete") ? this.get("onComplete")(this.uploadInfo[file_id].file.config) : this.onComplete(this.uploadInfo[file_id].file.config);
 			this.waiting.length == 0 && (this.get("onQueueComplete") ? this.get("onQueueComplete")(this.uploadInfo[file_id].file.config) : this.onQueueComplete(this.uploadInfo[file_id].file.config));
+			this.config.autoRemoveCompleted && (file_id = document.getElementById(file_id), file_id.parentNode.removeChild(file_id));
 			this.uploading = !1;
 			this.createUploadTask();
 		},
