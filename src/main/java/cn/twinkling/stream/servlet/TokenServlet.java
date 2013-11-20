@@ -1,4 +1,4 @@
-package com.jiangdx.stream.servlet;
+package cn.twinkling.stream.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jiangdx.stream.util.TokenUtil;
+import cn.twinkling.stream.util.TokenUtil;
 
 /**
  * According the file name and its size, generate a unique token. And this

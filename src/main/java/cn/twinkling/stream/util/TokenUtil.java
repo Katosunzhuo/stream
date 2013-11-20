@@ -1,4 +1,4 @@
-package com.jiangdx.stream.util;
+package cn.twinkling.stream.util;
 
 import java.io.IOException;
 

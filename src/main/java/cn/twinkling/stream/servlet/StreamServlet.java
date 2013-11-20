@@ -1,4 +1,4 @@
-package com.jiangdx.stream.servlet;
+package cn.twinkling.stream.servlet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jiangdx.stream.util.IoUtil;
+import cn.twinkling.stream.util.IoUtil;
 
 /**
  * File reserved servlet, mainly reading the request parameter and its file

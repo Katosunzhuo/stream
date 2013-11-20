@@ -1,4 +1,4 @@
-package com.jiangdx.stream.servlet;
+package cn.twinkling.stream.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ import org.apache.commons.fileupload.util.Streams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jiangdx.stream.util.IoUtil;
+import cn.twinkling.stream.util.IoUtil;
 
 /**
  * FormData Uploading reserved servlet, mainly reading the request parameter and

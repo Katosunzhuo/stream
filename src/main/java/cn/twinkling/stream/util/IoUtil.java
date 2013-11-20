@@ -1,4 +1,4 @@
-package com.jiangdx.stream.util;
+package cn.twinkling.stream.util;
 
 import java.io.Closeable;
 import java.io.File;
@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.jiangdx.stream.servlet.FormDataServlet;
-import com.jiangdx.stream.servlet.Range;
-import com.jiangdx.stream.servlet.StreamServlet;
+import cn.twinkling.stream.servlet.FormDataServlet;
+import cn.twinkling.stream.servlet.Range;
+import cn.twinkling.stream.servlet.StreamServlet;
 
 /**
  * IO--closing, getting file name ... main function method

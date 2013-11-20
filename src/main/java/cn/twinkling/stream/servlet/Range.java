@@ -1,4 +1,4 @@
-package com.jiangdx.stream.servlet;
+package cn.twinkling.stream.servlet;
 
 /**
  * 文件上传的起始位置，以及大小等属性。
