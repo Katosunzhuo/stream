@@ -4,7 +4,7 @@
 	<groupId>cn.twinkling</groupId>
 	<artifactId>stream</artifactId>
 	<packaging>war</packaging>
-	<version>1.2.0.9671</version>
+	<version>1.2.1.9674</version>
 	<name>stream Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>

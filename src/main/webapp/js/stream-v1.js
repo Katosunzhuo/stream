@@ -115,6 +115,15 @@
 		return _array.join(_sep).replace(/^&/, "").replace(/%20/g, "+")
 	}
 	
+	function fMergeJson(base, extend) {
+		var result = {};
+		for (var attr in base)
+			result[attr] = base[attr];
+		for (var attr in extend)
+			result[attr] = extend[attr];
+		return result;
+	}
+	
 	function fAddClass(element, klass) {
 		fHasClass(element, klass) || (element.className += " " + klass);
 	}
@@ -467,7 +476,7 @@
 			}
 		},
 		upload : function(uploader, url, postVars) {
-			var url = url || this.get("uploadURL"), postVars = postVars || this.get("postVarsPerFile"), id = uploader.id,
+			var url = url || this.get("uploadURL"), postVars = fMergeJson(postVars, this.get("postVarsPerFile")), id = uploader.id,
 				postVars = postVars.hasOwnProperty(id) ? postVars[id] : postVars;
 			uploader instanceof SWFUploader
 					&& (uploader.on("uploadstart", this.uploadEventHandler, this),
@@ -719,7 +728,7 @@
 			}
 		},
 		upload : function(uploader, url, postVars) {
-			var url = url || this.get("uploadURL"), postVars = postVars || this.get("postVarsPerFile"),
+			var url = url || this.get("uploadURL"), postVars = fMergeJson(postVars, this.get("postVarsPerFile")),
 				d = uploader.id, postVars = postVars.hasOwnProperty(d) ? postVars[d] : postVars;
 			uploader instanceof StreamUploader
 					&& (uploader.on("uploadstart", this.uploadEventHandler, this),
@@ -1018,7 +1027,7 @@
 			maxSize : cfg.maxSize || 2147483648,
 			simLimit : cfg.simLimit || 100,
 			retryCount : cfg.retryCount || 5,
-			postVarsPerFile : {},
+			postVarsPerFile : cfg.postVarsPerFile || {},
 			swfURL : cfg.swfURL || "/swf/FlashUploader.swf",
 			tokenURL : cfg.tokenURL || "/tk",
 			frmUploadURL : cfg.frmUploadURL || "/fd;",
