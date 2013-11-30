@@ -1225,17 +1225,6 @@
 			this.uploadInfo[id] && !this.uploadInfo[id].uploadComplete;
 			this.cancelOne(id);
 		},
-		selectorBtnHandler : function(a, b) {
-			var d = b.nodeId;
-			if (this.uploadInfo[d].disabled)
-				return !1;
-		},
-		selectorHandler : function(a, b) {
-			var c = a || window.event,
-				c = c.target || c.srcElement,
-				d = b.nodeId, e = b.type, 
-				f = this.uploadInfo[d].progressNode;
-		},
 		unloadHandler : function(evt) {
 			var evt = evt || window.event;
 			if (this.waiting.length > 0)
