@@ -52,14 +52,10 @@ public class FormDataServlet extends HttpServlet {
 		long start = 0;
 		boolean success = true;
 		String message = "";
-		// Now we are ready to parse the request into its constituent items.
-		// Here's how we do it:
-		// Create a new file upload handler
+
 		ServletFileUpload upload = new ServletFileUpload();
 		InputStream in = null;
-		String token = req.getParameter(TokenServlet.TOKEN_FIELD);
-		/** TODO: validate your token. */
-		
+		String token = null;
 		try {
 			FileItemIterator iter = upload.getItemIterator(req);
 			while (iter.hasNext()) {
@@ -68,8 +64,10 @@ public class FormDataServlet extends HttpServlet {
 				in = item.openStream();
 				if (item.isFormField()) {
 					String value = Streams.asString(in);
-					if (TokenServlet.TOKEN_FIELD.equals(name))
+					if (TokenServlet.TOKEN_FIELD.equals(name)) {
 						token = value;
+						/** TODO: validate your token. */
+					}
 					System.out.println(name + ":" + value);
 				} else {
 					String fileName = item.getName();
