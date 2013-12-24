@@ -35,7 +35,7 @@
 					'<div class="stream-file-name"><strong></strong></div>' +
 					'<div class="stream-process">' +
 					'	<a class="stream-cancel" href="javascript:void(0)">删除</a>' +
-					'	<span class="stream-process-bar"><span class="stream-progress-bar" style="width: 0%;"></span></span>' +
+					'	<span class="stream-process-bar"><span style="width: 0%;"></span></span>' +
 					'	<span class="stream-percent">0%</span>' +
 					'</div>' +
 					'<div class="stream-cell-infos">' +
@@ -1103,7 +1103,7 @@
 				cellInfosNode = this.uploadInfo[file_id].cellInfosNode,
 				size = this.uploadInfo[file_id].file.get("size"),
 				total = this.formatBytes(size);
-			this.getNode("stream-progress-bar", progressNode).style.width = "0%";
+			this.getNode("stream-process-bar", progressNode).innerHTML = "<span style='width:0%;'></span>";
 			this.getNode("stream-percent", progressNode).innerHTML = "0%";
 			this.getNode("stream-speed", cellInfosNode).innerHTML = "-";
 			this.getNode("stream-remain-time", cellInfosNode).innerHTML = "--:--:--";
@@ -1211,7 +1211,7 @@
 			this.getNode("_stream-total-size", this.totalContainerPanel).innerHTML = _total;
 			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
 			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
-			this.getNode("stream-process-bar", this.totalContainerPanel).getElementsByTagName("span")[0].style.width = percent + "%";
+			this.getNode("stream-process-bar", this.totalContainerPanel).innerHTML = '<span style="width: '+percent+'%;"></span>';
 			
 			bStreaming ? this.startPanel.style.display = "block"
 				: (this.startPanel.style.height = "auto", this.startPanel.style.width = "970px");
@@ -1306,7 +1306,7 @@
 				total = this.formatBytes(a.bytesTotal), _remainTime = this.formatTime(a.remainTime),
 				a = Math.min(99.99, a.percentLoaded);
 			100 > a && (a = parseFloat(a).toFixed(2));
-			this.getNode("stream-progress-bar", progressNode).style.width = a + "%";
+			this.getNode("stream-process-bar", progressNode).innerHTML = "<span style='width:"+a+"%;'></span>";
 			this.getNode("stream-percent", progressNode).innerHTML = a + "%";
 			this.getNode("stream-speed", cellInfosNode).innerHTML = c;
 			if (_remainTime)
@@ -1318,7 +1318,7 @@
 			100 > percent && (percent = parseFloat(percent).toFixed(2));
 			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
 			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
-			this.getNode("stream-process-bar", this.totalContainerPanel).getElementsByTagName("span")[0].style.width = percent + "%";
+			this.getNode("stream-process-bar", this.totalContainerPanel).innerHTML = '<span style="width: '+percent+'%;"></span>';
 		},
 		uploadComplete : function(a) {
 			var id = a.target.get("id");
@@ -1326,7 +1326,7 @@
 			var progressNode = this.uploadInfo[id].progressNode,
 				cellInfosNode = this.uploadInfo[id].cellInfosNode,
 				size = a.target.get("size"), a = eval("(" + a.data + ")"), fmtSize = this.formatBytes(size);
-			this.getNode("stream-progress-bar", progressNode).style.width = "100%";
+			this.getNode("stream-process-bar", progressNode).innerHTML = "<span style='width:100%;'></span>";
 			this.getNode("stream-percent", progressNode).innerHTML = "100%";
 			this.getNode("stream-uploaded", cellInfosNode).innerHTML = fmtSize + "/" + fmtSize;
 			this.getNode("stream-remain-time", cellInfosNode).innerHTML = "00:00:00";
@@ -1342,7 +1342,7 @@
 				percent = 100;
 			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
 			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
-			this.getNode("stream-process-bar", this.totalContainerPanel).getElementsByTagName("span")[0].style.width = percent + "%";
+			this.getNode("stream-process-bar", this.totalContainerPanel).innerHTML = '<span style="width: '+percent+'%;"></span>';
 			
 			this.completeUpload(id);
 		},
