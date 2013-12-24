@@ -1370,6 +1370,7 @@
 				ext = -1 !== name.indexOf(".") ? name.replace(/.*[.]/, "").toLowerCase() : "",
 				filters = aFilters, valid = !1, msg = "";
 			this.getNode("upload-start-error", this.startPanel).style.display = "none";
+			if(!bStreaming && size > 2147483648){fShowMessage("Flash最大只能上传2G的文件："+name+" 大小："+size, true);return !1;}
 			if (this.get("maxSize") < size)
 				this.get("onMaxSizeExceed") ? this.get("onMaxSizeExceed")(size, this.get("maxSize"), name) : this.onMaxSizeExceed(size, this.get("maxSize"), name);
 			else {
