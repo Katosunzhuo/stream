@@ -1103,8 +1103,8 @@
 				cellInfosNode = this.uploadInfo[file_id].cellInfosNode,
 				size = this.uploadInfo[file_id].file.get("size"),
 				total = this.formatBytes(size);
-			this.getNode("stream-progress-bar", progressNode).style.width = "-";
-			this.getNode("stream-percent", progressNode).innerHTML = "-";
+			this.getNode("stream-progress-bar", progressNode).style.width = "0%";
+			this.getNode("stream-percent", progressNode).innerHTML = "0%";
 			this.getNode("stream-speed", cellInfosNode).innerHTML = "-";
 			this.getNode("stream-remain-time", cellInfosNode).innerHTML = "--:--:--";
 			this.getNode("stream-uploaded", cellInfosNode).innerHTML = "0/" + total;
