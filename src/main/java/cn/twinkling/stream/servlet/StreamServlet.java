@@ -56,7 +56,7 @@ public class StreamServlet extends HttpServlet {
 		boolean success = true;
 		String message = "";
 		try {
-			File f = IoUtil.getFile(token);
+			File f = IoUtil.getFile(token, fileName);
 			start = f.length();
 			/** file size is 0 bytes. */
 			if (token.endsWith("_0") && "0".equals(size) && 0 == start)
@@ -71,7 +71,6 @@ public class StreamServlet extends HttpServlet {
 				json.put(TokenServlet.SUCCESS, success);
 				json.put(TokenServlet.MESSAGE, message);
 			} catch (JSONException e) {}
-			
 			writer.write(json.toString());
 			IoUtil.close(writer);
 		}
@@ -97,7 +96,7 @@ public class StreamServlet extends HttpServlet {
 		boolean success = true;
 		String message = "";
 		try {
-			File f = IoUtil.getFile(token);
+			File f = IoUtil.getFile(token, fileName);
 			if (f.length() != range.getFrom())
 				throw new IOException("File from position error!");
 			

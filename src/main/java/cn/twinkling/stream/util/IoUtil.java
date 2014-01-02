@@ -32,10 +32,27 @@ public class IoUtil {
 	 * @throws IOException
 	 */
 	public static File getFile(String key) throws IOException {
+		return getFile(key, null);
+	}
+	
+	/**
+	 * According the key, generate a file (if not exist, then create
+	 * a new file).
+	 * @param key
+	 * @param fullPath the file relative path(something like `a../bxx/wenjian.txt`)
+	 * @return
+	 * @throws IOException
+	 */
+	public static File getFile(String key, String fullPath) throws IOException {
 		if (key == null || key.isEmpty())
 			return null;
-
-		File f = new File(REPOSITORY + File.separator + key);
+		String folder = "";
+		if (fullPath != null && !fullPath.isEmpty()
+				&& fullPath.indexOf("/") > 0) {
+			int index = fullPath.lastIndexOf("/");
+			folder = fullPath.substring(0, index).replaceAll("/", File.separator);
+		}
+		File f = new File(REPOSITORY + File.separator + folder + File.separator + key);
 		if (!f.getParentFile().exists())
 			f.getParentFile().mkdirs();
 		if (!f.exists())
