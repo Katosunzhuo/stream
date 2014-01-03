@@ -608,7 +608,7 @@
 		},
 		renderUI : function(a) {
 			this.contentBox = a;
-			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;' webkitdirectory directory>");
+			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
 		},
 		bindUI : function() {
@@ -691,7 +691,7 @@
 		},
 		rebindFileField : function() {
 			this.fileInputField.parentNode.removeChild(this.fileInputField);
-			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;' webkitdirectory directory>");
+			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
 			this.setMultipleFiles();
 			this.setFileFilters();
