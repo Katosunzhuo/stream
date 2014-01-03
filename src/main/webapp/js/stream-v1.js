@@ -652,8 +652,8 @@
 					};
 					if (bFolder) {
 						var items = evt.dataTransfer.items;
-						for (var i = 0; i < items.length; i++) {
-							var entry = items[i].webkitGetAsEntry() || items[i].getAsEntry();
+						if (items.length && items[0]) {
+							var entry = items[0].webkitGetAsEntry() || items[0].getAsEntry();
 							entry && this.traverseFileTree(entry.filesystem.root, callback);
 						}
 					} else {
