@@ -396,14 +396,6 @@
 					});
 		},
 		bindUI : function() {
-			/*Browser.ie ? (
-				this.swfReference.on("swfReady", this.setMultipleFiles(), this),
-				this.swfReference.on("swfReady", this.setFileFilters(), this),
-				this.swfReference.on("swfReady", this.triggerEnabled(), this),
-				this.after("multipleFilesChange", this.setMultipleFiles, this),
-				this.after("fileFiltersChange", this.setFileFilters, this),
-				this.after("enabledChange", this.triggerEnabled, this)
-			) : (*/
 			this.swfReference.on("swfReady", function() {
 				this.setMultipleFiles();
 				this.setFileFilters();
@@ -412,7 +404,6 @@
 				this.after("fileFiltersChange", this.setFileFilters, this);
 				this.after("enabledChange", this.triggerEnabled, this);
 			}, this);
-		//	);
 			this.swfReference.on("fileselect", this.updateFileList, this);
 			this.swfReference.on("mouseenter", function() {this.setContainerClass("hover", !0);}, this);
 			this.swfReference.on("mouseleave", function() {this.setContainerClass("hover", !1);}, this);
@@ -617,7 +608,7 @@
 		},
 		renderUI : function(a) {
 			this.contentBox = a;
-			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden; width:0px; height: 0px;'>");
+			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;' webkitdirectory directory>");
 			this.contentBox.appendChild(this.fileInputField);
 		},
 		bindUI : function() {
@@ -654,17 +645,53 @@
 					this.fire("dragleave");
 					break;
 				case "drop" :
-					for (var files = evt.dataTransfer.files, list = [], c = 0; c < files.length; c++)
-						list.push(new StreamUploader(files[c]));
-					0 < list.length && this.fire("fileselect", {
-								fileList : list
-							});
+					var callback = function(files, self) {
+						for (var list = [], c = 0; c < files.length; c++)
+							list.push(new StreamUploader(files[c]));
+						0 < list.length && self.fire("fileselect", {fileList : list});
+					};
+					if (bFolder) {
+						var items = evt.dataTransfer.items;
+						for (var i = 0; i < items.length; i++) {
+							var entry = items[i].webkitGetAsEntry() || items[i].getAsEntry();
+							entry && this.traverseFileTree(entry.filesystem.root, callback);
+						}
+					} else {
+						callback(evt.dataTransfer.files, this);
+					}
 					this.fire("drop");
 			}
 		},
+		traverseFileTree : function (directory, callback) {
+			callback.pending || (callback.pending = 0);
+			callback.files || (callback.files = []);
+			callback.pending++;
+			var self = this, relativePath = directory.fullPath.replace(/^\//, "").replace(/(.+?)\/?$/, "$1/"), reader = directory.createReader();
+			reader.readEntries(function(entries) {
+				callback.pending--;
+				if (!entries.length) {
+					fShowMessage("\u5FFD\u7565\u7A7A\u6587\u4EF6\u5939\uFF1A`" + relativePath + directory.name + "`", true);
+				} else {
+					for (var i = 0; i < entries.length; i++) {
+						var entry = entries[i];
+						if (entry.isFile) {
+							callback.pending++;
+							entry.file(function(f) {
+								f.RelativePath = relativePath + f.name; /** self define argument */
+								callback.files.push(f);
+								(--callback.pending === 0) && callback(callback.files, self);
+							});
+							continue;
+						}
+						self.traverseFileTree(entry, callback);
+					}
+				}
+				(callback.pending === 0) && callback(callback.files, self);
+			});
+		},
 		rebindFileField : function() {
 			this.fileInputField.parentNode.removeChild(this.fileInputField);
-			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden; width:0px; height: 0px;'>");
+			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;' webkitdirectory directory>");
 			this.contentBox.appendChild(this.fileInputField);
 			this.setMultipleFiles();
 			this.setFileFilters();
@@ -692,8 +719,10 @@
 				this.buttonBinding = null;
 		},
 		updateFileList : function(a) {
-			for (var a = a.target.files, b = [], c = 0; c < a.length; c++)
+			for (var a = a.target.files, b = [], c = 0; c < a.length; c++) {
+				if (a[c].name == ".") continue;
 				b.push(new StreamUploader(a[c]));
+			}
 			0 < b.length && this.fire("fileselect", {fileList : b});
 			this.rebindFileField();
 		},
@@ -784,7 +813,7 @@
 			if (b && StreamUploader.canUpload()) {
 				if (!this.file)
 					this.file = b;
-				this.get("name") || this.set("name", b.name || b.fileName);
+				this.set("name", b.RelativePath || b.webkitRelativePath || b.name || b.fileName);
 				if (this.get("size") != (b.size || b.fileSize))
 					this.set("size", b.size || b.fileSize);
 				this.get("type") || this.set("type", b.type);
@@ -1025,7 +1054,7 @@
 			onQueueComplete: cfg.onQueueComplete,
 			onUploadError: cfg.onUploadError,
 			maxSize : cfg.maxSize || 2147483648,
-			simLimit : cfg.simLimit || 100,
+			simLimit : cfg.simLimit || 10000,
 			retryCount : cfg.retryCount || 5,
 			postVarsPerFile : cfg.postVarsPerFile || {},
 			swfURL : cfg.swfURL || "/swf/FlashUploader.swf",
@@ -1358,8 +1387,8 @@
 			for (c in this.uploadInfo)
 				b++;
 			if (b == this.get("simLimit") || a.length > this.get("simLimit")) {
-				this.get("onFileCountExceed") ? this.get("onFileCountExceed")(a.length, this.get("simLimit"))
-						: this.onFileCountExceed(a.length, this.get("simLimit"));
+				this.get("onFileCountExceed") ? this.get("onFileCountExceed")(Math.max(a.length, b), this.get("simLimit"))
+						: this.onFileCountExceed(Math.max(a.length, b), this.get("simLimit"));
 				return !1;
 			}
 			for (c = 0; c < a.length; c++)
@@ -1589,7 +1618,7 @@
 		/** some browsers has problems. */
 		(bFormData && Browser.os === "windows" && Browser.safari === "5.1.7") && (bFormData = !1);
 		return bFile && (bFormData || bHtml5);
-	}();
+	}(), bFolder = bStreaming && (window.webkitRequestFileSystem || window.requestFileSystem);
 	Provider = bStreaming ? StreamProvider : SWFProvider;
 	window.Stream = window.Uploader = Main; /** window.Uploader是SWF组件的关键字(保留) */
 })();
