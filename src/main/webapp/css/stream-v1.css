@@ -22,6 +22,14 @@ ul,ol,li,img {
 	position: relative;
 }
 
+.stream-browse-drag-files-area {
+	border: 2px dashed #555;
+	padding: 10px 0;
+	border-radius: 7px;
+	text-align: center;
+	margin: 10px 0;
+}
+
 .stream-disable-browser {
 	color: #909090;
 }

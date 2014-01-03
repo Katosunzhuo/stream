@@ -577,6 +577,7 @@
 			multipleFiles : !0,
 			appendNewFiles : !0,
 			dragAndDropArea : "",
+			dragAndDropTips : "",
 			fileFilters : aFilters,
 			fileFieldName : "FileData",
 			simLimit : 1,
@@ -610,6 +611,8 @@
 			this.contentBox = a;
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
+			!this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
+			bFolder && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
 		},
 		bindUI : function() {
 			this.bindSelectButton();
@@ -693,6 +696,8 @@
 			this.fileInputField.parentNode.removeChild(this.fileInputField);
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
+			!this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
+			bFolder && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
 			this.setMultipleFiles();
 			this.setFileFilters();
 			fAddEventListener(this.fileInputField, "change", fExtend(this.updateFileList, this));
@@ -1036,7 +1041,8 @@
 			appendNewFiles : !!cfg.appendNewFiles,
 			autoRemoveCompleted : !!cfg.autoRemoveCompleted,
 			autoUploading : cfg.autoUploading == null ? true : !!cfg.autoUploading,
-			dragAndDropArea: document,
+			dragAndDropArea: cfg.dragAndDropArea || "i_select_files",
+			dragAndDropTips: cfg.dragAndDropTips || "<span>把文件(文件夹)拖拽到这里</span>",
 			fileFieldName : "FileData",
 			browseFileId : cfg.browseFileId || "i_select_files",
 			browseFileBtn : cfg.browseFileBtn || "<div>请选择文件</div>",
