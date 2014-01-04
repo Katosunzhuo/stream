@@ -109,8 +109,10 @@ public class StreamServlet extends HttpServlet {
 
 			start = f.length();
 			/** rename the file */
-			if (range.getSize() == start)
+			if (range.getSize() == start) {
 				f.renameTo(IoUtil.getFile(fileName));
+				System.out.println("TK: `" + token + "`, NE: `" + fileName + "`");
+			}
 		} catch (FileNotFoundException fne) {
 			message = "Error: " + fne.getMessage();
 			success = false;
