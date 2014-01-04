@@ -660,7 +660,13 @@
 							entry && this.traverseFileTree(entry.filesystem.root, callback);
 						}
 					} else {
-						callback(evt.dataTransfer.files, this);
+						var files = evt.dataTransfer.files;
+						if (evt.MOZ_SOURCE_MOUSE) {
+							for (var list = [], c = 0; c < files.length; c++)
+								files[c].size > 0 && list.push(files[c]);
+							files = list;
+						}
+						callback(files, this);
 					}
 					this.fire("drop");
 			}
