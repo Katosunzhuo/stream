@@ -612,7 +612,7 @@
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
 			!this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
-			bFolder && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
+			bDraggable && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
 		},
 		bindUI : function() {
 			this.bindSelectButton();
@@ -697,7 +697,7 @@
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
 			!this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
-			bFolder && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
+			bDraggable && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
 			this.setMultipleFiles();
 			this.setFileFilters();
 			fAddEventListener(this.fileInputField, "change", fExtend(this.updateFileList, this));
@@ -1349,7 +1349,7 @@
 			this.getNode("stream-uploaded", cellInfosNode).innerHTML = loaded + "/" + total;
 			
 			var _loaded = this.formatBytes(this.totalUploadedSize + bytesLoaded);
-			var percent = (this.totalUploadedSize + bytesLoaded) * 10000 / this.totalFileSize / 100;
+			var percent = (this.totalUploadedSize + bytesLoaded) * 10000 / this.totalFileSize / 100, percent = Math.min(99.99, percent);
 			100 > percent && (percent = parseFloat(percent).toFixed(2));
 			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
 			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
@@ -1624,7 +1624,7 @@
 		/** some browsers has problems. */
 		(bFormData && Browser.os === "windows" && Browser.safari === "5.1.7") && (bFormData = !1);
 		return bFile && (bFormData || bHtml5);
-	}(), bFolder = bStreaming && (window.webkitRequestFileSystem || window.requestFileSystem);
+	}(), bDraggable = bStreaming && ('draggable' in document.createElement('span')), bFolder = bDraggable && (window.webkitRequestFileSystem || window.requestFileSystem);
 	Provider = bStreaming ? StreamProvider : SWFProvider;
 	window.Stream = window.Uploader = Main; /** window.Uploader是SWF组件的关键字(保留) */
 })();
