@@ -655,8 +655,8 @@
 					};
 					if (bFolder) {
 						var items = evt.dataTransfer.items;
-						if (items.length && items[0]) {
-							var entry = items[0].webkitGetAsEntry() || items[0].getAsEntry();
+						if (items.length && items[items.length - 1]) {
+							var entry = items[items.length - 1].webkitGetAsEntry() || items[items.length - 1].getAsEntry();
 							entry && this.traverseFileTree(entry.filesystem.root, callback);
 						}
 					} else {
