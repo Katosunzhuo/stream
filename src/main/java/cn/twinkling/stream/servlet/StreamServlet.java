@@ -95,8 +95,8 @@ public class StreamServlet extends HttpServlet {
 		long start = 0;
 		boolean success = true;
 		String message = "";
+		File f = IoUtil.getFile(token, fileName);
 		try {
-			File f = IoUtil.getFile(token, fileName);
 			if (f.length() != range.getFrom())
 				throw new IOException("File from position error!");
 			
@@ -108,11 +108,6 @@ public class StreamServlet extends HttpServlet {
 				out.write(bytes, 0, read);
 
 			start = f.length();
-			/** rename the file */
-			if (range.getSize() == start) {
-				f.renameTo(IoUtil.getFile(fileName));
-				System.out.println("TK: `" + token + "`, NE: `" + fileName + "`");
-			}
 		} catch (FileNotFoundException fne) {
 			message = "Error: " + fne.getMessage();
 			success = false;
@@ -120,6 +115,17 @@ public class StreamServlet extends HttpServlet {
 			message = "IO Error: " + io.getMessage();
 			success = false;
 		} finally {
+			IoUtil.close(out);
+			IoUtil.close(content);
+
+			/** rename the file */
+			if (range.getSize() == start) {
+				/** fix the `renameTo` bug */
+				File dst = IoUtil.getFile(fileName);
+				dst.delete();
+				f.renameTo(dst);
+				System.out.println("TK: `" + token + "`, NE: `" + fileName + "`");
+			}
 			try {
 				if (success)
 					json.put(START_FIELD, start);
@@ -128,8 +134,6 @@ public class StreamServlet extends HttpServlet {
 			} catch (JSONException e) {}
 			
 			writer.write(json.toString());
-			IoUtil.close(out);
-			IoUtil.close(content);
 			IoUtil.close(writer);
 		}
 	}

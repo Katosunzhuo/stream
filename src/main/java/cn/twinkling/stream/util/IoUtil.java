@@ -22,7 +22,8 @@ import cn.twinkling.stream.servlet.StreamServlet;
 public class IoUtil {
 	static final Pattern RANGE_PATTERN = Pattern.compile("bytes \\d+-\\d+/\\d+");
 	/** where the file should be put on. */
-	public static final String REPOSITORY = System.getProperty("java.io.tmpdir", "/tmp/upload-repository");
+	public static final String REPOSITORY = System.getProperty("java.io.tmpdir",
+			File.separator + "tmp" + File.separator + "upload-repository");
 	
 	/**
 	 * According the key, generate a file (if not exist, then create
@@ -38,13 +39,13 @@ public class IoUtil {
 	/**
 	 * According the key, generate a file (if not exist, then create
 	 * a new file).
-	 * @param key
+	 * @param filename
 	 * @param fullPath the file relative path(something like `a../bxx/wenjian.txt`)
 	 * @return
 	 * @throws IOException
 	 */
-	public static File getFile(String key, String fullPath) throws IOException {
-		if (key == null || key.isEmpty())
+	public static File getFile(String filename, String fullPath) throws IOException {
+		if (filename == null || filename.isEmpty())
 			return null;
 		String folder = "";
 		if (fullPath != null && !fullPath.isEmpty()
@@ -52,7 +53,8 @@ public class IoUtil {
 			int index = fullPath.lastIndexOf("/");
 			folder = fullPath.substring(0, index).replaceAll("/", File.separator);
 		}
-		File f = new File(REPOSITORY + File.separator + folder + File.separator + key);
+		String name = filename.replaceAll("/", File.separator);
+		File f = new File(REPOSITORY + File.separator + folder + File.separator + name);
 		if (!f.getParentFile().exists())
 			f.getParentFile().mkdirs();
 		if (!f.exists())
@@ -120,9 +122,8 @@ public class IoUtil {
 	 */
 	public static long streaming(InputStream in, String key, String fileName) throws IOException {
 		OutputStream out = null;
-		long size = 0;
+		File f = getFile(key);
 		try {
-			File f = getFile(key);
 			out = new FileOutputStream(f);
 
 			int read = 0;
@@ -131,13 +132,14 @@ public class IoUtil {
 				out.write(bytes, 0, read);
 			}
 			out.flush();
-			/** rename the file */
-			f.renameTo(getFile(fileName));
-			
-			size = getFile(fileName).length();
 		} finally {
 			close(out);
 		}
-		return size;
+		/** rename the file * fix the `renameTo` bug */
+		File dst = IoUtil.getFile(fileName);
+		dst.delete();
+		f.renameTo(dst);
+		
+		return getFile(fileName).length();
 	}
 }
