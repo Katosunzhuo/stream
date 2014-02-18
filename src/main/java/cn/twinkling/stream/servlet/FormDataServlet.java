@@ -41,6 +41,9 @@ public class FormDataServlet extends HttpServlet {
 			throws ServletException, IOException {
 		doOptions(req, resp);
 
+		/** flash @ windows bug */
+		req.setCharacterEncoding("utf8");
+		
 		final PrintWriter writer = resp.getWriter();
 		// Check that we have a file upload request
 		boolean isMultipart = ServletFileUpload.isMultipartContent(req);

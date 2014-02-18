@@ -56,7 +56,7 @@ public class StreamServlet extends HttpServlet {
 		boolean success = true;
 		String message = "";
 		try {
-			File f = IoUtil.getFile(token, fileName);
+			File f = IoUtil.getTokenedFile(token);
 			start = f.length();
 			/** file size is 0 bytes. */
 			if (token.endsWith("_0") && "0".equals(size) && 0 == start)
@@ -95,7 +95,7 @@ public class StreamServlet extends HttpServlet {
 		long start = 0;
 		boolean success = true;
 		String message = "";
-		File f = IoUtil.getFile(token, fileName);
+		File f = IoUtil.getTokenedFile(token);
 		try {
 			if (f.length() != range.getFrom())
 				throw new IOException("File from position error!");

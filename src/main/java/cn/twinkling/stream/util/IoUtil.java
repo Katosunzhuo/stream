@@ -28,33 +28,16 @@ public class IoUtil {
 	/**
 	 * According the key, generate a file (if not exist, then create
 	 * a new file).
-	 * @param key
-	 * @return
-	 * @throws IOException
-	 */
-	public static File getFile(String key) throws IOException {
-		return getFile(key, null);
-	}
-	
-	/**
-	 * According the key, generate a file (if not exist, then create
-	 * a new file).
 	 * @param filename
 	 * @param fullPath the file relative path(something like `a../bxx/wenjian.txt`)
 	 * @return
 	 * @throws IOException
 	 */
-	public static File getFile(String filename, String fullPath) throws IOException {
+	public static File getFile(String filename) throws IOException {
 		if (filename == null || filename.isEmpty())
 			return null;
-		String folder = "";
-		if (fullPath != null && !fullPath.isEmpty()
-				&& fullPath.indexOf("/") > 0) {
-			int index = fullPath.lastIndexOf("/");
-			folder = fullPath.substring(0, index).replaceAll("/", File.separator);
-		}
 		String name = filename.replaceAll("/", File.separator);
-		File f = new File(REPOSITORY + File.separator + folder + File.separator + name);
+		File f = new File(REPOSITORY + File.separator + name);
 		if (!f.getParentFile().exists())
 			f.getParentFile().mkdirs();
 		if (!f.exists())
@@ -80,6 +63,17 @@ public class IoUtil {
 			throw new FileNotFoundException("File `" +f + "` not exist.");
 		
 		return f;
+	}
+	
+	public static void storeToken(String key) throws IOException {
+		if (key == null || key.isEmpty())
+			return;
+
+		File f = new File(REPOSITORY + File.separator + key);
+		if (!f.getParentFile().exists())
+			f.getParentFile().mkdirs();
+		if (!f.exists())
+			f.createNewFile();
 	}
 	
 	/**
@@ -122,7 +116,7 @@ public class IoUtil {
 	 */
 	public static long streaming(InputStream in, String key, String fileName) throws IOException {
 		OutputStream out = null;
-		File f = getFile(key);
+		File f = getTokenedFile(key);
 		try {
 			out = new FileOutputStream(f);
 

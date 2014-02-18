@@ -21,7 +21,11 @@ public class TokenUtil {
 			return "";
 		int code = name.hashCode();
 		try {
-			return (code > 0 ? "A" : "B") + Math.abs(code) + "_" + size.trim();
+			String token = (code > 0 ? "A" : "B") + Math.abs(code) + "_" + size.trim();
+			/** TODO: store your token, here just create a file */
+			IoUtil.storeToken(token);
+			
+			return token;
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
