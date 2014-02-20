@@ -36,7 +36,7 @@ public class IoUtil {
 	public static File getFile(String filename) throws IOException {
 		if (filename == null || filename.isEmpty())
 			return null;
-		String name = filename.replaceAll("/", File.separator);
+		String name = filename.replaceAll("/", Matcher.quoteReplacement(File.separator));
 		File f = new File(REPOSITORY + File.separator + name);
 		if (!f.getParentFile().exists())
 			f.getParentFile().mkdirs();
