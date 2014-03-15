@@ -13,7 +13,7 @@
   	<context-param>
   		<description>when the file has uploaded, whether delete it.</description>
   		<param-name>DELETE_FINISH</param-name>
-		<param-value>true</param-value>
+		<param-value>false</param-value>
   	</context-param>
   	
 	<servlet>
