@@ -934,9 +934,11 @@
 					try {
 						if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 308)) {
 							uploaded = (respJson = eval("(" + xhr.responseText + ")")) ? respJson.start : -1;
+						} else if (xhr.status < 500 && xhr.status >= 400) {
+							bError = !0;
 						} else {return;}
 						/** the response can't process the request, so throws out the error. */
-						bError = respJson.success == false;
+						bError = bError || respJson.success == false;
 					} catch(e) {
 						bError = "formUpload" === method || this.retriedTimes > this.retryTimes;
 						if (!bError) {
@@ -949,7 +951,7 @@
 							originEvent : event,
 							status : xhr.status,
 							statusText : xhr.responseText,
-							source : respJson.message
+							source : respJson && respJson.message
 						});
 						return;
 					}
