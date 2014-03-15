@@ -1294,13 +1294,15 @@
 			xhr.open("GET", tokenUrl, !0);
 			/** IE7,8 兼容*/
 			xhr.onreadystatechange = function() {
-			    if (xhr.readyState != 4 || xhr.status != 200)
+			    if (xhr.readyState != 4 || xhr.status < 200)
 			        return false;
 			    
 			    var token, server;
 				try {
-					token = eval("(" + xhr.responseText + ")").token;
-					server = eval("(" + xhr.responseText + ")").server;
+					try {
+						token = eval("(" + xhr.responseText + ")").token;
+						server = eval("(" + xhr.responseText + ")").server;
+					} catch(e) {}
 					if (token) {
 						if(server != null && server != "") {
 							frmUploadURL = server + frmUploadURL;
@@ -1311,10 +1313,9 @@
 								: self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
 					} else {
 						/** not found any token */
-						var errorPanel = self.getNode("upload-start-error", this.startPanel);
 						self.cancelOne(index);
-						errorPanel.innerHTML = "\u521b\u5efa\u4e0a\u4f20\u4efb\u52a1\u5931\u8d25\uff0c\u8bf7\u5c1d\u8bd5\u91cd\u65b0\u4e0a\u4f20";
-						errorPanel.style.display = "block";
+						var msg = "\u521B\u5EFA\u4E0A\u4F20\u4EFB\u52A1\u5931\u8D25[tokenURL=" + self.get("tokenURL") + "],\u72B6\u6001\u7801:" + xhr.status;
+						fShowMessage(msg, true);
 					}
 				} catch(e) {
 					/** streaming, swf, resume methods all failed, try to use FormData */
@@ -1322,10 +1323,9 @@
 				}
 			}
 			xhr.onerror = function() {
-				var errorPanel = self.getNode("upload-start-error", this.startPanel);
 				self.cancelOne(index);
-				errorPanel.innerHTML = "\u521b\u5efa\u4e0a\u4f20\u4efb\u52a1\u5931\u8d25\uff0c\u8bf7\u5c1d\u8bd5\u91cd\u65b0\u4e0a\u4f20";
-				errorPanel.style.display = "block";
+				var msg = "\u521B\u5EFA\u4E0A\u4F20\u4EFB\u52A1\u5931\u8D25,\u72B6\u6001\u7801:" + xhr.status + ",\u8BF7\u68C0\u6D4B\u7F51\u7EDC...";
+				fShowMessage(msg, true);
 			};
 			xhr.send();
 		},
