@@ -134,6 +134,12 @@ public class IoUtil {
 		dst.delete();
 		f.renameTo(dst);
 		
-		return getFile(fileName).length();
+		long length = getFile(fileName).length();
+		/** if `DELETE_FINISH`, then delete it. */
+		if (StreamServlet.DELETE_FINISH) {
+			dst.delete();
+		}
+		
+		return length;
 	}
 }

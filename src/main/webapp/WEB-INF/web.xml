@@ -10,6 +10,12 @@
   		<param-name>CROSS_ORIGIN</param-name>
 		<param-value>*</param-value>
   	</context-param>
+  	<context-param>
+  		<description>when the file has uploaded, whether delete it.</description>
+  		<param-name>DELETE_FINISH</param-name>
+		<param-value>true</param-value>
+  	</context-param>
+  	
 	<servlet>
 		<servlet-name>TokenServlet</servlet-name>
 		<servlet-class>cn.twinkling.stream.servlet.TokenServlet</servlet-class>

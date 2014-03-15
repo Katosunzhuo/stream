@@ -25,6 +25,8 @@ import cn.twinkling.stream.util.IoUtil;
 public class StreamServlet extends HttpServlet {
 	private static final long serialVersionUID = -8619685235661387895L;
 	static final String CROSS_ORIGIN = "CROSS_ORIGIN";
+	/** the other class program should not modify it */
+	public static boolean DELETE_FINISH = false;
 	private String origins;
 	/** when the has increased to 10kb, then flush it to the hard-disk. */
 	static final int BUFFER_LENGTH = 10240;
@@ -34,6 +36,7 @@ public class StreamServlet extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		origins = getServletContext().getInitParameter(CROSS_ORIGIN);
+		DELETE_FINISH = Boolean.parseBoolean(getServletContext().getInitParameter("DELETE_FINISH"));
 	}
 	
 	/**
@@ -125,6 +128,11 @@ public class StreamServlet extends HttpServlet {
 				dst.delete();
 				f.renameTo(dst);
 				System.out.println("TK: `" + token + "`, NE: `" + fileName + "`");
+				
+				/** if `DELETE_FINISH`, then delete it. */
+				if (DELETE_FINISH) {
+					dst.delete();
+				}
 			}
 			try {
 				if (success)
