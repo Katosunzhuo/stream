@@ -703,7 +703,7 @@
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
 			!this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
-			bDraggable && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
+			bDraggable && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'));
 			this.setMultipleFiles();
 			this.setFileFilters();
 			fAddEventListener(this.fileInputField, "change", fExtend(this.updateFileList, this));
