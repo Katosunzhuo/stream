@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Stream上传插件 - Bootstrap Demo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="/css/stream-v1.css" rel="stylesheet" type="text/css">
+<link href="http://cdn.bootcss.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.0/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.3.0/respond.min.js"></script>
+<![endif]-->
+<style type="text/css">
+.fileinput-button {
+  position: relative;
+  overflow: hidden;
+}
+.fileinput-button input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  opacity: 0;
+  filter: alpha(opacity=0);
+  transform: translate(-300px, 0) scale(4);
+  font-size: 23px;
+  direction: ltr;
+  cursor: pointer;
+}
+.fileupload-buttonbar .btn,
+.fileupload-buttonbar .toggle {
+  margin-bottom: 5px;
+}
+.progress-animated .progress-bar,
+.progress-animated .bar {
+  background: url(../img/progressbar.gif) !important;
+  filter: none;
+}
+.fileupload-loading {
+  float: right;
+  width: 32px;
+  height: 32px;
+  background: url(/img/loading.gif) center no-repeat;
+  background-size: contain;
+  display: none;
+}
+.fileupload-processing .fileupload-loading {
+  display: block;
+}
+.files audio,
+.files video {
+  max-width: 300px;
+}
+
+@media (max-width: 767px) {
+  .fileupload-buttonbar .toggle,
+  .files .toggle,
+  .files .btn span {
+    display: none;
+  }
+  .files .name {
+    width: 80px;
+    word-wrap: break-word;
+  }
+  .files audio,
+  .files video {
+    max-width: 80px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="row">
+  <div class="col-md-12">
+     <blockquote>
+        <p style="font-size:16px">File Upload widget with multiple file selection, drag&amp;drop support, progress bars and preview images for jQuery.<br>
+           Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br>
+           Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
+        </p>
+     </blockquote>
+     <br>
+     <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data" class="">
+        <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+        <div class="row fileupload-buttonbar">
+           <div class="col-lg-7">
+              <!-- The fileinput-button span is used to style the file input field as button -->
+              <span class="btn green fileinput-button">
+              <i class="icon-plus"></i>
+              <span>Add files...</span>
+              <input type="file" name="files[]" multiple="">
+              </span>
+              <button type="submit" class="btn blue start">
+              <i class="icon-upload"></i>
+              <span>Start upload</span>
+              </button>
+              <button type="reset" class="btn yellow cancel">
+              <i class="icon-ban-circle"></i>
+              <span>Cancel upload</span>
+              </button>
+              <button type="button" class="btn red delete">
+              <i class="icon-trash"></i>
+              <span>Delete</span>
+              </button>
+              <input type="checkbox" class="toggle">
+              <!-- The loading indicator is shown during file processing -->
+              <span class="fileupload-loading"></span>
+           </div>
+           <!-- The global progress information -->
+           <div class="col-lg-5 fileupload-progress fade">
+              <!-- The global progress bar -->
+              <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                 <div class="progress-bar progress-bar-success" style="width: 0%; "></div>
+              </div>
+              <!-- The extended global progress information -->
+              <div class="progress-extended">&nbsp;</div>
+           </div>
+        </div>
+        <!-- The table listing the files available for upload/download -->
+         <table role="presentation" class="table table-striped clearfix">
+            <tbody class="files"><tr class="template-upload fade in">
+     <td>
+         <span class="preview"></span>
+     </td>
+     <td>
+         <p class="name">form_wizard.html</p>
+         
+             <div><span class="label label-danger">Error</span> File type not allowed</div>
+         
+     </td>
+     <td>
+         <p class="size">87.86 KB</p>
+         
+     </td>
+     <td>
+         
+         
+             <button class="btn red cancel">
+                 <i class="icon-ban-circle"></i>
+                 <span>Cancel</span>
+             </button>
+         
+     </td>
+ </tr><tr class="template-upload fade in">
+     <td>
+         <span class="preview"></span>
+     </td>
+     <td>
+         <p class="name">extra_search.html</p>
+         
+             <div><span class="label label-danger">Error</span> File type not allowed</div>
+         
+     </td>
+     <td>
+         <p class="size">87.20 KB</p>
+         
+     </td>
+     <td>
+         
+         
+             <button class="btn red cancel">
+                 <i class="icon-ban-circle"></i>
+                 <span>Cancel</span>
+             </button>
+         
+     </td>
+ </tr><tr class="template-upload fade in">
+     <td>
+         <span class="preview"></span>
+     </td>
+     <td>
+         <p class="name">extra_faq.html</p>
+         
+             <div><span class="label label-danger">Error</span> File type not allowed</div>
+         
+     </td>
+     <td>
+         <p class="size">79.50 KB</p>
+         
+     </td>
+     <td>
+         
+         
+             <button class="btn red cancel">
+                 <i class="icon-ban-circle"></i>
+                 <span>Cancel</span>
+             </button>
+         
+     </td>
+ </tr><tr class="template-upload fade in">
+     <td>
+         <span class="preview"></span>
+     </td>
+     <td>
+         <p class="name">layout_language_bar.html</p>
+         
+             <div><span class="label label-danger">Error</span> File type not allowed</div>
+         
+     </td>
+     <td>
+         <p class="size">77.15 KB</p>
+         
+     </td>
+     <td>
+         
+         
+             <button class="btn red cancel">
+                 <i class="icon-ban-circle"></i>
+                 <span>Cancel</span>
+             </button>
+         
+     </td>
+ </tr><tr class="template-upload fade in">
+     <td>
+         <span class="preview"></span>
+     </td>
+     <td>
+         <p class="name">page_portfolio.html</p>
+         
+             <div><span class="label label-danger">Error</span> File type not allowed</div>
+         
+     </td>
+     <td>
+         <p class="size">76.50 KB</p>
+         
+     </td>
+     <td>
+         
+         
+             <button class="btn red cancel">
+                 <i class="icon-ban-circle"></i>
+                 <span>Cancel</span>
+             </button>
+         
+     </td>
+ </tr><tr class="template-download fade in">
+     <td>
+         <span class="preview">
+             
+         </span>
+     </td>
+     <td>
+         <p class="name">
+             
+                 <span>logo-big.png</span>
+             
+         </p>
+         
+             <div><span class="label label-danger">Error</span> true</div>
+         
+     </td>
+     <td>
+         <span class="size">2.23 KB</span>
+     </td>
+     <td>
+         
+             <button class="btn yellow cancel">
+                 <i class="icon-ban-circle"></i>
+                 <span>Cancel</span>
+             </button>
+         
+     </td>
+ </tr></tbody>
+         </table>
+      <div class="alert alert-danger">Upload server currently unavailable - Sat Mar 29 2014 12:55:29 GMT+0800 (CST)</div></form>
+      <div class="panel panel-success">
+         <div class="panel-heading">
+            <h3 class="panel-title">Demo Notes</h3>
+         </div>
+         <div class="panel-body">
+            <ul>
+               <li>The maximum file size for uploads in this demo is <strong>5 MB</strong> (default file size is unlimited).</li>
+               <li>Only image files (<strong>JPG, GIF, PNG</strong>) are allowed in this demo (by default there is no file type restriction).</li>
+               <li>Uploaded files will be deleted automatically after <strong>5 minutes</strong> (demo setting).</li>
+            </ul>
+         </div>
+      </div>
+   </div>
+</div>
+
+<script src="http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/stream-v1.js"></script>
+<script type="text/javascript">
+/**
+ * 配置文件（如果没有默认字样，说明默认值就是注释下的值）
+ * 但是，on*（onSelect， onMaxSizeExceed...）等函数的默认行为
+ * 是在ID为i_stream_message_container的页面元素中写日志
+ */
+	var config = {
+		multipleFiles: false /** 多个文件一起上传, 默认: false */
+	};
+	//var _t = new Stream(config);
+</script>
+</body>
