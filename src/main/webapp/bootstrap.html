@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="/css/stream-v1.css" rel="stylesheet" type="text/css">
 <link href="http://cdn.bootcss.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
-<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
     <script src="http://cdn.bootcss.com/html5shiv/3.7.0/html5shiv.min.js"></script>
     <script src="http://cdn.bootcss.com/respond.js/1.3.0/respond.min.js"></script>
@@ -87,10 +85,10 @@
         <div class="row fileupload-buttonbar">
            <div class="col-lg-7">
               <!-- The fileinput-button span is used to style the file input field as button -->
-              <span class="btn green fileinput-button">
-              <i class="icon-plus"></i>
-              <span>Add files...</span>
-              <input type="file" name="files[]" multiple="">
+              <span class="btn green fileinput-button" id="i_select_files">
+	              <i class="icon-plus"></i>
+	              <span>Add files...</span>
+	              <input type="file" name="files[]" multiple="">
               </span>
               <button type="submit" class="btn blue start">
               <i class="icon-upload"></i>
@@ -118,149 +116,23 @@
               <div class="progress-extended">&nbsp;</div>
            </div>
         </div>
-        <!-- The table listing the files available for upload/download -->
-         <table role="presentation" class="table table-striped clearfix">
-            <tbody class="files"><tr class="template-upload fade in">
-     <td>
-         <span class="preview"></span>
-     </td>
+ <!-- The table listing the files available for upload/download -->
+  <table role="presentation" class="table table-striped clearfix">
+     <tbody class="files" id="bootstrap-stream-container">
+     <tr class="template-upload fade in">
+     <td><span class="preview"></span></td>
      <td>
          <p class="name">form_wizard.html</p>
-         
-             <div><span class="label label-danger">Error</span> File type not allowed</div>
-         
+         <div><span class="label label-danger">Error</span> File type not allowed</div>
      </td>
      <td>
          <p class="size">87.86 KB</p>
-         
      </td>
      <td>
-         
-         
              <button class="btn red cancel">
                  <i class="icon-ban-circle"></i>
                  <span>Cancel</span>
              </button>
-         
-     </td>
- </tr><tr class="template-upload fade in">
-     <td>
-         <span class="preview"></span>
-     </td>
-     <td>
-         <p class="name">extra_search.html</p>
-         
-             <div><span class="label label-danger">Error</span> File type not allowed</div>
-         
-     </td>
-     <td>
-         <p class="size">87.20 KB</p>
-         
-     </td>
-     <td>
-         
-         
-             <button class="btn red cancel">
-                 <i class="icon-ban-circle"></i>
-                 <span>Cancel</span>
-             </button>
-         
-     </td>
- </tr><tr class="template-upload fade in">
-     <td>
-         <span class="preview"></span>
-     </td>
-     <td>
-         <p class="name">extra_faq.html</p>
-         
-             <div><span class="label label-danger">Error</span> File type not allowed</div>
-         
-     </td>
-     <td>
-         <p class="size">79.50 KB</p>
-         
-     </td>
-     <td>
-         
-         
-             <button class="btn red cancel">
-                 <i class="icon-ban-circle"></i>
-                 <span>Cancel</span>
-             </button>
-         
-     </td>
- </tr><tr class="template-upload fade in">
-     <td>
-         <span class="preview"></span>
-     </td>
-     <td>
-         <p class="name">layout_language_bar.html</p>
-         
-             <div><span class="label label-danger">Error</span> File type not allowed</div>
-         
-     </td>
-     <td>
-         <p class="size">77.15 KB</p>
-         
-     </td>
-     <td>
-         
-         
-             <button class="btn red cancel">
-                 <i class="icon-ban-circle"></i>
-                 <span>Cancel</span>
-             </button>
-         
-     </td>
- </tr><tr class="template-upload fade in">
-     <td>
-         <span class="preview"></span>
-     </td>
-     <td>
-         <p class="name">page_portfolio.html</p>
-         
-             <div><span class="label label-danger">Error</span> File type not allowed</div>
-         
-     </td>
-     <td>
-         <p class="size">76.50 KB</p>
-         
-     </td>
-     <td>
-         
-         
-             <button class="btn red cancel">
-                 <i class="icon-ban-circle"></i>
-                 <span>Cancel</span>
-             </button>
-         
-     </td>
- </tr><tr class="template-download fade in">
-     <td>
-         <span class="preview">
-             
-         </span>
-     </td>
-     <td>
-         <p class="name">
-             
-                 <span>logo-big.png</span>
-             
-         </p>
-         
-             <div><span class="label label-danger">Error</span> true</div>
-         
-     </td>
-     <td>
-         <span class="size">2.23 KB</span>
-     </td>
-     <td>
-         
-             <button class="btn yellow cancel">
-                 <i class="icon-ban-circle"></i>
-                 <span>Cancel</span>
-             </button>
-         
      </td>
  </tr></tbody>
          </table>
@@ -290,8 +162,34 @@
  * 是在ID为i_stream_message_container的页面元素中写日志
  */
 	var config = {
-		multipleFiles: false /** 多个文件一起上传, 默认: false */
+		customered:true,
+		multipleFiles: false, /** 多个文件一起上传, 默认: false */
+		onAddTask: function(f) {
+			 var file = '<tr id="' + f.id + '" class="template-upload fade in">' +
+		     '<td><span class="preview"></span></td>' +
+		     '<td><p class="name">' + f.name + '</p>' +
+		     '    <div><span class="label label-danger">Error</span> File type not allowed</div>' +
+		     '</td>' +
+		     '<td><p class="size">' + f.formatSize + '</p>' +
+		     '</td>' +
+		     '<td><button class="btn red cancel" onClick="javascript:_t.cancelOne(\'' + f.id + '\')">' +
+		     '       <i class="icon-ban-circle"></i>' +
+		     '       <span>Cancel</span>' +
+		     '    </button>' +
+		     '</td></tr>';
+			
+			$("#bootstrap-stream-container").append(file);
+			
+			
+			console.log(f);
+		},
+		onUploadProgress: function(f) {
+			console.log(f);
+		},
+		onUploadComplete: function(f) {
+			console.log(f);
+		}
 	};
-	//var _t = new Stream(config);
+	var _t = new Stream(config);
 </script>
 </body>

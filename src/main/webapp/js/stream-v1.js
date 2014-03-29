@@ -48,7 +48,6 @@
 			'	<span class="stream-percent">0%</span>，已上传<strong class="_stream-total-uploaded">&nbsp;</strong>' +
 			'	，总文件大小<strong class="_stream-total-size">&nbsp;</strong>' +
 			'</div>',
-		sUploadStartError = '<div class="upload-start-error" style="display: none;"></div>',	
 		sFilesContainer	= '<div class="stream-files-scroll" style="height: #filesQueueHeight#px;"><ul id="#filesContainerId#"></ul></div>';
 	
 	function fGenerateId(prefix) {
@@ -1045,6 +1044,7 @@
 		this.uploadInfo = {};
 		this.config = {
 			enabled : !0,
+			customered : !0,
 			multipleFiles : !!cfg.multipleFiles,
 			appendNewFiles : !!cfg.appendNewFiles,
 			autoRemoveCompleted : !!cfg.autoRemoveCompleted,
@@ -1058,6 +1058,7 @@
 			filesQueueHeight : cfg.filesQueueHeight || 450,
 			messagerId : cfg.messagerId || "i_stream_message_container",
 			onSelect : cfg.onSelect,
+			onAddTask: cfg.onAddTask,
 			onMaxSizeExceed : cfg.onMaxSizeExceed,
 			onFileCountExceed : cfg.onFileCountExceed,
 			onExtNameMismatch : cfg.onExtNameMismatch,
@@ -1066,6 +1067,7 @@
 			onCancelAll : cfg.onCancelAll,
 			onComplete : cfg.onComplete,
 			onQueueComplete: cfg.onQueueComplete,
+			onUploadProgress: cfg.onUploadProgress,
 			onUploadError: cfg.onUploadError,
 			maxSize : cfg.maxSize || 2147483648,
 			simLimit : cfg.simLimit || 10000,
@@ -1093,21 +1095,24 @@
 		initializer : function() {
 			sStreamMessagerId = this.config.messagerId;
 			this.startPanel = document.getElementById(this.config.browseFileId);
-			fAddClass(this.startPanel, "stream-browse-files");
-			this.startPanel.appendChild(fCreateContentEle(this.config.browseFileBtn));
-			this.startPanel.appendChild(fCreateContentEle(sUploadStartError));
-			var filesQueuePanel = document.getElementById(this.config.filesQueueId);
-			fAddClass(filesQueuePanel, "stream-main-upload-box");
-			var filesContainerId = fGenerateId("files-container"),
-			    totalContainerId = fGenerateId("total-container");
-			var filesQueue = fCreateContentEle(sFilesContainer.replace("#filesContainerId#", filesContainerId).replace("#filesQueueHeight#", this.config.filesQueueHeight)),
-				totalQueue = fCreateContentEle(sTotalContainer.replace("#totalContainerId#", totalContainerId));
-			filesQueuePanel.appendChild(filesQueue);
-			filesQueuePanel.appendChild(totalQueue);
+			/** the default UI */
+			if (!this.config.customered) {
+				fAddClass(this.startPanel, "stream-browse-files");
+				this.startPanel.appendChild(fCreateContentEle(this.config.browseFileBtn));
+				var filesQueuePanel = document.getElementById(this.config.filesQueueId);
+				fAddClass(filesQueuePanel, "stream-main-upload-box");
+				var filesContainerId = fGenerateId("files-container"),
+				    totalContainerId = fGenerateId("total-container");
+				var filesQueue = fCreateContentEle(sFilesContainer.replace("#filesContainerId#", filesContainerId).replace("#filesQueueHeight#", this.config.filesQueueHeight)),
+					totalQueue = fCreateContentEle(sTotalContainer.replace("#totalContainerId#", totalContainerId));
+				filesQueuePanel.appendChild(filesQueue);
+				filesQueuePanel.appendChild(totalQueue);
+				
+				this.containerPanel = document.getElementById(filesContainerId);
+				this.totalContainerPanel = document.getElementById(totalContainerId);
+				this.template = sCellFileTemplate;
+			}
 			
-			this.containerPanel = document.getElementById(filesContainerId);
-			this.totalContainerPanel = document.getElementById(totalContainerId);
-			this.template = sCellFileTemplate;
 			this.fileProvider = new Provider(this.config);
 			this.fileProvider.render(this.startPanel);
 			this.fileProvider.on("uploadprogress", this.uploadProgress, this);
@@ -1133,11 +1138,14 @@
 				progressNode : this.getNode("stream-process", cell_file),
 				cellInfosNode : this.getNode("stream-cell-infos", cell_file)
 			};
-			this.getNode("stream-file-name", cell_file).getElementsByTagName("strong")[0].innerHTML = a.get("name");
-			this.renderUI(file_id);
-			this.bindUI(file_id);
+			this.totalFileSize += this.uploadInfo[file_id].file.get("size");
+			if (!this.config.customered) {
+				this.getNode("stream-file-name", cell_file).getElementsByTagName("strong")[0].innerHTML = a.get("name");
+				this.containerPanel.appendChild(cell_file);
+				this.renderUI(file_id);
+				this.bindUI(file_id);
+			}
 			bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");
-			this.containerPanel.appendChild(cell_file);
 			this.waiting.push(file_id);
 			this.config.autoUploading && this.upload(file_id);
 		},
@@ -1151,8 +1159,6 @@
 			this.getNode("stream-speed", cellInfosNode).innerHTML = "-";
 			this.getNode("stream-remain-time", cellInfosNode).innerHTML = "--:--:--";
 			this.getNode("stream-uploaded", cellInfosNode).innerHTML = "0/" + total;
-			/** total file size */
-			this.totalFileSize += size;
 			var _total = this.formatBytes(this.totalFileSize);
 			this.getNode("_stream-total-size", this.totalContainerPanel).innerHTML = _total;
 		},
@@ -1341,8 +1347,32 @@
 			this.fileProvider.upload(file, url, token);
 		},
 		uploadProgress : function(a) {
-			var id = a.target.get("id");
+			var id = a.target.get("id"), percent = Math.min(99.99, a.percentLoaded),
+				totalPercent = (this.totalUploadedSize + a.bytesLoaded) * 10000 / this.totalFileSize / 100, totalPercent = Math.min(99.99, totalPercent);
+			
 			if (!this.uploadInfo[id]) return false;
+			if (this.config.customered) {
+				var info = {
+					id:                 id,
+					loaded:             a.bytesLoaded,
+					formatLoaded:       this.formatBytes(a.bytesLoaded),
+					speed:              a.bytesSpeed,
+					formatSpeed:        this.formatSpeed(a.bytesSpeed),
+					size:               a.bytesTotal,
+					formatSize:         this.formatBytes(a.bytesTotal),
+					percent:            percent,
+					timeLeft:           a.remainTime,
+					formatTimeLeft:     this.formatTime(a.remainTime),
+					totalSize:          this.totalFileSize,
+					formatTotalSize:    this.formatBytes(this.totalFileSize),
+					totalLoaded:        this.totalUploadedSize + a.bytesLoaded,
+					formatTotalLoaded:  this.formatBytes(this.totalUploadedSize + a.bytesLoaded),
+					totalPercent:       totalPercent
+				};
+				this.get("onUploadProgress") && this.get("onUploadProgress")(info);
+				return false;
+			}
+			
 			var progressNode = this.uploadInfo[id].progressNode,
 				cellInfosNode = this.uploadInfo[id].cellInfosNode, bytesLoaded = a.bytesLoaded,
 				c = this.formatSpeed(a.bytesSpeed), loaded = this.formatBytes(bytesLoaded),
@@ -1364,8 +1394,33 @@
 			this.getNode("stream-process-bar", this.totalContainerPanel).innerHTML = '<span style="width: '+percent+'%;"></span>';
 		},
 		uploadComplete : function(a) {
-			var id = a.target.get("id");
+			this.totalUploadedSize += a.target.get("size");
+			var id = a.target.get("id"), percent = Math.min(100, a.percentLoaded),
+				totalPercent = this.totalUploadedSize * 10000 / this.totalFileSize / 100;
+			100 > totalPercent && (totalPercent = parseFloat(totalPercent).toFixed(2));
+			if (this.totalFileSize === 0)
+				percent = 100;
+
 			if (!this.uploadInfo[id]) return false;
+			if (this.config.customered) {
+				var info = {
+					id:                 id,
+					loaded:             a.target.get("size"),
+					formatLoaded:       this.formatBytes(a.target.get("size")),
+					size:               a.target.get("size"),
+					formatSize:         this.formatBytes(a.target.get("size")),
+					percent:            100,
+					totalSize:          this.totalFileSize,
+					formatTotalSize:    this.formatBytes(this.totalFileSize),
+					totalLoaded:        this.totalUploadedSize,
+					formatTotalLoaded:  this.formatBytes(this.totalUploadedSize),
+					totalPercent:       totalPercent
+				};
+				console.log(info);
+				this.get("onUploadComplete") && this.get("onUploadComplete")(info);
+				return false;
+			}
+			
 			var progressNode = this.uploadInfo[id].progressNode,
 				cellInfosNode = this.uploadInfo[id].cellInfosNode,
 				size = a.target.get("size"), a = eval("(" + a.data + ")"), fmtSize = this.formatBytes(size);
@@ -1377,7 +1432,6 @@
 			/** uploaded flag and its callback function. */
 			this.uploadInfo[id].fileUploaded = !0;
 			
-			this.totalUploadedSize += size;
 			var _loaded = this.formatBytes(this.totalUploadedSize);
 			var percent = this.totalUploadedSize * 10000 / this.totalFileSize / 100;
 			100 > percent && (percent = parseFloat(percent).toFixed(2));
@@ -1411,8 +1465,17 @@
 		validateFile : function(uploader) {
 			var name = uploader.get("name"), size = uploader.get("size"),
 				ext = -1 !== name.indexOf(".") ? name.replace(/.*[.]/, "").toLowerCase() : "",
-				filters = aFilters, valid = !1, msg = "";
-			this.getNode("upload-start-error", this.startPanel).style.display = "none";
+				filters = aFilters, valid = !1, msg = "",
+				info = {
+					id:               uploader.get("id"),
+					name:             uploader.get("name"),
+					size:             uploader.get("size"),
+					formatSize:       this.formatBytes(uploader.get("size")),
+					lastModifiedDate: uploader.get("lastModifiedDate"),
+					limitSize:        this.get("maxSize"),
+					filters:          filters
+				};
+			this.config.customered && this.get("onAddTask")	&& this.get("onAddTask")(info);
 			if(!bStreaming && size > 2147483648){fShowMessage("Flash最大只能上传2G的文件："+name+" 大小："+size, true);return !1;}
 			if (this.get("maxSize") < size)
 				this.get("onMaxSizeExceed") ? this.get("onMaxSizeExceed")(size, this.get("maxSize"), name) : this.onMaxSizeExceed(size, this.get("maxSize"), name);
