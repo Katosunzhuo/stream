@@ -1237,10 +1237,22 @@
 			provider && provider.cancelUpload && provider.cancelUpload();
 			if (!!stopping) return true;
 			
-			this.get("onCancel") ? this.get("onCancel")(this.uploadInfo[file_id].file.config) : this.onCancel(this.uploadInfo[file_id].file.config);
+			var info = {
+				id:   file_id,
+				name: this.uploadInfo[file_id].file.config.name,
+				size: this.uploadInfo[file_id].file.config.size,
+				totalSize: this.totalFileSize - this.uploadInfo[file_id].file.config.size,
+				formatTotalSize: this.formatBytes(this.totalFileSize - this.uploadInfo[file_id].file.config.size),
+				totalLoaded: this.totalUploadedSize,
+				formatTotalLoaded: this.formatBytes(this.totalUploadedSize),
+				totalPercent: this.totalUploadedSize * 10000 / (this.totalFileSize - this.uploadInfo[file_id].file.config.size) / 100
+			};
+			100 > info.totalPercent && (info.totalPercent = parseFloat(info.totalPercent).toFixed(2));
+			
+			this.get("onCancel") ? this.get("onCancel")(info) : this.onCancel(info);
 			this.uploadInfo[file_id] && delete this.uploadInfo[file_id];
 			fRemoveEventListener(document, "click", this.cancelBtnHandler);
-			this.containerPanel.removeChild(document.getElementById(file_id));
+			!this.config.customered && this.containerPanel.removeChild(document.getElementById(file_id));
 			if (actived) {
 				this.uploading = !1;
 				this.upload();
@@ -1256,14 +1268,17 @@
 			100 > percent && (percent = parseFloat(percent).toFixed(2));
 			if (this.totalFileSize === 0)
 				percent = 100;
-			var _total = this.formatBytes(this.totalFileSize);
-			this.getNode("_stream-total-size", this.totalContainerPanel).innerHTML = _total;
-			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
-			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
-			this.getNode("stream-process-bar", this.totalContainerPanel).innerHTML = '<span style="width: '+percent+'%;"></span>';
-			
-			bStreaming ? this.startPanel.style.display = "block"
-				: (this.startPanel.style.height = "auto", this.startPanel.style.width = "970px");
+				
+			if (!this.config.customered) {
+				var _total = this.formatBytes(this.totalFileSize);
+				this.getNode("_stream-total-size", this.totalContainerPanel).innerHTML = _total;
+				this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
+				this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
+				this.getNode("stream-process-bar", this.totalContainerPanel).innerHTML = '<span style="width: '+percent+'%;"></span>';
+				
+				bStreaming ? this.startPanel.style.display = "block"
+					: (this.startPanel.style.height = "auto", this.startPanel.style.width = "970px");
+			}
 		},
 		cancelUploadHandler : function(event, b) {
 			var c = event || window.event, id = b.nodeId, self = this;
@@ -1416,7 +1431,6 @@
 					formatTotalLoaded:  this.formatBytes(this.totalUploadedSize),
 					totalPercent:       totalPercent
 				};
-				console.log(info);
 				this.get("onUploadComplete") && this.get("onUploadComplete")(info);
 				return false;
 			}
