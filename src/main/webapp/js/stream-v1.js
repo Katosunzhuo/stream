@@ -1167,10 +1167,10 @@
 			this.cancelBtnHandler = fExtend(this.cancelUploadHandler, this, {type : "click",	nodeId : file_id});
 			fAddEventListener(cancelBtn, "click", this.cancelBtnHandler);
 		},
-		completeUpload : function(file_id) {
-			this.get("onComplete") ? this.get("onComplete")(this.uploadInfo[file_id].file.config) : this.onComplete(this.uploadInfo[file_id].file.config);
-			this.waiting.length == 0 && (this.get("onQueueComplete") ? this.get("onQueueComplete")(this.uploadInfo[file_id].file.config) : this.onQueueComplete(this.uploadInfo[file_id].file.config));
-			this.config.autoRemoveCompleted && (file_id = document.getElementById(file_id), file_id.parentNode && file_id.parentNode.removeChild(file_id));
+		completeUpload : function(info) {
+			this.get("onComplete") ? this.get("onComplete")(info) : this.onComplete(info);
+			this.waiting.length == 0 && (this.get("onQueueComplete") ? this.get("onQueueComplete")(info) : this.onQueueComplete(info));
+			this.config.autoRemoveCompleted && (info = document.getElementById(info.id), info.parentNode && info.parentNode.removeChild(info));
 			this.uploading = !1;
 			this.upload();
 		},
@@ -1364,6 +1364,7 @@
 		uploadProgress : function(a) {
 			var id = a.target.get("id"), percent = Math.min(99.99, a.percentLoaded),
 				totalPercent = (this.totalUploadedSize + a.bytesLoaded) * 10000 / this.totalFileSize / 100, totalPercent = Math.min(99.99, totalPercent);
+			100 > totalPercent && (totalPercent = parseFloat(totalPercent).toFixed(2));	
 			
 			if (!this.uploadInfo[id]) return false;
 			if (this.config.customered) {
@@ -1417,45 +1418,43 @@
 				percent = 100;
 
 			if (!this.uploadInfo[id]) return false;
-			if (this.config.customered) {
-				var info = {
-					id:                 id,
-					loaded:             a.target.get("size"),
-					formatLoaded:       this.formatBytes(a.target.get("size")),
-					size:               a.target.get("size"),
-					formatSize:         this.formatBytes(a.target.get("size")),
-					percent:            100,
-					totalSize:          this.totalFileSize,
-					formatTotalSize:    this.formatBytes(this.totalFileSize),
-					totalLoaded:        this.totalUploadedSize,
-					formatTotalLoaded:  this.formatBytes(this.totalUploadedSize),
-					totalPercent:       totalPercent
-				};
-				this.get("onUploadComplete") && this.get("onUploadComplete")(info);
-				return false;
+			
+			var info = {
+				id:                 id,
+				loaded:             a.target.get("size"),
+				formatLoaded:       this.formatBytes(a.target.get("size")),
+				size:               a.target.get("size"),
+				formatSize:         this.formatBytes(a.target.get("size")),
+				percent:            100,
+				totalSize:          this.totalFileSize,
+				formatTotalSize:    this.formatBytes(this.totalFileSize),
+				totalLoaded:        this.totalUploadedSize,
+				formatTotalLoaded:  this.formatBytes(this.totalUploadedSize),
+				totalPercent:       totalPercent
+			};
+			if (!this.config.customered) {
+				var progressNode = this.uploadInfo[id].progressNode,
+					cellInfosNode = this.uploadInfo[id].cellInfosNode,
+					size = a.target.get("size"), a = eval("(" + a.data + ")"), fmtSize = this.formatBytes(size);
+				this.getNode("stream-process-bar", progressNode).innerHTML = "<span style='width:100%;'></span>";
+				this.getNode("stream-percent", progressNode).innerHTML = "100%";
+				this.getNode("stream-uploaded", cellInfosNode).innerHTML = fmtSize + "/" + fmtSize;
+				this.getNode("stream-remain-time", cellInfosNode).innerHTML = "00:00:00";
+				this.getNode("stream-cancel", progressNode).innerHTML = "";
+				/** uploaded flag and its callback function. */
+				this.uploadInfo[id].fileUploaded = !0;
+				
+				var _loaded = this.formatBytes(this.totalUploadedSize);
+				var percent = this.totalUploadedSize * 10000 / this.totalFileSize / 100;
+				100 > percent && (percent = parseFloat(percent).toFixed(2));
+				if (this.totalFileSize === 0)
+					percent = 100;
+				this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
+				this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
+				this.getNode("stream-process-bar", this.totalContainerPanel).innerHTML = '<span style="width: '+percent+'%;"></span>';
 			}
 			
-			var progressNode = this.uploadInfo[id].progressNode,
-				cellInfosNode = this.uploadInfo[id].cellInfosNode,
-				size = a.target.get("size"), a = eval("(" + a.data + ")"), fmtSize = this.formatBytes(size);
-			this.getNode("stream-process-bar", progressNode).innerHTML = "<span style='width:100%;'></span>";
-			this.getNode("stream-percent", progressNode).innerHTML = "100%";
-			this.getNode("stream-uploaded", cellInfosNode).innerHTML = fmtSize + "/" + fmtSize;
-			this.getNode("stream-remain-time", cellInfosNode).innerHTML = "00:00:00";
-			this.getNode("stream-cancel", progressNode).innerHTML = "";
-			/** uploaded flag and its callback function. */
-			this.uploadInfo[id].fileUploaded = !0;
-			
-			var _loaded = this.formatBytes(this.totalUploadedSize);
-			var percent = this.totalUploadedSize * 10000 / this.totalFileSize / 100;
-			100 > percent && (percent = parseFloat(percent).toFixed(2));
-			if (this.totalFileSize === 0)
-				percent = 100;
-			this.getNode("_stream-total-uploaded", this.totalContainerPanel).innerHTML = _loaded;
-			this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
-			this.getNode("stream-process-bar", this.totalContainerPanel).innerHTML = '<span style="width: '+percent+'%;"></span>';
-			
-			this.completeUpload(id);
+			this.completeUpload(info);
 		},
 		getNode : function(a, b) {
 			return fContains(b || this.containerPanel, a)[0] || null;

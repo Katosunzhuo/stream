@@ -85,8 +85,7 @@
 				<div class="col-lg-7">
 					<!-- The fileinput-button span is used to style the file input field as button -->
 					<span class="btn green fileinput-button" id="i_select_files">
-						<i class="icon-plus"></i> <span>Add files...</span> <input
-						type="file" name="files[]" multiple="">
+						<i class="icon-plus"></i> <span>Add files...</span>
 					</span>
 					<button type="submit" class="btn blue start">
 						<i class="icon-upload"></i> <span>Start upload</span>
@@ -97,9 +96,6 @@
 					<button type="button" class="btn red delete">
 						<i class="icon-trash"></i> <span>Delete</span>
 					</button>
-					<input type="checkbox" class="toggle">
-					<!-- The loading indicator is shown during file processing -->
-					<span class="fileupload-loading"></span>
 				</div>
 				<!-- The global progress information -->
 				<div class="col-lg-5 fileupload-progress fade">
@@ -141,7 +137,7 @@
  */
 	var config = {
 		customered:true,
-		multipleFiles: false, /** 多个文件一起上传, 默认: false */
+		multipleFiles: true,
 		onAddTask: function(f) {
 			 var file = '<tr id="' + f.id + '" class="template-upload fade in">' +
 		     '<td><span class="preview"></span></td>' +
@@ -162,8 +158,8 @@
 			$("#bootstrap-stream-container").append(file);
 		},
 		onUploadProgress: function(f) {
-			console && console.log("-------------onUploadProgress-------------------");
-			console && console.log(f);
+			//console && console.log("-------------onUploadProgress-------------------");
+			//console && console.log(f);
 			
 			var $bar = $("#"+f.id).find("div.progress-bar");
 			$bar.css("width", f.percent + "%");
@@ -174,23 +170,35 @@
 			$total.find("span.stream_total_size").html(f.formatTotalLoaded + "/" + f.formatTotalSize);
 			$total.find("span.stream_total_percent").html(f.totalPercent + "%");
 			
-			console && console.log("-------------onUploadProgress-------------------End");
+			//console && console.log("-------------onUploadProgress-------------------End");
 		},
 		onCancel: function(info) {
-			console && console.log("-------------onCancel-------------------");
-			console && console.log(info);
-			$("#"+info.id).remove();
-			console.log("-------------onCancel-------------------End");
-		},
-		onUploadComplete: function(f) {
-			console && console.log("-------------onUploadComplete-------------------");
-			console && console.log(f);
+			//console && console.log("-------------onCancel-------------------");
+			//console && console.log(info);
 			
+			$("#"+info.id).remove();
+			
+			//console && console.log("-------------onCancel-------------------End");
+		},
+		onComplete: function(f) {
+			//console && console.log("-------------onComplete-------------------");
+			//console && console.log(f);
+			
+			/** 100% percent */
 			var $bar = $("#"+f.id).find("div.progress-bar");
 			$bar.css("width", f.percent + "%");
-			$bar.attr("title", "已上传:" + f.formatLoaded + "/" + f.formatSize + "(" + f.percent + "%" + ") \n速  度:" + f.formatSpeed);
+			$bar.attr("title", "已上传:" + f.formatLoaded + "/" + f.formatSize + "(" + f.percent + "%" + ")");
+			/** remove the `cancel` button */
+			var $cancelBtn = $("#"+f.id).find("td > button");
+			$cancelBtn.remove();
 			
-			console && console.log("-------------onUploadComplete-------------------End");
+			/** modify the total progress bar */
+			var $total = $("#stream_total_progress_bar");
+			$total.find("div.progress-bar").css("width", f.totalPercent + "%");
+			$total.find("span.stream_total_size").html(f.formatTotalLoaded + "/" + f.formatTotalSize);
+			$total.find("span.stream_total_percent").html(f.totalPercent + "%");
+			
+			//console && console.log("-------------onComplete-------------------End");
 		}
 	};
 	var _t = new Stream(config);
