@@ -75,67 +75,59 @@
 <div class="row">
   <div class="col-md-12">
      <blockquote>
-        <p style="font-size:16px">File Upload widget with multiple file selection, drag&amp;drop support, progress bars and preview images for jQuery.<br>
-           Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br>
-           Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
+        <p style="font-size:16px">Stream上传插件自定义UI<br>
+           本UI是模仿File Upload的Html5形式下的UI风格，满足不同客户在某些情况下需要自定义UI的需求.<br>
         </p>
      </blockquote>
      <br>
-     <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data" class="">
-        <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
-        <div class="row fileupload-buttonbar">
-           <div class="col-lg-7">
-              <!-- The fileinput-button span is used to style the file input field as button -->
-              <span class="btn green fileinput-button" id="i_select_files">
-	              <i class="icon-plus"></i>
-	              <span>Add files...</span>
-	              <input type="file" name="files[]" multiple="">
-              </span>
-              <button type="submit" class="btn blue start">
-              <i class="icon-upload"></i>
-              <span>Start upload</span>
-              </button>
-              <button type="reset" class="btn yellow cancel">
-              <i class="icon-ban-circle"></i>
-              <span>Cancel upload</span>
-              </button>
-              <button type="button" class="btn red delete">
-              <i class="icon-trash"></i>
-              <span>Delete</span>
-              </button>
-              <input type="checkbox" class="toggle">
-              <!-- The loading indicator is shown during file processing -->
-              <span class="fileupload-loading"></span>
-           </div>
-           <!-- The global progress information -->
-           <div class="col-lg-5 fileupload-progress fade">
-              <!-- The global progress bar -->
-              <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                 <div class="progress-bar progress-bar-success" style="width: 0%; "></div>
-              </div>
-              <!-- The extended global progress information -->
-              <div class="progress-extended">&nbsp;</div>
-           </div>
-        </div>
- <!-- The table listing the files available for upload/download -->
-  <table role="presentation" class="table table-striped clearfix">
-     <tbody class="files" id="bootstrap-stream-container">
- 	 </tbody>
-         </table>
-      <div class="alert alert-danger">Upload server currently unavailable - Sat Mar 29 2014 12:55:29 GMT+0800 (CST)</div></form>
-      <div class="panel panel-success">
-         <div class="panel-heading">
-            <h3 class="panel-title">Demo Notes</h3>
-         </div>
-         <div class="panel-body">
-            <ul>
-               <li>The maximum file size for uploads in this demo is <strong>5 MB</strong> (default file size is unlimited).</li>
-               <li>Only image files (<strong>JPG, GIF, PNG</strong>) are allowed in this demo (by default there is no file type restriction).</li>
-               <li>Uploaded files will be deleted automatically after <strong>5 minutes</strong> (demo setting).</li>
-            </ul>
-         </div>
-      </div>
-   </div>
+		<form id="fileupload" action="">
+			<div class="row fileupload-buttonbar">
+				<div class="col-lg-7">
+					<!-- The fileinput-button span is used to style the file input field as button -->
+					<span class="btn green fileinput-button" id="i_select_files">
+						<i class="icon-plus"></i> <span>Add files...</span> <input
+						type="file" name="files[]" multiple="">
+					</span>
+					<button type="submit" class="btn blue start">
+						<i class="icon-upload"></i> <span>Start upload</span>
+					</button>
+					<button type="reset" class="btn yellow cancel">
+						<i class="icon-ban-circle"></i> <span>Cancel upload</span>
+					</button>
+					<button type="button" class="btn red delete">
+						<i class="icon-trash"></i> <span>Delete</span>
+					</button>
+					<input type="checkbox" class="toggle">
+					<!-- The loading indicator is shown during file processing -->
+					<span class="fileupload-loading"></span>
+				</div>
+				<!-- The global progress information -->
+				<div class="col-lg-5 fileupload-progress fade">
+					<!-- The global progress bar -->
+					<div class="progress progress-striped active" role="progressbar"
+						aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+						<div class="progress-bar progress-bar-success" style="width: 10%;"></div>
+					</div>
+					<!-- The extended global progress information -->
+					<div class="progress-extended">&nbsp;</div>
+				</div>
+			</div>
+		</form>
+		
+		<!-- The table listing the files available for upload/download -->
+		<table role="presentation" class="table table-striped clearfix">
+			<tbody class="files" id="bootstrap-stream-container">
+			</tbody>
+		</table>
+		<div class="alert alert-danger" id="stream_total_progress_bar">
+			<div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+				<div class="progress-bar progress-bar-success" style="width: 0%;"></div>
+			</div>
+			<span class="stream_total_size"></span>
+			<span class="stream_total_percent"></span>
+		</div>
+			
+	</div>
 </div>
 
 <script src="http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
@@ -154,7 +146,10 @@
 			 var file = '<tr id="' + f.id + '" class="template-upload fade in">' +
 		     '<td><span class="preview"></span></td>' +
 		     '<td><p class="name">' + f.name + '</p>' +
-		     '    <div><span class="label label-danger">Error</span> File type not allowed</div>' +
+//		     '    <div><span class="label label-danger">Error</span> File type not allowed</div>' +
+		     '    <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">' +
+			'			<div class="progress-bar progress-bar-success" title="" style="width: 0%;"></div>' +
+			'		</div>' +
 		     '</td>' +
 		     '<td><p class="size">' + f.formatSize + '</p>' +
 		     '</td>' +
@@ -167,20 +162,35 @@
 			$("#bootstrap-stream-container").append(file);
 		},
 		onUploadProgress: function(f) {
-			console.log("-------------onUploadProgress-------------------");
-			//console.log(f);
-			console.log("-------------onUploadProgress-------------------End");
+			console && console.log("-------------onUploadProgress-------------------");
+			console && console.log(f);
+			
+			var $bar = $("#"+f.id).find("div.progress-bar");
+			$bar.css("width", f.percent + "%");
+			$bar.attr("title", "已上传:" + f.formatLoaded + "/" + f.formatSize + "(" + f.percent + "%" + ") \n速  度:" + f.formatSpeed);
+			
+			var $total = $("#stream_total_progress_bar");
+			$total.find("div.progress-bar").css("width", f.totalPercent + "%");
+			$total.find("span.stream_total_size").html(f.formatTotalLoaded + "/" + f.formatTotalSize);
+			$total.find("span.stream_total_percent").html(f.totalPercent + "%");
+			
+			console && console.log("-------------onUploadProgress-------------------End");
 		},
 		onCancel: function(info) {
-			console.log("-------------onCancel-------------------");
-			console.log(info);
+			console && console.log("-------------onCancel-------------------");
+			console && console.log(info);
 			$("#"+info.id).remove();
 			console.log("-------------onCancel-------------------End");
 		},
 		onUploadComplete: function(f) {
-			console.log("-------------onUploadComplete-------------------");
-			//console.log(f);
-			console.log("-------------onUploadComplete-------------------End");
+			console && console.log("-------------onUploadComplete-------------------");
+			console && console.log(f);
+			
+			var $bar = $("#"+f.id).find("div.progress-bar");
+			$bar.css("width", f.percent + "%");
+			$bar.attr("title", "已上传:" + f.formatLoaded + "/" + f.formatSize + "(" + f.percent + "%" + ") \n速  度:" + f.formatSpeed);
+			
+			console && console.log("-------------onUploadComplete-------------------End");
 		}
 	};
 	var _t = new Stream(config);
