@@ -610,8 +610,8 @@
 			this.contentBox = a;
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
-			!this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
-			bDraggable && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
+			this.get("dragAndDropArea") && !this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
+			bDraggable && this.get("dragAndDropArea") && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
 		},
 		bindUI : function() {
 			this.bindSelectButton();
@@ -701,7 +701,7 @@
 			this.fileInputField.parentNode.removeChild(this.fileInputField);
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
-			!this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
+			this.get("dragAndDropArea") && !this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
 			bDraggable && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'));
 			this.setMultipleFiles();
 			this.setFileFilters();
@@ -1049,7 +1049,7 @@
 			appendNewFiles : !!cfg.appendNewFiles,
 			autoRemoveCompleted : !!cfg.autoRemoveCompleted,
 			autoUploading : cfg.autoUploading == null ? true : !!cfg.autoUploading,
-			dragAndDropArea: cfg.dragAndDropArea || "i_select_files",
+			dragAndDropArea: cfg.dragAndDropArea,
 			dragAndDropTips: cfg.dragAndDropTips || "<span>把文件(文件夹)拖拽到这里</span>",
 			fileFieldName : "FileData",
 			browseFileId : cfg.browseFileId || "i_select_files",
@@ -1130,7 +1130,6 @@
 			cell_file.innerHTML = this.template;
 			this.uploadInfo[file_id] = {
 				uploadToken : "",
-				fileUploaded : !1,
 				uploadComplete : !1,
 				file : a,
 				disabled : !1,
@@ -1145,7 +1144,8 @@
 				this.renderUI(file_id);
 				this.bindUI(file_id);
 			}
-			bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");
+			/** do not hidden the upload button */
+			/*bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");*/
 			this.waiting.push(file_id);
 			this.config.autoUploading && this.upload(file_id);
 		},
@@ -1169,7 +1169,7 @@
 		},
 		completeUpload : function(info) {
 			this.get("onComplete") ? this.get("onComplete")(info) : this.onComplete(info);
-			this.waiting.length == 0 && (this.get("onQueueComplete") ? this.get("onQueueComplete")(info) : this.onQueueComplete(info));
+			this.waiting.length == 0 && (this.get("onQueueComplete") ? this.get("onQueueComplete")(info.msg) : this.onQueueComplete(info.msg));
 			this.config.autoRemoveCompleted && (info = document.getElementById(info.id), info.parentNode && info.parentNode.removeChild(info));
 			this.uploading = !1;
 			this.upload();
@@ -1198,8 +1198,8 @@
 		onComplete : function(info) {
 			fShowMessage("File:" + info.name + ", Size:" + info.size + " onComplete	[OK]");
 		},
-		onQueueComplete : function(info) {
-			fShowMessage("onQueueComplete	---==>		[OK]");
+		onQueueComplete : function(msg) {
+			fShowMessage("onQueueComplete(msg: "+msg+")	---==>		[OK]");
 		},
 		onUploadError : function(status, msg) {
 			fShowMessage("Error Occur.  Status:" + status + ", Message: " + msg, true);
@@ -1217,7 +1217,7 @@
 			/** cancel the unfinished uploading files */
 			for(var fileId in files) {
 				/** add the `file_id` to `waiting` @ index of 0 */
-				if (!files[fileId].fileUploaded) {
+				if (!files[fileId].uploadComplete) {
 					this.cancelOne(fileId, true) && this.uploadInfo[fileId] && this.waiting.unshift(fileId);
 					break;	
 				}
@@ -1229,7 +1229,7 @@
 			var files = this.uploadInfo, number = 0;
 			/** cancel the unfinished uploading files */
 			for(var fileId in files)
-				!files[fileId].fileUploaded && (++number) && this.cancelOne(fileId);
+				!files[fileId].uploadComplete && (++number) && this.cancelOne(fileId);
 			this.get("onCancelAll") ? this.get("onCancelAll")(number) : this.onCancelAll(number);
 		},
 		cancelOne : function(file_id, stopping) {
@@ -1237,15 +1237,15 @@
 			provider && provider.cancelUpload && provider.cancelUpload();
 			if (!!stopping) return true;
 			
-			var info = {
+			var totalSize = this.totalFileSize - this.uploadInfo[file_id].file.config.size, info = {
 				id:   file_id,
 				name: this.uploadInfo[file_id].file.config.name,
 				size: this.uploadInfo[file_id].file.config.size,
-				totalSize: this.totalFileSize - this.uploadInfo[file_id].file.config.size,
-				formatTotalSize: this.formatBytes(this.totalFileSize - this.uploadInfo[file_id].file.config.size),
+				totalSize: totalSize,
+				formatTotalSize: this.formatBytes(totalSize),
 				totalLoaded: this.totalUploadedSize,
 				formatTotalLoaded: this.formatBytes(this.totalUploadedSize),
-				totalPercent: this.totalUploadedSize * 10000 / (this.totalFileSize - this.uploadInfo[file_id].file.config.size) / 100
+				totalPercent: totalSize == 0 ? 0 : this.totalUploadedSize * 10000 / totalSize / 100
 			};
 			100 > info.totalPercent && (info.totalPercent = parseFloat(info.totalPercent).toFixed(2));
 			
@@ -1276,8 +1276,9 @@
 				this.getNode("stream-percent", this.totalContainerPanel).innerHTML = percent + "%";
 				this.getNode("stream-process-bar", this.totalContainerPanel).innerHTML = '<span style="width: '+percent+'%;"></span>';
 				
+				/*** TODO: this code will be removed in the future.
 				bStreaming ? this.startPanel.style.display = "block"
-					: (this.startPanel.style.height = "auto", this.startPanel.style.width = "970px");
+					: (this.startPanel.style.height = "auto", this.startPanel.style.width = "970px");*/
 			}
 		},
 		cancelUploadHandler : function(event, b) {
@@ -1430,8 +1431,12 @@
 				formatTotalSize:    this.formatBytes(this.totalFileSize),
 				totalLoaded:        this.totalUploadedSize,
 				formatTotalLoaded:  this.formatBytes(this.totalUploadedSize),
-				totalPercent:       totalPercent
+				totalPercent:       totalPercent,
+				msg:                a.data
 			};
+			/** uploaded flag and its callback function. */
+			this.uploadInfo[id].uploadComplete = !0;
+			
 			if (!this.config.customered) {
 				var progressNode = this.uploadInfo[id].progressNode,
 					cellInfosNode = this.uploadInfo[id].cellInfosNode,
@@ -1441,8 +1446,6 @@
 				this.getNode("stream-uploaded", cellInfosNode).innerHTML = fmtSize + "/" + fmtSize;
 				this.getNode("stream-remain-time", cellInfosNode).innerHTML = "00:00:00";
 				this.getNode("stream-cancel", progressNode).innerHTML = "";
-				/** uploaded flag and its callback function. */
-				this.uploadInfo[id].fileUploaded = !0;
 				
 				var _loaded = this.formatBytes(this.totalUploadedSize);
 				var percent = this.totalUploadedSize * 10000 / this.totalFileSize / 100;
