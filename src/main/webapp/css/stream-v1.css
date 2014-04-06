@@ -28,6 +28,7 @@ ul,ol,li,img {
 	border-radius: 7px;
 	text-align: center;
 	margin: 10px 0;
+	cursor: pointer;
 }
 
 .stream-disable-browser {
@@ -175,4 +176,13 @@ a {
 	background: url("./img/upload.gif") no-repeat scroll 0 1px transparent !important;
 	height: 18px;
 	width: 18px;
+}
+
+.stream-disabled {
+	cursor: not-allowed;
+	pointer-events: none;
+	opacity: .65;
+	filter: alpha(opacity=65);
+	-webkit-box-shadow: none;
+	box-shadow: none;
 }

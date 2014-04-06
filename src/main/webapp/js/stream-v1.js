@@ -609,7 +609,7 @@
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
 			this.contentBox.appendChild(this.fileInputField);
 			this.get("dragAndDropArea") && !this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
-			bDraggable && this.get("dragAndDropArea") && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.contentBox.appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
+			bDraggable && this.get("dragAndDropArea") && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.get("dragAndDropArea").appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
 		},
 		bindUI : function() {
 			this.bindSelectButton();
@@ -625,10 +625,11 @@
 		},
 		bindDropArea : function() {
 			var a = this.get("dragAndDropArea");
-			null !== a	&& (fAddEventListener(a, "drop", fExtend(this.dragEventHandler, this)),
-							fAddEventListener(a, "dragenter", fExtend(this.dragEventHandler, this)),
-							fAddEventListener(a, "dragover", fExtend(this.dragEventHandler, this)),
-							fAddEventListener(a, "dragleave", fExtend(this.dragEventHandler, this)));
+			this.dropBinding = fExtend(this.dragEventHandler, this);
+			null !== a	&& (fAddEventListener(a, "drop", this.dropBinding),
+							fAddEventListener(a, "dragenter", this.dropBinding),
+							fAddEventListener(a, "dragover", this.dropBinding),
+							fAddEventListener(a, "dragleave", this.dropBinding));
 		},
 		dragEventHandler : function(evt) {
 			evt = evt || window.event;
@@ -720,11 +721,19 @@
 					"accept", "")
 		},
 		triggerEnabled : function() {
+			var a = this.get("dragAndDropArea");
 			if (this.get("enabled") && null === this.buttonBinding)
-				this.bindSelectButton();
-			else if (!this.get("enabled") && this.buttonBinding)
+				this.bindSelectButton(), this.bindDropArea(), fRemoveClass(a, 'stream-disabled');
+			else if (!this.get("enabled") && this.buttonBinding) {
 				fRemoveEventListener(this.contentBox, "click", this.buttonBinding),
 				this.buttonBinding = null;
+				
+				null !== a && this.dropBinding != null && (fRemoveEventListener(a, "drop", this.dropBinding),
+							fRemoveEventListener(a, "dragenter", this.dropBinding),
+							fRemoveEventListener(a, "dragover", this.dropBinding),
+							fRemoveEventListener(a, "dragleave", this.dropBinding),
+							fAddClass(a, 'stream-disabled'));
+			}				
 		},
 		updateFileList : function(a) {
 			for (var a = a.target.files, b = [], c = 0; c < a.length; c++) {
@@ -1040,6 +1049,7 @@
 		cfg = cfg || {};
 		aFilters = fIsArray(cfg.extFilters) ? cfg.extFilters : aFilters;
 		this.bStreaming = bStreaming;
+		this.bDraggable = bDraggable;
 		this.uploadInfo = {};
 		this.config = {
 			enabled : !0,
@@ -1184,6 +1194,9 @@
 		},
 		onExtNameMismatch: function(info) {
 			fShowMessage("Allow ext name: [" + info.filters.toString() + "], not for " + info.name, true);
+		},
+		onAddTask: function(file) {
+			fShowMessage("Add to task << name: [" + file.name);
 		},
 		onCancel : function(info) {
 			fShowMessage("Canceled: " + info.name);
@@ -1503,7 +1516,7 @@
 				if (!valid)
 					this.get("onExtNameMismatch") ? this.get("onExtNameMismatch")(info) : this.onExtNameMismatch(info);
 			}
-			valid && this.config.customered && this.get("onAddTask")	&& this.get("onAddTask")(info);
+			valid && this.config.customered && this.get("onAddTask")(info) && this.get("onAddTask")(info);
 			return valid;
 		},
 		formatSpeed : function(a) {
