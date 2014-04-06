@@ -1192,14 +1192,14 @@
 		onMaxSizeExceed : function(file) {
 			fShowMessage("File:" + file.name + " size is:" + file.size +" Exceed limited:" + file.limitSize, true);
 		},
-		onExtNameMismatch: function(info) {
-			fShowMessage("Allow ext name: [" + info.filters.toString() + "], not for " + info.name, true);
+		onExtNameMismatch: function(file) {
+			fShowMessage("Allow ext name: [" + file.filters.toString() + "], not for " + file.name, true);
 		},
 		onAddTask: function(file) {
 			fShowMessage("Add to task << name: [" + file.name);
 		},
-		onCancel : function(info) {
-			fShowMessage("Canceled: " + info.name);
+		onCancel : function(file) {
+			fShowMessage("Canceled: " + file.name);
 		},
 		onStop : function() {
 			fShowMessage("Stopped!");
@@ -1207,8 +1207,8 @@
 		onCancelAll : function(numbers) {
 			fShowMessage(numbers + " files Canceled! ");
 		},
-		onComplete : function(info) {
-			fShowMessage("File:" + info.name + ", Size:" + info.size + " onComplete	[OK]");
+		onComplete : function(file) {
+			fShowMessage("File:" + file.name + ", Size:" + file.size + " onComplete	[OK]");
 		},
 		onQueueComplete : function(msg) {
 			fShowMessage("onQueueComplete(msg: "+msg+")	---==>		[OK]");
@@ -1354,8 +1354,7 @@
 						fShowMessage(msg, true);
 					}
 				} catch(e) {
-					/** streaming, swf, resume methods all failed, try to use FormData */
-					self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
+					/** streaming, swf, resume methods all failed, no more try  */
 				}
 			}
 			xhr.onerror = function() {
@@ -1434,6 +1433,7 @@
 			
 			var info = {
 				id:                 id,
+				name:               a.target.get("name"),
 				loaded:             a.target.get("size"),
 				formatLoaded:       this.formatBytes(a.target.get("size")),
 				size:               a.target.get("size"),
