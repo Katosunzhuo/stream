@@ -10,24 +10,31 @@
     <script src="http://cdn.bootcss.com/html5shiv/3.7.0/html5shiv.min.js"></script>
     <script src="http://cdn.bootcss.com/respond.js/1.3.0/respond.min.js"></script>
 <![endif]-->
+<style>.btn-group > button {width: 100px;}</style>
 </head>
 <body>
 
 <div class="container">
 	<div class="row clearfix">
 		<div class="col-md-8 column">
-			<div id="i_error_tips" class="alert alert-success alert-dismissable">
-				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-				<strong> 提示： </strong> <span class="text-message"><span> 
-			</div>
-			
 			<div class="page-header">
 			  <h1>Stream上传插件 <small>bootstrap style demo</small></h1>
 			</div>
 			
-			<p>本UI是模仿File Upload的Html5形式下的UI风格，满足不同客户在某些情况下需要自定义UI的需求.<br>
-	        </p>
-			
+
+			<div class="btn-toolbar" role="toolbar">
+				<div class="btn-group">
+					<button type="button" class="btn btn-default" id="i_select_files"><span class="glyphicon glyphicon-plus-sign"></span> 添加文件</button>
+					<button type="button" class="btn btn-default" onclick="javascript:_t.upload();"><span class="glyphicon glyphicon-upload"></span> 开始上传</button>
+					<button type="button" class="btn btn-default" onclick="javascript:_t.stop();"><span class="glyphicon glyphicon-stop"></span> 停止上传</button>
+					<button type="button" class="btn btn-default" onclick="javascript:_t.cancel();"><span class="glyphicon glyphicon-remove-sign"></span> 取消上传</button>
+				</div>
+				<div class="btn-group">
+					<button type="button" class="btn btn-default" onclick="javascript:_t.disable();"><span class="glyphicon glyphicon-minus-sign"></span> 禁用选择</button>
+					<button type="button" class="btn btn-default" onclick="javascript:_t.enable();"><span class="glyphicon glyphicon-ok-sign"></span> 激活选择</button>
+				</div>
+			</div>
+
 			<table id="data_table" class="table tablesorter">
 				<thead>
 					<tr><th>编号</th>
@@ -52,6 +59,18 @@
 				</tfoot>
 			</table>
 		</div>
+		
+		<div class="col-md-4 column">
+			<p>Bootstrap是目前十分流行的前端技术，具有功能强大，易上手，样式齐全等等特征。<br>
+			此前<strong>Stream上传插件</strong>是套用网易的上传UI，虽然满足了大多数人的需要，但是在某些情况下，UI风格不符合，导致放弃。所以在<strong>Stream上传插件</strong>的新版本<strong>stream-v1.4.*</strong>就开始支持自定义UI。
+			当然，修改了一下响应函数，也新增了一些！<br>
+			</p>
+            
+			<div id="i_error_tips" class="alert alert-success alert-dismissable">
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+				<strong> 提示： </strong> <span class="text-message"><span> 
+			</div>
+		</div>
 	</div>	
 </div>
 
@@ -60,21 +79,6 @@
      <br>
 		<form id="fileupload" action="">
 			<div class="row fileupload-buttonbar">
-				<div class="col-lg-7">
-					<!-- The fileinput-button span is used to style the file input field as button -->
-					<span class="btn green fileinput-button" id="i_select_files">
-						<i class="icon-plus"></i> <span>Add files...</span>
-					</span>
-					<button type="submit" class="btn blue start" onclick="javascript:_t.upload();">
-						<i class="icon-upload"></i> <span>Start upload</span>
-					</button>
-					<button type="submit" class="btn yellow start" onclick="javascript:_t.stop();">
-						<i class="icon-upload"></i> <span>Stop upload</span>
-					</button>
-					<button type="reset" class="btn red cancel" onclick="javascript:_t.cancel();">
-						<i class="icon-ban-circle"></i> <span>Cancel upload</span>
-					</button>
-				</div>
 			</div>
 		</form>
 		
@@ -100,7 +104,7 @@
 		fileFieldName: "FileData", /** 相当于指定<input type="file" name="FileData">，默认是FileData */
 		maxSize: 2147483648, /** 当_t.bStreaming = false 时（也就是Flash上传时），2G就是最大的文件上传大小！所以一般需要 */
 		simLimit: 10000, /** 允许同时选择文件上传的个数（包含已经上传过的） */
-		extFilters: [".txt", ".gz", ".jpg", ".png", ".jpeg", ".gif", ".avi"], /** 默认是全部允许，即 [] */
+		extFilters: [".txt", ".gz", ".jpg", ".png", ".jpeg", ".gif", ".avi", ".html", ".htm"], /** 默认是全部允许，即 [] */
 		browseFileId : "i_select_files", /** 文件选择的Dom Id，如果不指定，默认是i_select_files */
 		browseFileBtn : "<div>请选择文件</div>", /** 选择文件的按钮内容，非自定义UI有效(customered:false) */
 		filesQueueId : "i_stream_files_queue", /** 文件上传进度显示框ID，非自定义UI有效(customered:false) */
