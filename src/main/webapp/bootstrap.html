@@ -18,7 +18,7 @@
 		<div class="col-md-8 column">
 			<div id="i_error_tips" class="alert alert-success alert-dismissable">
 				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-				<strong> 提示： </strong> 请参考右侧的查询单号说明！ 
+				<strong> 提示： </strong> <span class="text-message"><span> 
 			</div>
 			
 			<div class="page-header">
@@ -89,24 +89,46 @@
  * 配置文件（如果没有默认字样，说明默认值就是注释下的值）
  * 但是，on*（onSelect， onMaxSizeExceed...）等函数的默认行为
  * 是在ID为i_stream_message_container的页面元素中写日志
- 
- onSelect : cfg.onSelect,
-	onAddTask: cfg.onAddTask,
-	onMaxSizeExceed : cfg.onMaxSizeExceed,
-	onFileCountExceed : cfg.onFileCountExceed,
-	onExtNameMismatch : cfg.onExtNameMismatch,
-	onCancel : cfg.onCancel,
-	onStop : cfg.onStop,
-	onCancelAll : cfg.onCancelAll,
-	onComplete : cfg.onComplete,
-	onQueueComplete: cfg.onQueueComplete,
-	onUploadProgress: cfg.onUploadProgress,
-	onUploadError: cfg.onUploadError,
  */
  
 	var config = {
-		customered:true,
-		multipleFiles: true,
+		enabled: true, /** 是否启用文件选择，默认是true */
+		customered: true,
+		multipleFiles: true, /** 是否允许同时选择多个文件，默认是false */	
+		autoRemoveCompleted: false, /** 是否自动移除已经上传完毕的文件，非自定义UI有效(customered:false)，默认是false */
+		autoUploading: true, /** 当选择完文件是否自动上传，默认是true */
+		fileFieldName: "FileData", /** 相当于指定<input type="file" name="FileData">，默认是FileData */
+		maxSize: 2147483648, /** 当_t.bStreaming = false 时（也就是Flash上传时），2G就是最大的文件上传大小！所以一般需要 */
+		simLimit: 10000, /** 允许同时选择文件上传的个数（包含已经上传过的） */
+		extFilters: [".txt", ".gz", ".jpg", ".png", ".jpeg", ".gif", ".avi"], /** 默认是全部允许，即 [] */
+		browseFileId : "i_select_files", /** 文件选择的Dom Id，如果不指定，默认是i_select_files */
+		browseFileBtn : "<div>请选择文件</div>", /** 选择文件的按钮内容，非自定义UI有效(customered:false) */
+		filesQueueId : "i_stream_files_queue", /** 文件上传进度显示框ID，非自定义UI有效(customered:false) */
+		filesQueueHeight : 450, /** 文件上传进度显示框的高，非自定义UI有效(customered:false)，默认450px */
+		messagerId : "i_stream_message_container", /** 消息框的Id，当没有自定义onXXX函数，系统会显示onXXX的部分提示信息，如果没有i_stream_message_container则不显示 */
+		onSelect: function(files) {
+			//console && console.log("-------------onSelect-------------------");
+			//console && console.log(files);
+			//console && console.log("-------------onSelect-------------------End");
+		},
+		onMaxSizeExceed: function(file) {
+			//console && console.log("-------------onMaxSizeExceed-------------------");
+			//console && console.log(file);
+			$("#i_error_tips > span.text-message").append("文件[name="+file.name+", size="+file.formatSize+"]超过文件大小限制‵"+file.formatLimitSize+"‵，将不会被上传！<br>");
+			//console && console.log("-------------onMaxSizeExceed-------------------End");
+		},
+		onFileCountExceed : function(selected, limit) {
+			//console && console.log("-------------onFileCountExceed-------------------");
+			//console && console.log(selected + "," + limit);
+			$("#i_error_tips > span.text-message").append("同时最多上传<strong>"+limit+"</strong>个文件，但是已选择<strong>"+selected+"</strong>个<br>");
+			//console && console.log("-------------onFileCountExceed-------------------End");
+		},
+		onExtNameMismatch: function(info) {
+			//console && console.log("-------------onExtNameMismatch-------------------");
+			//console && console.log(info);
+			$("#i_error_tips > span.text-message").append("<strong>"+info.name+"</strong>文件类型不匹配[<strong>"+info.filters.toString() + "</strong>]<br>");
+			//console && console.log("-------------onExtNameMismatch-------------------End");
+		},
 		onAddTask: function(f) {
 			 var file = '<tr id="' + f.id + '" class="template-upload fade in">' +
 		     '<td><span class="preview">'+f.id+'</span></td>' +
@@ -193,7 +215,9 @@
 		},
 		onUploadError: function(status, msg) {
 			//console && console.log("-------------onUploadError-------------------");
-			console && console.log(msg + ", 状态码:" + status);
+			//console && console.log(msg + ", 状态码:" + status);
+			
+			$("#i_error_tips > span.text-message").append(msg + ", 状态码:" + status);
 			
 			//console && console.log("-------------onUploadError-------------------End");
 		}

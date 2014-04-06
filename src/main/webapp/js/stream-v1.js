@@ -334,7 +334,6 @@
 		this.config = {
 			enabled : !0,
 			multipleFiles : !0,
-			appendNewFiles : !0,
 			buttonClassNames : {
 				hover : "uploader-button-hover",
 				active : "uploader-button-active",
@@ -574,7 +573,6 @@
 		this.config = {
 			enabled : !0,
 			multipleFiles : !0,
-			appendNewFiles : !0,
 			dragAndDropArea : "",
 			dragAndDropTips : "",
 			fileFilters : aFilters,
@@ -1041,17 +1039,17 @@
 	function Main(cfg){
 		cfg = cfg || {};
 		aFilters = fIsArray(cfg.extFilters) ? cfg.extFilters : aFilters;
+		this.bStreaming = bStreaming;
 		this.uploadInfo = {};
 		this.config = {
 			enabled : !0,
-			customered : !0,
+			customered : !!cfg.customered,
 			multipleFiles : !!cfg.multipleFiles,
-			appendNewFiles : !!cfg.appendNewFiles,
 			autoRemoveCompleted : !!cfg.autoRemoveCompleted,
 			autoUploading : cfg.autoUploading == null ? true : !!cfg.autoUploading,
 			dragAndDropArea: cfg.dragAndDropArea,
 			dragAndDropTips: cfg.dragAndDropTips || "<span>把文件(文件夹)拖拽到这里</span>",
-			fileFieldName : "FileData",
+			fileFieldName : cfg.fileFieldName || "FileData",
 			browseFileId : cfg.browseFileId || "i_select_files",
 			browseFileBtn : cfg.browseFileBtn || "<div>请选择文件</div>",
 			filesQueueId : cfg.filesQueueId || "i_stream_files_queue",
@@ -1071,6 +1069,7 @@
 			onUploadError: cfg.onUploadError,
 			maxSize : cfg.maxSize || 2147483648,
 			simLimit : cfg.simLimit || 10000,
+			aFilters: aFilters,
 			retryCount : cfg.retryCount || 5,
 			postVarsPerFile : cfg.postVarsPerFile || {},
 			swfURL : cfg.swfURL || "/swf/FlashUploader.swf",
@@ -1180,11 +1179,11 @@
 		onFileCountExceed : function(selected, limit) {
 			fShowMessage("File counts:" + selected + ", but limited:" + limit, true);
 		},
-		onMaxSizeExceed : function(size, limited, name) {
-			fShowMessage("File:" + name + " size is:" + size +" Exceed limited:" + limited, true);
+		onMaxSizeExceed : function(file) {
+			fShowMessage("File:" + file.name + " size is:" + file.size +" Exceed limited:" + file.limitSize, true);
 		},
-		onExtNameMismatch: function(name, filters) {
-			fShowMessage("Allow ext name: [" + filters.toString() + "], not for " + name, true);
+		onExtNameMismatch: function(info) {
+			fShowMessage("Allow ext name: [" + info.filters.toString() + "], not for " + info.name, true);
 		},
 		onCancel : function(info) {
 			fShowMessage("Canceled: " + info.name);
@@ -1466,8 +1465,10 @@
 			this.get("onUploadError") ? this.get("onUploadError")(evt.status, evt.statusText) : this.onUploadError(evt.status, evt.statusText);
 		},
 		fileSelect : function(a) {
-			var a = a.fileList, b = 0, c;
-			this.get("onSelect") ? this.get("onSelect")(a) : this.onSelect(a);
+			var a = a.fileList, b = 0, c, files = [];
+			for (c = 0; c < a.length; c++)
+				files.push(a[c].config);
+			this.get("onSelect") ? this.get("onSelect")(files) : this.onSelect(files);
 			for (c in this.uploadInfo)
 				b++;
 			if (b == this.get("simLimit") || a.length > this.get("simLimit")) {
@@ -1489,19 +1490,20 @@
 					formatSize:       this.formatBytes(uploader.get("size")),
 					lastModifiedDate: uploader.get("lastModifiedDate"),
 					limitSize:        this.get("maxSize"),
+					formatLimitSize:  this.formatBytes(this.get("maxSize")),
 					filters:          filters
 				};
-			this.config.customered && this.get("onAddTask")	&& this.get("onAddTask")(info);
-			if(!bStreaming && size > 2147483648){fShowMessage("Flash最大只能上传2G的文件："+name+" 大小："+size, true);return !1;}
+			if(!bStreaming && size > 2147483648){this.uploadError({status:100, msg:"Flash最大只能上传2G的文件!"});return !1;}
 			if (this.get("maxSize") < size)
-				this.get("onMaxSizeExceed") ? this.get("onMaxSizeExceed")(size, this.get("maxSize"), name) : this.onMaxSizeExceed(size, this.get("maxSize"), name);
+				this.get("onMaxSizeExceed") ? this.get("onMaxSizeExceed")(info) : this.onMaxSizeExceed(info);
 			else {
 				filters.length || (valid = !0);
 				for (var i = 0; i < filters.length; i++)
 					filters[i].toLowerCase() == "." + ext && (valid = !0);
 				if (!valid)
-					this.get("onExtNameMismatch") ? this.get("onExtNameMismatch")(name, filters) : this.onExtNameMismatch(name, filters);
+					this.get("onExtNameMismatch") ? this.get("onExtNameMismatch")(info) : this.onExtNameMismatch(info);
 			}
+			valid && this.config.customered && this.get("onAddTask")	&& this.get("onAddTask")(info);
 			return valid;
 		},
 		formatSpeed : function(a) {
