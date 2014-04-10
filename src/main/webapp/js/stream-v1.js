@@ -54,6 +54,9 @@
 		var b = (new Date).getTime() + "_01v_" + ++nIdCount;
 		return prefix ? prefix + "_" + b : b;
 	}
+	function fGetRandom() {
+		return (new Date).getTime().toString().substring(8);
+	}
 	function fExtend(a, b){
 		var c = 2 < arguments.length ? [arguments[2]] : null;
 		return function(){
@@ -1084,7 +1087,7 @@
 			postVarsPerFile : cfg.postVarsPerFile || {},
 			swfURL : cfg.swfURL || "/swf/FlashUploader.swf",
 			tokenURL : cfg.tokenURL || "/tk",
-			frmUploadURL : cfg.frmUploadURL || "/fd;",
+			frmUploadURL : cfg.frmUploadURL || Browser.firefox ? "/fd;" + document.cookie : "fd",
 			uploadURL : cfg.uploadURL || "/upload"
 		};
 		Parent.apply(this, arguments);
@@ -1326,7 +1329,7 @@
 				size: file.get('size'),
 				modified: file.get("dateModified") + ""
 			}; 
-			var tokenUrl = fAddVars(vars, this.get("tokenURL"));
+			var tokenUrl = fAddVars(vars, this.get("tokenURL")) + "&" + fGetRandom();
 			xhr.open("GET", tokenUrl, !0);
 			/** IE7,8 兼容*/
 			xhr.onreadystatechange = function() {
@@ -1346,7 +1349,7 @@
 						}
 						bStreaming && bFileSlice ? (self.uploadInfo[index].serverAddress = server,
 										self.uploadFile(file, uploadURL, token, "resumeUpload"))
-								: self.uploadFile(file, frmUploadURL + document.cookie, token, "formUpload");
+								: self.uploadFile(file, frmUploadURL, token, "formUpload");
 					} else {
 						/** not found any token */
 						self.cancelOne(index);
@@ -1591,6 +1594,7 @@
 			webkit : 0,
 			safari : 0,
 			chrome : 0,
+			firefox : 0,
 			mobile : null,
 			air : 0,
 			phantomjs : 0,
@@ -1684,9 +1688,12 @@
 						e.mobile = d[0];
 				} else if ((d = a.match(/MSIE\s([^;]*)/)) && d[1])
 					e.ie = b(d[1]);
-				else if (d = a.match(/Gecko\/([^\s]*)/))
+				else if (d = a.match(/Gecko\/([^\s]*)/)) {
 					if (e.gecko = 1, (d = a.match(/rv:([^\s\)]*)/)) && d[1])
 						e.gecko = b(d[1]);
+					if ((d = a.match(/(Firefox)\/([^\s]*)/)) && d[1] && d[2])
+						e.firefox = d[2];
+				}
 		}
 		if (e.gecko || e.webkit || e.opera) {
 			if (b = navigator.mimeTypes["application/x-shockwave-flash"])
