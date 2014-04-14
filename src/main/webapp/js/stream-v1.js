@@ -915,7 +915,7 @@
 			this.XHR = new XMLHttpRequest;
 			this.resume = true;
 			
-			var _url = this.get("uploadURL");
+			var _url = this.get("uploadURL") + "&" + fGetRandom();
 			this.xhrHandler = fExtend(this.uploadEventHandler, this);
 			this.XHR.addEventListener("loadstart", this.xhrHandler, !1);
 			this.XHR.addEventListener("load", this.xhrHandler, !1);
