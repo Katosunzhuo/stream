@@ -100,8 +100,10 @@ public class StreamServlet extends HttpServlet {
 		String message = "";
 		File f = IoUtil.getTokenedFile(token);
 		try {
-			if (f.length() != range.getFrom())
-				throw new IOException("File from position error!");
+			if (f.length() != range.getFrom()) {
+				/** drop this uploaded data */
+				throw new StreamException(StreamException.ERROR_FILE_RANGE_START);
+			}
 			
 			out = new FileOutputStream(f, true);
 			content = req.getInputStream();
@@ -111,8 +113,11 @@ public class StreamServlet extends HttpServlet {
 				out.write(bytes, 0, read);
 
 			start = f.length();
+		} catch (StreamException se) {
+			success = StreamException.ERROR_FILE_RANGE_START == se.getCode();
+			message = "Code: " + se.getCode();
 		} catch (FileNotFoundException fne) {
-			message = "Error: " + fne.getMessage();
+			message = "Code: " + StreamException.ERROR_FILE_NOT_EXIST;
 			success = false;
 		} catch (IOException io) {
 			message = "IO Error: " + io.getMessage();
