@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import cn.twinkling.stream.config.Configurations;
 import cn.twinkling.stream.util.IoUtil;
 
 /**
@@ -24,10 +25,6 @@ import cn.twinkling.stream.util.IoUtil;
  */
 public class StreamServlet extends HttpServlet {
 	private static final long serialVersionUID = -8619685235661387895L;
-	static final String CROSS_ORIGIN = "CROSS_ORIGIN";
-	/** the other class program should not modify it */
-	public static boolean DELETE_FINISH = false;
-	private String origins;
 	/** when the has increased to 10kb, then flush it to the hard-disk. */
 	static final int BUFFER_LENGTH = 10240;
 	static final String START_FIELD = "start";
@@ -35,8 +32,6 @@ public class StreamServlet extends HttpServlet {
 
 	@Override
 	public void init() throws ServletException {
-		origins = getServletContext().getInitParameter(CROSS_ORIGIN);
-		DELETE_FINISH = Boolean.parseBoolean(getServletContext().getInitParameter("DELETE_FINISH"));
 	}
 	
 	/**
@@ -134,8 +129,8 @@ public class StreamServlet extends HttpServlet {
 				f.renameTo(dst);
 				System.out.println("TK: `" + token + "`, NE: `" + fileName + "`");
 				
-				/** if `DELETE_FINISH`, then delete it. */
-				if (DELETE_FINISH) {
+				/** if `STREAM_DELETE_FINISH`, then delete it. */
+				if (Configurations.isDeleteFinished()) {
 					dst.delete();
 				}
 			}
@@ -156,7 +151,7 @@ public class StreamServlet extends HttpServlet {
 			throws ServletException, IOException {
 		resp.setContentType("application/json");
 		resp.setHeader("Access-Control-Allow-Headers", "Content-Range,Content-Type");
-		resp.setHeader("Access-Control-Allow-Origin", origins);
+		resp.setHeader("Access-Control-Allow-Origin", Configurations.getCrossOrigins());
 		resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
 	}
 

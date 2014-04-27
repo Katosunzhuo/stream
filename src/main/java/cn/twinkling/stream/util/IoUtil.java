@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cn.twinkling.stream.config.Configurations;
 import cn.twinkling.stream.servlet.FormDataServlet;
 import cn.twinkling.stream.servlet.Range;
 import cn.twinkling.stream.servlet.StreamServlet;
@@ -21,9 +22,6 @@ import cn.twinkling.stream.servlet.StreamServlet;
  */
 public class IoUtil {
 	static final Pattern RANGE_PATTERN = Pattern.compile("bytes \\d+-\\d+/\\d+");
-	/** where the file should be put on. */
-	public static final String REPOSITORY = System.getProperty("java.io.tmpdir",
-			File.separator + "tmp" + File.separator + "upload-repository");
 	
 	/**
 	 * According the key, generate a file (if not exist, then create
@@ -37,7 +35,7 @@ public class IoUtil {
 		if (filename == null || filename.isEmpty())
 			return null;
 		String name = filename.replaceAll("/", Matcher.quoteReplacement(File.separator));
-		File f = new File(REPOSITORY + File.separator + name);
+		File f = new File(Configurations.getFileRepository() + File.separator + name);
 		if (!f.getParentFile().exists())
 			f.getParentFile().mkdirs();
 		if (!f.exists())
@@ -56,7 +54,7 @@ public class IoUtil {
 		if (key == null || key.isEmpty())
 			return null;
 
-		File f = new File(REPOSITORY + File.separator + key);
+		File f = new File(Configurations.getFileRepository() + File.separator + key);
 		if (!f.getParentFile().exists())
 			f.getParentFile().mkdirs();
 		if (!f.exists())
@@ -69,7 +67,7 @@ public class IoUtil {
 		if (key == null || key.isEmpty())
 			return;
 
-		File f = new File(REPOSITORY + File.separator + key);
+		File f = new File(Configurations.getFileRepository() + File.separator + key);
 		if (!f.getParentFile().exists())
 			f.getParentFile().mkdirs();
 		if (!f.exists())
@@ -135,8 +133,8 @@ public class IoUtil {
 		f.renameTo(dst);
 		
 		long length = getFile(fileName).length();
-		/** if `DELETE_FINISH`, then delete it. */
-		if (StreamServlet.DELETE_FINISH) {
+		/** if `STREAM_DELETE_FINISH`, then delete it. */
+		if (Configurations.isDeleteFinished()) {
 			dst.delete();
 		}
 		

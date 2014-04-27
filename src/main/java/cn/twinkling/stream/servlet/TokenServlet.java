@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import cn.twinkling.stream.config.Configurations;
 import cn.twinkling.stream.util.TokenUtil;
 
 /**
@@ -26,16 +27,8 @@ public class TokenServlet extends HttpServlet {
 	static final String SUCCESS = "success";
 	static final String MESSAGE = "message";
 	
-	/** mark it whether cross domain for uploading */
-	static final String CROSS = "CROSS";
-	static final String SERVER = "SERVER";
-	boolean cross = false;
-	String server = null;
-	
 	@Override
 	public void init() throws ServletException {
-		cross = Boolean.parseBoolean(getInitParameter(CROSS));
-		server = getInitParameter(SERVER);
 	}
 
 	@Override
@@ -50,8 +43,8 @@ public class TokenServlet extends HttpServlet {
 		JSONObject json = new JSONObject();
 		try {
 			json.put(TOKEN_FIELD, token);
-			if (cross)
-				json.put(SERVER_FIELD, server);
+			if (Configurations.isCrossed())
+				json.put(SERVER_FIELD, Configurations.getCrossServer());
 			json.put(SUCCESS, true);
 			json.put(MESSAGE, "");
 		} catch (JSONException e) {
