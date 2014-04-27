@@ -5,29 +5,10 @@
 <web-app>
 	<display-name>Stream Uploader Application</display-name>
   	
-  	<!-- Application parameters of CROSS_ORIGIN -->
-  	<context-param>
-  		<param-name>CROSS_ORIGIN</param-name>
-		<param-value>*</param-value>
-  	</context-param>
-  	<context-param>
-  		<description>when the file has uploaded, whether delete it.</description>
-  		<param-name>DELETE_FINISH</param-name>
-		<param-value>false</param-value>
-  	</context-param>
-  	
 	<servlet>
 		<servlet-name>TokenServlet</servlet-name>
 		<servlet-class>cn.twinkling.stream.servlet.TokenServlet</servlet-class>
 		<load-on-startup>0</load-on-startup>
-		<init-param>
-			<param-name>CROSS</param-name>
-			<param-value>false</param-value>
-		</init-param>
-		<init-param>
-			<param-name>SERVER</param-name>
-			<param-value>http://www.jiangdx.com:8080</param-value>
-		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>TokenServlet</servlet-name>
