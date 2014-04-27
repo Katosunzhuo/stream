@@ -9,7 +9,7 @@ import java.util.Properties;
  * read the configurations from file `config.properties`.
  */
 public class Configurations {
-	static final String CONFIG_FILE = "config.properties";
+	static final String CONFIG_FILE = "stream-config.properties";
 	private static Properties properties = null;
 	private static final String REPOSITORY = System.getProperty(
 			"java.io.tmpdir", File.separator + "tmp" + File.separator
