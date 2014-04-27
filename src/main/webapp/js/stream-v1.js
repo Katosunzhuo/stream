@@ -1509,7 +1509,7 @@
 					formatLimitSize:  this.formatBytes(this.get("maxSize")),
 					filters:          filters
 				};
-			if(!bStreaming && size > 2147483648){this.uploadError({status:100, msg:"Flash最大只能上传2G的文件!"});return !1;}
+			if(!bStreaming && size > 2147483648){this.uploadError({status:100, statusText:"Flash最大只能上传2G的文件!"});return !1;}
 			if (this.get("maxSize") < size)
 				this.get("onMaxSizeExceed") ? this.get("onMaxSizeExceed")(info) : this.onMaxSizeExceed(info);
 			else {
