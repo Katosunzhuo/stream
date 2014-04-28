@@ -37,6 +37,7 @@ Stream 是根据某网的文件上传插件加工而来，支持不同平台（W
 1. 下载stream-*.war项目包: http://git.oschina.net/jiangdx/stream/attach_files
 2. 在容器中部署war包（Tomcat示例）
      I.  将stream-*.war拷贝到webapps目录下
+
      II. 将stream-*.war重命名为ROOT.war
 3. 启动服务器，访问http://localhost:8080
 4. Have Fun!!! 
