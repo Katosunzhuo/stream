@@ -54,6 +54,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<outputDirectory>target/classes</outputDirectory>
 	</build>
 	<packaging>war</packaging>
 </project>
