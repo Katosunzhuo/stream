@@ -25,7 +25,18 @@ Stream 是根据某网的文件上传插件加工而来，支持不同平台（W
 9. 支持自定义UI（V1.4+）
 
 
-# 快速开始
+# 快速开始 - 克隆项目
 1. clone Stream项目: git clone http://git.oschina.net/jiangdx/stream.git
 2. 到Stream项目下: cd stream
 3. 在Tomcat中运行Stream: mvn tomcat7:run
+4. 在浏览器中访问Stream插件: http://localhost:8080
+5. Enjoy it!!!
+
+
+# 快速开始 - 下载war包
+1. 下载stream-*.war项目包
+2. 在容器中部署war包（Tomcat示例）
+     I.  将stream-*.war拷贝到webapps目录下
+     II. 将stream-*.war重命名为ROOT.war
+3. 启动服务器，访问http://localhost:8080
+4. Have Fun!!! 
