@@ -934,7 +934,7 @@
             					: (this.timeoutHandler && clearTimeout(this.timeoutHandler), this.timeoutHandler = setTimeout(function() {g.resumeUpload()}, 1E4));
 		},
 		uploadEventHandler: function(event){
-			var xhr = this.XHR, method = this.get("uploadMethod");;
+			var xhr = this.XHR, method = this.get("uploadMethod");
 			switch(event.type){
 				case "load":
 					var uploaded = 0;
@@ -943,7 +943,7 @@
 					try {
 						if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 308)) {
 							uploaded = (respJson = eval("(" + xhr.responseText + ")")) ? respJson.start : -1;
-						} else if (xhr.status < 500 && xhr.status >= 400) {
+						} else if (xhr.status >= 400) {
 							bError = !0;
 						} else {return;}
 						/** the response can't process the request, so throws out the error. */
