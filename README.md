@@ -24,3 +24,8 @@ Stream 是根据某网的文件上传插件加工而来，支持不同平台（W
 
 9. 支持自定义UI（V1.4+）
 
+
+# 快速开始
+1. clone Stream项目: git clone http://git.oschina.net/jiangdx/stream.git
+2. 到Stream项目下: cd stream
+3. 在Tomcat中运行Stream: mvn tomcat7:run
