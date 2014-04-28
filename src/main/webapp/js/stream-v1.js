@@ -943,9 +943,9 @@
 					try {
 						if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 308)) {
 							uploaded = (respJson = eval("(" + xhr.responseText + ")")) ? respJson.start : -1;
-						} else if (xhr.status >= 400) {
+						} else if (xhr.status < 500 && xhr.status >= 400) {
 							bError = !0;
-						} else {return;}
+						} else if (xhr.status < 200) {return;}
 						/** the response can't process the request, so throws out the error. */
 						bError = bError || respJson.success == false;
 					} catch(e) {
