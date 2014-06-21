@@ -29,6 +29,8 @@ Stream 是根据某网的文件上传插件加工而来，支持不同平台（W
 1. clone Stream项目: git clone http://git.oschina.net/jiangdx/stream.git
 2. 到Stream项目下: cd stream
 3. 在Tomcat中运行Stream: mvn tomcat7:run
+   (如遇中文问题，请先设置参数：export MAVEN_OPTS="${MAVEN_OPTS} -Dfile.encoding=UTF-8", Windows请设置相应的环境变量)
+    
 4. 在浏览器中访问Stream插件: http://localhost:8080
 5. Enjoy it!!!
 
