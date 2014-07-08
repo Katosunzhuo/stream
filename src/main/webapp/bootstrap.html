@@ -199,7 +199,7 @@
 			var $message = $("#"+file.id).find("span.message-text");
 			$message.text("已上传:" + file.formatLoaded + "/" + file.formatSize + "(" + file.percent + "%" + ")");
 			/** remove the `cancel` button */
-			var $cancelBtn = $("#"+file.id).find("td > span");
+			var $cancelBtn = $("#"+file.id).find("td:last > span");
 			$cancelBtn.remove();
 			
 			/** modify the total progress bar */
