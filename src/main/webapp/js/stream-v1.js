@@ -1087,7 +1087,7 @@
 			postVarsPerFile : cfg.postVarsPerFile || {},
 			swfURL : cfg.swfURL || "/swf/FlashUploader.swf",
 			tokenURL : cfg.tokenURL || "/tk",
-			frmUploadURL : cfg.frmUploadURL || Browser.firefox ? "/fd;" + document.cookie : "fd",
+			frmUploadURL : cfg.frmUploadURL || Browser.firefox ? "/fd;" + document.cookie : "/fd",
 			uploadURL : cfg.uploadURL || "/upload"
 		};
 		Parent.apply(this, arguments);
