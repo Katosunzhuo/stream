@@ -1321,7 +1321,7 @@
 			var frmUploadURL = this.get("frmUploadURL");
 			var uploadURL = this.get("uploadURL");
 			/** request the server to figure out what's the token for the file: */
-			var xhr = new XMLHttpRequest;
+			var xhr = window.XMLHttpRequest ? new XMLHttpRequest : new ActiveXObject("Microsoft.XMLHTTP");
 			
 			var vars = {
 				name:	 file.get('name'),
