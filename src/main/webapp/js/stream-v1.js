@@ -34,19 +34,19 @@
 		sCellFileTemplate = '<b class="stream-uploading-ico"></b>' +
 					'<div class="stream-file-name"><strong></strong></div>' +
 					'<div class="stream-process">' +
-					'	<a class="stream-cancel" href="javascript:void(0)">删除</a>' +
+					'	<a class="stream-cancel" href="javascript:void(0)">\u5220\u9664</a>' +
 					'	<span class="stream-process-bar"><span style="width: 0%;"></span></span>' +
 					'	<span class="stream-percent">0%</span>' +
 					'</div>' +
 					'<div class="stream-cell-infos">' +
-					'	<span class="stream-cell-info">速度：<em class="stream-speed"></em></span>' +
-					'	<span class="stream-cell-info">已上传：<em class="stream-uploaded"></em></span>' +
-					'	<span class="stream-cell-info">剩余时间：<em class="stream-remain-time"></em></span>' +
+					'	<span class="stream-cell-info">\u901f\u5ea6\uff1a<em class="stream-speed"></em></span>' +
+					'	<span class="stream-cell-info">\u5df2\u4e0a\u4f20\uff1a<em class="stream-uploaded"></em></span>' +
+					'	<span class="stream-cell-info">\u5269\u4f59\u65f6\u95f4\uff1a<em class="stream-remain-time"></em></span>' +
 					'</div>',
 		sTotalContainer = '<div id="#totalContainerId#" class="stream-total-tips">' +
-			'	上传总进度：<span class="stream-process-bar"><span style="width: 0%;"></span></span>' +
-			'	<span class="stream-percent">0%</span>，已上传<strong class="_stream-total-uploaded">&nbsp;</strong>' +
-			'	，总文件大小<strong class="_stream-total-size">&nbsp;</strong>' +
+			'	\u4e0a\u4f20\u603b\u8fdb\u5ea6\uff1a<span class="stream-process-bar"><span style="width: 0%;"></span></span>' +
+			'	<span class="stream-percent">0%</span>\uff0c\u5df2\u4e0a\u4f20<strong class="_stream-total-uploaded">&nbsp;</strong>' +
+			'	\uff0c\u603b\u6587\u4ef6\u5927\u5c0f<strong class="_stream-total-size">&nbsp;</strong>' +
 			'</div>',
 		sFilesContainer	= '<div class="stream-files-scroll" style="height: #filesQueueHeight#px;"><ul id="#filesContainerId#"></ul></div>';
 	
