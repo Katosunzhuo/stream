@@ -1360,11 +1360,11 @@
 					/** streaming, swf, resume methods all failed, no more try  */
 				}
 			}
-			xhr.onerror = function() {
+			window.XMLHttpRequest && (xhr.onerror = function() {
 				self.cancelOne(index);
 				var msg = "\u521B\u5EFA\u4E0A\u4F20\u4EFB\u52A1\u5931\u8D25,\u72B6\u6001\u7801:" + xhr.status + ",\u8BF7\u68C0\u6D4B\u7F51\u7EDC...";
 				fShowMessage(msg, true);
-			};
+			});
 			xhr.send();
 		},
 		uploadFile : function(file, url, token, method) {
