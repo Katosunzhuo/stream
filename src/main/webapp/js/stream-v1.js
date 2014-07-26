@@ -194,7 +194,35 @@
 	function fIsArray(val) {
 		return "array" === fToString(val);
 	}
-	
+	function fGetStyle(el,name) { 
+		if (window.getComputedStyle)
+			return window.getComputedStyle(el, null)[name];
+		else
+			return el.currentStyle[name]; 
+	}
+	function fGetWidth(el) { 
+		var val = el.offsetWidth, which = ['Left', 'Right']; 
+		// display is none 
+		if(val === 0) return 0; 
+
+		for(var i = 0, a; a = which[i++];) { 
+			val -= parseFloat(fGetStyle(el, "border" + a + "Width") ) || 0; 
+			val -= parseFloat(fGetStyle(el, "padding" + a) ) || 0; 
+		} 
+		return val + 'px'; 
+	}
+	function fGetHeight(el) { 
+		var val = el.offsetHeight, which = ['Top', 'Bottom']; 
+		// display is none 
+		if(val === 0) return 0;
+
+		for(var i = 0, a; a = which[i++];) { 
+			val -= parseFloat(fGetStyle(el, "border" + a + "Width") ) || 0; 
+			val -= parseFloat(fGetStyle(el, "padding" + a) ) || 0; 
+		} 
+		return val + 'px'; 
+	}
+		
 	/**
 	 * This function is for registering the function(s) on its prototype.
 	 * @hostPrototype	which is its host prototype.
@@ -1162,14 +1190,14 @@
 			this.config.autoUploading && this.upload(file_id);
 		},
 		hideBrowseBlock: function() {
-			this.browseFileBlockHeight = this.startPanel.style.height;
-			this.browseFileBlockWidth = this.startPanel.style.width;
+			this.browseFileBlockHeight = fGetHeight(this.startPanel);
+			this.browseFileBlockWidth = fGetWidth(this.startPanel);
 			!this.browseFileBlockDisplay && (this.browseFileBlockDisplay = this.startPanel.style.display == "" ? "block" : this.startPanel.style.display);
 			bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");
 		},
 		showBrowseBlock: function() {
-			!this.browseFileBlockHeight && (this.browseFileBlockHeight = this.startPanel.style.height);
-			!this.browseFileBlockWidth && (this.browseFileBlockWidth = this.startPanel.style.width);
+			!this.browseFileBlockHeight && (this.browseFileBlockHeight = fGetHeight(this.startPanel));
+			!this.browseFileBlockWidth && (this.browseFileBlockWidth = fGetWidth(this.startPanel));
 			!this.browseFileBlockDisplay && (this.browseFileBlockDisplay = this.startPanel.style.display == "" ? "block" : this.startPanel.style.display);
 			bStreaming ? this.startPanel.style.display = this.browseFileBlockDisplay : (this.startPanel.style.height = this.browseFileBlockHeight, this.startPanel.style.width = this.browseFileBlockWidth);
 		},
