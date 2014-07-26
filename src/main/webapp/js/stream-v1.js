@@ -1164,13 +1164,13 @@
 		hideBrowseBlock: function() {
 			this.browseFileBlockHeight = this.startPanel.style.height;
 			this.browseFileBlockWidth = this.startPanel.style.width;
-			this.browseFileBlockDisplay = this.startPanel.style.display;
+			!this.browseFileBlockDisplay && (this.browseFileBlockDisplay = this.startPanel.style.display == "" ? "block" : this.startPanel.style.display);
 			bStreaming ? this.startPanel.style.display = "none" : (this.startPanel.style.height = "1px", this.startPanel.style.width = "1px");
 		},
 		showBrowseBlock: function() {
 			!this.browseFileBlockHeight && (this.browseFileBlockHeight = this.startPanel.style.height);
 			!this.browseFileBlockWidth && (this.browseFileBlockWidth = this.startPanel.style.width);
-			!this.browseFileBlockDisplay && (this.browseFileBlockDisplay = this.startPanel.style.display);
+			!this.browseFileBlockDisplay && (this.browseFileBlockDisplay = this.startPanel.style.display == "" ? "block" : this.startPanel.style.display);
 			bStreaming ? this.startPanel.style.display = this.browseFileBlockDisplay : (this.startPanel.style.height = this.browseFileBlockHeight, this.startPanel.style.width = this.browseFileBlockWidth);
 		},
 		renderUI : function(file_id) {
