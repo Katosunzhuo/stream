@@ -158,7 +158,7 @@
 	
 	function fShowMessage(msg, warning) {
 		var o = document.getElementById(sStreamMessagerId);
-		o && (o.innerHTML += "<br>" + (!!warning ? ("<span style='color:red;'>" + msg + "</span>"): msg));
+		o && (o.innerHTML += "<br>" + (!!warning ? ("<span style='color:red;'>" + msg + "</span>"): msg)) && (o.scrollTop = o.scrollHeight);
 	}
 	
 	function fMessage(msg, VarVals, c, d) {
@@ -1220,6 +1220,11 @@
 			fAddEventListener(cancelBtn, "click", this.cancelBtnHandler);
 		},
 		completeUpload : function(info) {
+			/** set the current scroll for files container */
+			var count = 0, scroll = null, ratio = 1;
+			for(var i in this.uploadInfo) count++;
+			ratio = (count - this.waiting.length - 1) / (count <= 0 ? 1 : count);
+			this.containerPanel && this.containerPanel.parentNode && (scroll = this.containerPanel.parentNode, scroll.scrollTop = scroll.scrollHeight * ratio);
 			this.get("onComplete") ? this.get("onComplete")(info) : this.onComplete(info);
 			this.waiting.length == 0 && (this.get("onQueueComplete") ? this.get("onQueueComplete")(info.msg) : this.onQueueComplete(info.msg));
 			this.config.autoRemoveCompleted && (info = document.getElementById(info.id), info.parentNode && info.parentNode.removeChild(info));
