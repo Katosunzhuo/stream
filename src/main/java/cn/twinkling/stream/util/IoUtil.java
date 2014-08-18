@@ -2,7 +2,6 @@ package cn.twinkling.stream.util;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,9 +47,9 @@ public class IoUtil {
 	 * Acquired the file.
 	 * @param key
 	 * @return
-	 * @throws FileNotFoundException If key not found, will throws this.
+	 * @throws IOException 
 	 */
-	public static File getTokenedFile(String key) throws FileNotFoundException {
+	public static File getTokenedFile(String key) throws IOException {
 		if (key == null || key.isEmpty())
 			return null;
 
@@ -58,7 +57,7 @@ public class IoUtil {
 		if (!f.getParentFile().exists())
 			f.getParentFile().mkdirs();
 		if (!f.exists())
-			throw new FileNotFoundException("File `" +f + "` not exist.");
+			f.createNewFile();
 		
 		return f;
 	}
