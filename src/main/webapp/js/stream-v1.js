@@ -690,14 +690,16 @@
 			this.detach("fileFiltersChange", this.setFileFilters, this);
 			this.detach("enabledChange", this.triggerEnabled, this);
 			this.detach("dragAndDropAreaChange", this.bindDropArea, this);
-			var a = this.get("dragAndDropArea");
-			this.dropBinding = fExtend(this.dragEventHandler, this);
-			null !== a	&& (fRemoveEventListener(a, "drop", this.dropBinding),
-					fRemoveEventListener(a, "dragenter", this.dropBinding),
-					fRemoveEventListener(a, "dragover", this.dropBinding),
-					fRemoveEventListener(a, "dragleave", this.dropBinding));
 			this.fileInputField.parentNode.removeChild(this.fileInputField);
+
+			var a = this.get("dragAndDropArea");
+			null !== a && this.dropBinding != null && (fRemoveEventListener(a, "drop", this.dropBinding),
+						fRemoveEventListener(a, "dragenter", this.dropBinding),
+						fRemoveEventListener(a, "dragover", this.dropBinding),
+						fRemoveEventListener(a, "dragleave", this.dropBinding));
 			this.fileInputField = null;
+			this.buttonBinding = null;
+			this.dropBinding = null;
 		},
 		dragEventHandler : function(evt) {
 			evt = evt || window.event;
