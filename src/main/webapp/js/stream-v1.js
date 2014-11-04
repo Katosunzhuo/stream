@@ -437,6 +437,26 @@
 			this.swfReference.on("mouseenter", function() {this.setContainerClass("hover", !0);}, this);
 			this.swfReference.on("mouseleave", function() {this.setContainerClass("hover", !1);}, this);
 		},
+		destroy : function() {
+			this.swfReference.detach("swfReady", function() {
+				this.setMultipleFiles();
+				this.setFileFilters();
+				this.triggerEnabled();
+				this.after("multipleFilesChange", this.setMultipleFiles, this);
+				this.after("fileFiltersChange", this.setFileFilters, this);
+				this.after("enabledChange", this.triggerEnabled, this);
+			}, this);
+			this.swfReference.detach("fileselect", this.updateFileList, this);
+			this.swfReference.detach("mouseenter", function() {this.setContainerClass("hover", !0);}, this);
+			this.swfReference.detach("mouseleave", function() {this.setContainerClass("hover", !1);}, this);
+			if (this.contentBox) {
+				while (this.contentBox.firstChild) {
+					var oldNode = this.contentBox.removeChild(this.contentBox.firstChild);
+					oldNode = null;
+				}
+			}
+			this.swfReference = null;
+		},
 		setContainerClass : function(a, b) {
 			b ? fAddClass(this.contentBox, this.get("containerClassNames")[a]) : fRemoveClass(
 					this.contentBox, this.get("containerClassNames")[a]);
@@ -662,6 +682,23 @@
 							fAddEventListener(a, "dragover", this.dropBinding),
 							fAddEventListener(a, "dragleave", this.dropBinding));
 		},
+		destroy : function() {
+			this.buttonBinding = fExtend(this.openFileSelectDialog, this);
+			fRemoveEventListener(this.contentBox, "click", this.buttonBinding);
+			fRemoveEventListener(this.fileInputField, "change", fExtend(this.updateFileList, this));
+			this.detach("multipleFilesChange", this.setMultipleFiles, this);
+			this.detach("fileFiltersChange", this.setFileFilters, this);
+			this.detach("enabledChange", this.triggerEnabled, this);
+			this.detach("dragAndDropAreaChange", this.bindDropArea, this);
+			var a = this.get("dragAndDropArea");
+			this.dropBinding = fExtend(this.dragEventHandler, this);
+			null !== a	&& (fRemoveEventListener(a, "drop", this.dropBinding),
+					fRemoveEventListener(a, "dragenter", this.dropBinding),
+					fRemoveEventListener(a, "dragover", this.dropBinding),
+					fRemoveEventListener(a, "dragleave", this.dropBinding));
+			this.fileInputField.parentNode.removeChild(this.fileInputField);
+			this.fileInputField = null;
+		},
 		dragEventHandler : function(evt) {
 			evt = evt || window.event;
 			evt.preventDefault ? evt.preventDefault() : evt.returnValue = !1;
@@ -775,7 +812,7 @@
 			this.rebindFileField();
 		},
 		openFileSelectDialog : function(a) {
-			this.fileInputField.click && a.target != this.fileInputField && this.fileInputField.click();
+			this.fileInputField && this.fileInputField.click && a.target != this.fileInputField && this.fileInputField.click();
 		},
 		uploadEventHandler : function(a) {
 			switch (a.type) {
@@ -1284,6 +1321,26 @@
 				}
 			}
 			this.get("onStop") ? this.get("onStop")() : this.onStop();
+		},
+		destroy : function() {
+			this.stop();
+			this.fileProvider.destroy();
+			fRemoveEventListener(window, "beforeunload", fExtend(this.unloadHandler, this));
+			/** the default UI */
+			if (!this.config.customered) {
+				fRemoveClass(this.startPanel, "stream-browse-files");
+				fRemoveClass(this.startPanel, "stream-browse-drag-files-area");
+				var filesQueuePanel = document.getElementById(this.config.filesQueueId);
+				fRemoveClass(filesQueuePanel, "stream-main-upload-box");
+				while (this.startPanel.firstChild) {
+					var oldNode = this.startPanel.removeChild(this.startPanel.firstChild);
+					oldNode = null;
+				}
+				while (filesQueuePanel.firstChild) {
+					var oldNode = filesQueuePanel.removeChild(filesQueuePanel.firstChild);
+					oldNode = null;
+				}
+			}
 		},
 		cancel : function() {
 			this.uploading = !1;
