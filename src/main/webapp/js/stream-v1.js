@@ -1091,6 +1091,7 @@
 			dragAndDropArea: cfg.dragAndDropArea,
 			dragAndDropTips: cfg.dragAndDropTips || "<span>把文件(文件夹)拖拽到这里</span>",
 			fileFieldName : cfg.fileFieldName || "FileData",
+			browser : cfg.browser,
 			browseFileId : cfg.browseFileId || "i_select_files",
 			browseFileBtn : cfg.browseFileBtn || "<div>请选择文件</div>",
 			filesQueueId : cfg.filesQueueId || "i_stream_files_queue",
@@ -1134,7 +1135,7 @@
 		name : "uploader",
 		initializer : function() {
 			sStreamMessagerId = this.config.messagerId;
-			this.startPanel = document.getElementById(this.config.browseFileId);
+			this.startPanel = this.config.browser || document.getElementById(this.config.browseFileId);
 			/** the default UI */
 			if (!this.config.customered) {
 				fAddClass(this.startPanel, "stream-browse-files");
@@ -1373,7 +1374,8 @@
 				type: file.get('type'),
 				size: file.get('size'),
 				modified: file.get("dateModified") + ""
-			}; 
+			};
+			vars = fMergeJson(vars, this.get("postVarsPerFile"));
 			var tokenUrl = fAddVars(vars, this.get("tokenURL")) + "&" + fGetRandom();
 			xhr.open("GET", tokenUrl, !0);
 			/** IE7,8 兼容*/
@@ -1564,7 +1566,7 @@
 				if (!valid)
 					this.get("onExtNameMismatch") ? this.get("onExtNameMismatch")(info) : this.onExtNameMismatch(info);
 			}
-			valid && this.config.customered && this.get("onAddTask")(info) && this.get("onAddTask")(info);
+			valid && this.config.customered && this.get("onAddTask") && this.get("onAddTask")(info, uploader);
 			return valid;
 		},
 		formatSpeed : function(a) {
