@@ -425,6 +425,9 @@
 					});
 		},
 		bindUI : function() {
+			this.setMultipleFiles();
+			this.setFileFilters();
+			this.triggerEnabled();
 			this.swfReference.on("swfReady", function() {
 				this.setMultipleFiles();
 				this.setFileFilters();
@@ -438,14 +441,6 @@
 			this.swfReference.on("mouseleave", function() {this.setContainerClass("hover", !1);}, this);
 		},
 		destroy : function() {
-			this.swfReference.detach("swfReady", function() {
-				this.setMultipleFiles();
-				this.setFileFilters();
-				this.triggerEnabled();
-				this.after("multipleFilesChange", this.setMultipleFiles, this);
-				this.after("fileFiltersChange", this.setFileFilters, this);
-				this.after("enabledChange", this.triggerEnabled, this);
-			}, this);
 			this.swfReference.detach("fileselect", this.updateFileList, this);
 			this.swfReference.detach("mouseenter", function() {this.setContainerClass("hover", !0);}, this);
 			this.swfReference.detach("mouseleave", function() {this.setContainerClass("hover", !1);}, this);
@@ -1148,6 +1143,7 @@
 			onQueueComplete: cfg.onQueueComplete,
 			onUploadProgress: cfg.onUploadProgress,
 			onUploadError: cfg.onUploadError,
+			onDestroy: cfg.onDestroy,
 			maxSize : cfg.maxSize || 2147483648,
 			simLimit : cfg.simLimit || 10000,
 			aFilters: aFilters,
@@ -1327,7 +1323,7 @@
 		destroy : function() {
 			this.stop();
 			this.fileProvider.destroy();
-			fRemoveEventListener(window, "beforeunload", fExtend(this.unloadHandler, this));
+			this.waiting = [];
 			/** the default UI */
 			if (!this.config.customered) {
 				fRemoveClass(this.startPanel, "stream-browse-files");
@@ -1343,6 +1339,8 @@
 					oldNode = null;
 				}
 			}
+			this.get("onDestroy") && this.get("onDestroy")(); 
+			var selfthis = this, selfthis = null;
 		},
 		cancel : function() {
 			this.uploading = !1;
