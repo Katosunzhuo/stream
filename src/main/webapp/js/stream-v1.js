@@ -16,7 +16,7 @@
  * 		   new Stream(cfg);
  */ 
 (function(){
-	var Provider, aFilters = [], nIdCount = 0, aOtherBrowsers = ["Maxthon", "SE 2.X", "QQBrowser"],
+	var Provider, nIdCount = 0, aOtherBrowsers = ["Maxthon", "SE 2.X", "QQBrowser"],
 		nZero = 0, sOneSpace = " ", sLBrace = "{", sRBrace = "}",
 		ga = /(~-(\d+)-~)/g, rLBrace = /\{LBRACE\}/g, rRBrace = /\{RBRACE\}/g,
 		ea = {
@@ -372,7 +372,7 @@
 				focus : "uploader-button-selected"
 			},
 			containerClassNames : {hover : "uphotBg"},
-			fileFilters : aFilters,
+			fileFilters : a.fileFilters,
 			fileFieldName : "FileData",
 			simLimit : 1,
 			retryCount : 3,
@@ -426,7 +426,7 @@
 		},
 		bindUI : function() {
 			this.setMultipleFiles();
-			this.setFileFilters();
+			!Browser.ie && this.setFileFilters();
 			this.triggerEnabled();
 			this.swfReference.on("swfReady", function() {
 				this.setMultipleFiles();
@@ -621,7 +621,7 @@
 			multipleFiles : !0,
 			dragAndDropArea : "",
 			dragAndDropTips : "",
-			fileFilters : aFilters,
+			fileFilters : a.fileFilters,
 			fileFieldName : "FileData",
 			simLimit : 1,
 			retryCount : 3,
@@ -1112,7 +1112,6 @@
 	
 	function Main(cfg){
 		cfg = cfg || {};
-		aFilters = fIsArray(cfg.extFilters) ? cfg.extFilters : aFilters;
 		this.bStreaming = bStreaming;
 		this.bDraggable = bDraggable;
 		this.uploadInfo = {};
@@ -1146,7 +1145,7 @@
 			onDestroy: cfg.onDestroy,
 			maxSize : cfg.maxSize || 2147483648,
 			simLimit : cfg.simLimit || 10000,
-			aFilters: aFilters,
+			fileFilters: fIsArray(cfg.extFilters) ? cfg.extFilters : [],
 			retryCount : cfg.retryCount || 5,
 			postVarsPerFile : cfg.postVarsPerFile || {},
 			swfURL : cfg.swfURL || "/swf/FlashUploader.swf",
@@ -1602,7 +1601,7 @@
 		validateFile : function(uploader) {
 			var name = uploader.get("name"), size = uploader.get("size"),
 				ext = -1 !== name.indexOf(".") ? name.replace(/.*[.]/, "").toLowerCase() : "",
-				filters = aFilters, valid = !1, msg = "",
+				filters = this.get("fileFilters"), valid = !1, msg = "",
 				info = {
 					id:               uploader.get("id"),
 					name:             uploader.get("name"),
