@@ -787,6 +787,7 @@
 		},
 		triggerEnabled : function() {
 			var a = this.get("dragAndDropArea");
+			fRemoveClass(a, 'stream-disabled');
 			if (this.get("enabled") && null === this.buttonBinding)
 				this.bindSelectButton(), this.bindDropArea(), fRemoveClass(a, 'stream-disabled');
 			else if (!this.get("enabled") && this.buttonBinding) {
@@ -1199,6 +1200,7 @@
 			this.uploading = !1;
 			this.totalFileSize = 0;
 			this.totalUploadedSize = 0;
+			this.showBrowseBlock();
 		},
 		addStreamTask : function(a) {
 			var file_id = a.get("id"), cell_file = fCreateContentEle("<li id='" + file_id + "' class='stream-cell-file'></li>");
@@ -1234,6 +1236,7 @@
 			!this.browseFileBlockHeight && (this.browseFileBlockHeight = fGetHeight(this.startPanel));
 			!this.browseFileBlockWidth && (this.browseFileBlockWidth = fGetWidth(this.startPanel));
 			!this.browseFileBlockDisplay && (this.browseFileBlockDisplay = this.startPanel.style.display == "" ? "block" : this.startPanel.style.display);
+			if (this.browseFileBlockDisplay == "none") {this.browseFileBlockDisplay = "block", this.browseFileBlockWidth = null, this.browseFileBlockHeight = null; return !1;}
 			bStreaming ? this.startPanel.style.display = this.browseFileBlockDisplay : (this.startPanel.style.height = this.browseFileBlockHeight, this.startPanel.style.width = this.browseFileBlockWidth);
 		},
 		renderUI : function(file_id) {

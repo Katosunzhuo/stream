@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Stream 多个实例测试 DEMO</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="/css/stream-v1.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<div>
+	<div style="display:inline-block;width:20%;">
+		<div id="i_select_files0"></div>
+	</div>
+	<div style="display:inline-block;width:20%;">
+		<div id="i_select_files1"></div>
+	</div>
+	<div style="display:inline-block;width:20%;">
+		<div id="i_select_files2"></div>
+	</div>
+	</div>
+	
+	<div id="i_stream_files_queue0">
+	</div>
+	<div id="i_stream_files_queue1">
+	</div>
+	<div id="i_stream_files_queue2">
+	</div>
+	
+	<p>第0组控制按钮</p>
+	<button onclick="javascript:_t0.upload();">开始上传</button>|<button onclick="javascript:_t0.stop();">停止上传</button>|<button onclick="javascript:_t0.cancel();">取消</button>
+	|<button onclick="javascript:_t0.disable();">禁用文件选择</button>|<button onclick="javascript:_t0.enable();">启用文件选择</button>
+	|<button onclick="javascript:_t0.hideBrowseBlock();">隐藏文件选择按钮</button>|<button onclick="javascript:_t0.showBrowseBlock();">显示文件选择按钮</button>
+	|<button onclick="javascript:_t0.destroy();_t0=null;_t0=new Stream(config0);">销毁重新生成按钮</button>
+	<br>
+	<p>第1组控制按钮</p>
+	<button onclick="javascript:_t1.upload();">开始上传</button>|<button onclick="javascript:_t1.stop();">停止上传</button>|<button onclick="javascript:_t1.cancel();">取消</button>
+	|<button onclick="javascript:_t1.disable();">禁用文件选择</button>|<button onclick="javascript:_t1.enable();">启用文件选择</button>
+	|<button onclick="javascript:_t1.hideBrowseBlock();">隐藏文件选择按钮</button>|<button onclick="javascript:_t1.showBrowseBlock();">显示文件选择按钮</button>
+	|<button onclick="javascript:_t1.destroy();_t1=null;_t1=new Stream(config1);">销毁重新生成按钮</button>
+	<br>
+	<p>第2组控制按钮</p>
+	<button onclick="javascript:_t2.upload();">开始上传</button>|<button onclick="javascript:_t2.stop();">停止上传</button>|<button onclick="javascript:_t2.cancel();">取消</button>
+	|<button onclick="javascript:_t2.disable();">禁用文件选择</button>|<button onclick="javascript:_t2.enable();">启用文件选择</button>
+	|<button onclick="javascript:_t2.hideBrowseBlock();">隐藏文件选择按钮</button>|<button onclick="javascript:_t2.showBrowseBlock();">显示文件选择按钮</button>
+	|<button onclick="javascript:_t2.destroy();_t2=null;_t2=new Stream(config2);">销毁重新生成按钮</button>
+	<br>
+	Messages:
+	<div id="i_stream_message_container" class="stream-main-upload-box" style="overflow: auto;height:200px;">
+	</div>
+<br>
+
+
+<script type="text/javascript" src="/js/stream-v1.js"></script>
+<script type="text/javascript">
+/**
+ * 配置文件（如果没有默认字样，说明默认值就是注释下的值）
+ * 但是，on*（onSelect， onMaxSizeExceed...）等函数的默认行为
+ * 是在ID为i_stream_message_container的页面元素中写日志
+ */
+	var config0 = {
+		browseFileId : "i_select_files0", /** 选择文件的ID, 默认: i_select_files */
+		browseFileBtn : "<div>请选择文件0</div>", /** 显示选择文件的样式, 默认: `<div>请选择文件</div>` */
+		dragAndDropArea: "i_select_files0", /** 拖拽上传区域，Id（字符类型"i_select_files"）或者DOM对象, 默认: `i_select_files` */
+		dragAndDropTips: "<span>把文件(文件夹)拖拽到这里0</span>", /** 拖拽提示, 默认: `<span>把文件(文件夹)拖拽到这里</span>` */
+		filesQueueId : "i_stream_files_queue0", /** 文件上传容器的ID, 默认: i_stream_files_queue */
+		filesQueueHeight : 100, /** 文件上传容器的高度（px）, 默认: 450 */
+		messagerId : "i_stream_message_container", /** 消息显示容器的ID, 默认: i_stream_message_container */
+		multipleFiles: false, /** 多个文件一起上传, 默认: false */
+		autoUploading: false, /** 选择文件后是否自动上传, 默认: true */
+		autoRemoveCompleted : true, /** 是否自动删除容器中已上传完毕的文件, 默认: false */
+		maxSize: 104857600, /** 单个文件的最大大小，默认:2G */
+		postVarsPerFile : { /** 上传文件时传入的参数，默认: {} */
+			param1: "val1-0",
+			param2: "val2-0"
+		},
+		tokenURL : "/tk", /** 根据文件名、大小等信息获取Token的URI（用于生成断点续传、跨域的令牌） */
+		frmUploadURL : "/fd;", /** Flash上传的URI */
+		uploadURL : "/upload", /** HTML5上传的URI */
+		simLimit: 10 /** 单次最大上传文件个数 */
+	};
+	var _t0 = new Stream(config0);
+	
+	var config1 = {
+		browseFileId : "i_select_files1", /** 选择文件的ID, 默认: i_select_files */
+		browseFileBtn : "<div>请选择文件1</div>", /** 显示选择文件的样式, 默认: `<div>请选择文件</div>` */
+		dragAndDropArea: "i_select_files1", /** 拖拽上传区域，Id（字符类型"i_select_files"）或者DOM对象, 默认: `i_select_files` */
+		dragAndDropTips: "<span>把文件(文件夹)拖拽到这里1</span>", /** 拖拽提示, 默认: `<span>把文件(文件夹)拖拽到这里</span>` */
+		filesQueueId : "i_stream_files_queue1", /** 文件上传容器的ID, 默认: i_stream_files_queue */
+		filesQueueHeight : 100, /** 文件上传容器的高度（px）, 默认: 450 */
+		messagerId : "i_stream_message_container", /** 消息显示容器的ID, 默认: i_stream_message_container */
+		multipleFiles: true, /** 多个文件一起上传, 默认: false */
+		maxSize: 10485700601, /** 单个文件的最大大小，默认:2G */
+		postVarsPerFile : { /** 上传文件时传入的参数，默认: {} */
+			param1: "val1-1",
+			param2: "val2-2"
+		},
+		tokenURL : "/tk", /** 根据文件名、大小等信息获取Token的URI（用于生成断点续传、跨域的令牌） */
+		frmUploadURL : "/fd;", /** Flash上传的URI */
+		uploadURL : "/upload", /** HTML5上传的URI */
+		simLimit: 5, /** 单次最大上传文件个数 */
+		extFilters: [".avi", ".mkv", ".mp4"] /** 允许的文件扩展名, 默认: [] */
+	};
+	var _t1 = new Stream(config1);
+	
+	var config2 = {
+		browseFileId : "i_select_files2", /** 选择文件的ID, 默认: i_select_files */
+		browseFileBtn : "<div>请选择文件2</div>", /** 显示选择文件的样式, 默认: `<div>请选择文件</div>` */
+		dragAndDropArea: "i_select_files2", /** 拖拽上传区域，Id（字符类型"i_select_files"）或者DOM对象, 默认: `i_select_files` */
+		dragAndDropTips: "<span>把文件(文件夹)拖拽到这里2</span>", /** 拖拽提示, 默认: `<span>把文件(文件夹)拖拽到这里</span>` */
+		filesQueueId : "i_stream_files_queue2", /** 文件上传容器的ID, 默认: i_stream_files_queue */
+		filesQueueHeight : 100, /** 文件上传容器的高度（px）, 默认: 450 */
+		messagerId : "i_stream_message_container", /** 消息显示容器的ID, 默认: i_stream_message_container */
+		multipleFiles: true, /** 多个文件一起上传, 默认: false */
+		maxSize: 104857602, /** 单个文件的最大大小，默认:2G */
+		retryCount : 5, /** HTML5上传失败的重试次数 */
+		postVarsPerFile : { /** 上传文件时传入的参数，默认: {} */
+			param1: "val1-2",
+			param2: "val2-2"
+		},
+		tokenURL : "/tk", /** 根据文件名、大小等信息获取Token的URI（用于生成断点续传、跨域的令牌） */
+		frmUploadURL : "/fd;", /** Flash上传的URI */
+		uploadURL : "/upload", /** HTML5上传的URI */
+		simLimit: 10, /** 单次最大上传文件个数 */
+		extFilters: [".rar", ".zip", ".dmg"] /** 允许的文件扩展名, 默认: [] */
+	};
+	var _t2 = new Stream(config2);
+</script>
+</body>
