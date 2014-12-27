@@ -426,7 +426,7 @@
 		},
 		bindUI : function() {
 			this.setMultipleFiles();
-			!Browser.ie && this.setFileFilters();
+			this.setFileFilters();
 			this.triggerEnabled();
 			this.swfReference.on("swfReady", function() {
 				this.setMultipleFiles();
@@ -458,7 +458,7 @@
 		},
 		setFileFilters : function() {
 			this.swfReference && 0 < this.get("fileFilters").length
-					&& this.swfReference.callSWF("setFileFilters", [this.get("fileFilters")]);
+					&& this.swfReference.callSWF("setFileFilters", [[{description: "\u81ea\u5b9a\u4e49\u6587\u4ef6", extensions: "*" + this.get("fileFilters").join(";*"), macType: "*" + this.get("fileFilters").join(";*")}]]);
 		},
 		setMultipleFiles : function() {
 			this.swfReference && this.swfReference.callSWF("setAllowMultipleFiles", [this.get("multipleFiles")]);
