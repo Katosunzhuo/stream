@@ -21,6 +21,7 @@ public class Configurations {
 
 	private Configurations() {
 		init();
+		System.out.println("[NOTICE] File Repository Path ≥≥≥ " + getFileRepository());
 	}
 
 	void init() {
@@ -30,8 +31,7 @@ public class Configurations {
 			properties = new Properties();
 			properties.load(in);
 		} catch (IOException e) {
-			System.err.println("reading `" + CONFIG_FILE + "` error!");
-			e.printStackTrace();
+			System.err.println("reading `" + CONFIG_FILE + "` error!" + e);
 		}
 	}
 
