@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.twinkling</groupId>
 	<artifactId>stream</artifactId>
-	<version>1.7.0.10023</version>
+	<version>1.8.0.10076</version>
 	<name>stream Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
@@ -33,6 +33,29 @@
 	<build>
 		<finalName>stream</finalName>
 		<plugins>
+			<!-- compress the js file > stream-v1.min.js -->
+			<!-- 
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>yuicompressor-maven-plugin</artifactId>
+				<version>1.3.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compress</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<jswarn>false</jswarn>
+					<suffix>.min</suffix>
+					<includes>
+						<include>js/*.js</include>
+					</includes>
+				</configuration>
+			</plugin>
+			 -->
 		    <!-- when install war, it will install jar -->
 		    <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
