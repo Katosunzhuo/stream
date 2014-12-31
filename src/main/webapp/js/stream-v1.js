@@ -410,9 +410,8 @@
 		renderUI : function(a) {
 			this.contentBox = a;
 			this.contentBox.style.position = "relative";
-			var b = fCreateContentEle("<div id='" + this.swfContainerId + "' style='opacity:0;top:0px; left: -1000px; margin: 0; padding: 0;position:absolute; border: 0; width:100%; height:100%'></div>");
-			b.style.width = a.offsetWidth + "px";
-			b.style.height = a.offsetHeight + "px";
+			var rect = a.getBoundingClientRect();
+			var b = fCreateContentEle("<div id='" + this.swfContainerId + "' style='opacity:0;top:"+rect.top+"px; left:"+rect.left+"px; margin: 0; padding: 0;position:absolute; border: 0; width:"+rect.width+"px; height:"+rect.height+"px'></div>");
 			document.body.appendChild(b);
 			this.swfReference = new SWFReference(b, this.get("swfURL"), {
 						version : "10.0.45",
@@ -694,7 +693,6 @@
 			this.detach("fileFiltersChange", this.setFileFilters, this);
 			this.detach("enabledChange", this.triggerEnabled, this);
 			this.detach("dragAndDropAreaChange", this.bindDropArea, this);
-			this.fileInputField.parentNode.removeChild(this.fileInputField);
 
 			var a = this.get("dragAndDropArea");
 			null !== a && this.dropBinding != null && (fRemoveEventListener(a, "drop", this.dropBinding),
@@ -771,7 +769,6 @@
 			});
 		},
 		rebindFileField : function() {
-			this.fileInputField.parentNode.removeChild(this.fileInputField);
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;opacity:0;position:absolute;left:-1000px;'>");
 			this.get("dragAndDropArea") && !this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
 			bDraggable && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'));
