@@ -49,6 +49,7 @@
 				<configuration>
 					<encoding>UTF-8</encoding>
 					<jswarn>false</jswarn>
+					<linebreakpos>-1</linebreakpos>
 					<suffix>.min</suffix>
 					<includes>
 						<include>js/*.js</include>
