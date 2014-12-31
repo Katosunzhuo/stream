@@ -410,10 +410,10 @@
 		renderUI : function(a) {
 			this.contentBox = a;
 			this.contentBox.style.position = "relative";
-			var b = fCreateContentEle("<div id='" + this.swfContainerId + "' style='position:absolute;top:0px; left: 0px; margin: 0; padding: 0; border: 0; width:100%; height:100%'></div>");
+			var b = fCreateContentEle("<div id='" + this.swfContainerId + "' style='opacity:0;top:0px; left: -1000px; margin: 0; padding: 0;position:absolute; border: 0; width:100%; height:100%'></div>");
 			b.style.width = a.offsetWidth + "px";
 			b.style.height = a.offsetHeight + "px";
-			this.contentBox.appendChild(b);
+			document.body.appendChild(b);
 			this.swfReference = new SWFReference(b, this.get("swfURL"), {
 						version : "10.0.45",
 						fixedAttributes : {
@@ -423,8 +423,10 @@
 							scale : "noscale"
 						}
 					});
+			this.fileInputField = b;
 		},
 		bindUI : function() {
+			this.bindSelectButton();
 			this.setMultipleFiles();
 			this.setFileFilters();
 			this.triggerEnabled();
@@ -467,6 +469,13 @@
 			this.get("enabled")
 					? (this.swfReference.callSWF("enable"), this.swfReference.swf.setAttribute("aria-disabled", "false"))
 					: (this.swfReference.callSWF("disable"), this.swfReference.swf.setAttribute("aria-disabled", "true"))
+		},
+		bindSelectButton : function() {
+			this.buttonBinding = fExtend(this.openFileSelectDialog, this);
+			fAddEventListener(this.contentBox, "click", this.buttonBinding);
+		},
+		openFileSelectDialog : function(a) {
+			this.fileInputField && this.fileInputField.firstChild && this.fileInputField.firstChild.click && a.target != this.fileInputField.firstChild && this.fileInputField.firstChild.click();
 		},
 		updateFileList : function(a) {
 			this.swfReference.swf.focus();
@@ -652,8 +661,7 @@
 		},
 		renderUI : function(a) {
 			this.contentBox = a;
-			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
-			this.contentBox.appendChild(this.fileInputField);
+			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;opacity:0;position:absolute;left:-1000px;'>");
 			this.get("dragAndDropArea") && !this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
 			bDraggable && this.get("dragAndDropArea") && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'), this.get("dragAndDropArea").appendChild(fCreateContentEle(this.get("dragAndDropTips"))));
 		},
@@ -763,8 +771,7 @@
 		},
 		rebindFileField : function() {
 			this.fileInputField.parentNode.removeChild(this.fileInputField);
-			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;'>");
-			this.contentBox.appendChild(this.fileInputField);
+			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;opacity:0;position:absolute;left:-1000px;'>");
 			this.get("dragAndDropArea") && !this.get("dragAndDropArea").nodeType && this.set("dragAndDropArea", document.getElementById(this.get("dragAndDropArea"))); 
 			bDraggable && (fAddClass(this.get("dragAndDropArea"), 'stream-browse-drag-files-area'));
 			this.setMultipleFiles();
