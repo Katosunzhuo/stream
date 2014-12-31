@@ -452,6 +452,7 @@
 					oldNode = null;
 				}
 			}
+			this.fileInputField && (this.fileInputField = this.fileInputField.parentNode.removeChild(this.fileInputField), this.fileInputField.removeNode());
 			this.swfReference = null;
 		},
 		setContainerClass : function(a, b) {
