@@ -410,9 +410,10 @@
 		renderUI : function(a) {
 			this.contentBox = a;
 			this.contentBox.style.position = "relative";
-			var rect = a.getBoundingClientRect();
-			var b = fCreateContentEle("<div id='" + this.swfContainerId + "' style='opacity:0;top:"+rect.top+"px; left:"+rect.left+"px; margin: 0; padding: 0;position:absolute; border: 0; width:"+rect.width+"px; height:"+rect.height+"px'></div>");
-			document.body.appendChild(b);
+			var b = fCreateContentEle("<div id='" + this.swfContainerId + "' style='position:absolute;top:0px; left: 0px; margin: 0; padding: 0; border: 0; width:100%; height:100%'></div>");
+			b.style.width = a.offsetWidth + "px";
+			b.style.height = a.offsetHeight + "px";
+			this.contentBox.appendChild(b);
 			this.swfReference = new SWFReference(b, this.get("swfURL"), {
 						version : "10.0.45",
 						fixedAttributes : {
@@ -422,10 +423,8 @@
 							scale : "noscale"
 						}
 					});
-			this.fileInputField = b;
 		},
 		bindUI : function() {
-			this.bindSelectButton();
 			this.setMultipleFiles();
 			this.setFileFilters();
 			this.triggerEnabled();
@@ -451,7 +450,6 @@
 					oldNode = null;
 				}
 			}
-			this.fileInputField && (this.fileInputField = this.fileInputField.parentNode.removeChild(this.fileInputField), this.fileInputField.removeNode());
 			this.swfReference = null;
 		},
 		setContainerClass : function(a, b) {
@@ -469,13 +467,6 @@
 			this.get("enabled")
 					? (this.swfReference.callSWF("enable"), this.swfReference.swf.setAttribute("aria-disabled", "false"))
 					: (this.swfReference.callSWF("disable"), this.swfReference.swf.setAttribute("aria-disabled", "true"))
-		},
-		bindSelectButton : function() {
-			this.buttonBinding = fExtend(this.openFileSelectDialog, this);
-			fAddEventListener(this.contentBox, "click", this.buttonBinding);
-		},
-		openFileSelectDialog : function(a) {
-			this.fileInputField && this.fileInputField.firstChild && this.fileInputField.firstChild.click && a.target != this.fileInputField.firstChild && this.fileInputField.firstChild.click();
 		},
 		updateFileList : function(a) {
 			this.swfReference.swf.focus();
