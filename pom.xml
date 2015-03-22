@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.twinkling</groupId>
 	<artifactId>stream</artifactId>
-	<version>1.8.0.10076</version>
+	<version>1.8.1.10157</version>
 	<name>stream Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
