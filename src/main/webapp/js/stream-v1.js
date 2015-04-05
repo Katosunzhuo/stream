@@ -411,8 +411,8 @@
 			this.contentBox = a;
 			this.contentBox.style.position = "relative";
 			var b = fCreateContentEle("<div id='" + this.swfContainerId + "' style='position:absolute;top:0px; left: 0px; margin: 0; padding: 0; border: 0; width:100%; height:100%'></div>");
-			b.style.width = a.offsetWidth + "px";
-			b.style.height = a.offsetHeight + "px";
+			b.style.width = (a.offsetWidth ? a.offsetWidth : a.scrollWidth) + "px";
+			b.style.height = (a.offsetHeight ? a.offsetHeight : a.scrollHeight) + "px";
 			this.contentBox.appendChild(b);
 			this.swfReference = new SWFReference(b, this.get("swfURL"), {
 						version : "10.0.45",
