@@ -135,7 +135,7 @@
 		</script>
 
 		<script id="UploadFileModule" type="text/template">
-			<div id="#FILE_ID#" class="dz-preview dz-file-preview dz-processing">
+			<div id="#FILE_ID#" class="dz-preview dz-file-preview dz-processing dz-error">
 				<div class="dz-image"><img data-dz-thumbnail=""></div>
 
 				<div class="dz-details">
@@ -143,7 +143,7 @@
 					<div class="dz-filename"><span data-dz-name="">#FILE_NAME#</span></div>
 				</div>
 				<div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress=""></span></div>
-				<div class="dz-error-message"><span data-dz-errormessage=""></span></div>
+				<div class="dz-error-message"><span data-dz-errormessage="">点击✖️将取消本文件上传。</span></div>
 
 				<div class="dz-success-mark">
 
@@ -191,22 +191,17 @@
 					enabled: true, /** 是否启用文件选择，默认是true */
 					customered: true,
 					multipleFiles: true, /** 是否允许同时选择多个文件，默认是false */	
-					autoRemoveCompleted: false, /** 是否自动移除已经上传完毕的文件，非自定义UI有效(customered:false)，默认是false */
 					autoUploading: true, /** 当选择完文件是否自动上传，默认是true */
 					fileFieldName: "FileData", /** 相当于指定<input type="file" name="FileData">，默认是FileData */
-					maxSize: 21648, /** 当_t.bStreaming = false 时（也就是Flash上传时），2G就是最大的文件上传大小！所以一般需要 */
+					maxSize: 2147483648, /** 当_t.bStreaming = false 时（也就是Flash上传时），2G就是最大的文件上传大小！所以一般需要 */
 					simLimit: 10000, /** 允许同时选择文件上传的个数（包含已经上传过的） */
 			//		extFilters: [".txt", ".gz", ".jpg", ".png", ".jpeg", ".gif", ".avi", ".html", ".htm"], /** 默认是全部允许，即 [] */
 					browseFileId : "demo-upload", /** 文件选择的Dom Id，如果不指定，默认是i_select_files */
 					dragAndDropTips : $('#DropUploadMessage').text().trim(),
 					dragAndDropArea: "demo-upload",
-					filesQueueId : "i_stream_files_queue", /** 文件上传进度显示框ID，非自定义UI有效(customered:false) */
-					filesQueueHeight : 450, /** 文件上传进度显示框的高，非自定义UI有效(customered:false)，默认450px */
-					messagerId : "i_stream_message_container", /** 消息框的Id，当没有自定义onXXX函数，系统会显示onXXX的部分提示信息，如果没有i_stream_message_container则不显示 */
 			//		frmUploadURL : "http://customers.duapp.com/fd;", /** Flash上传的URI */
 			//      uploadURL : "http://customers.duapp.com/upload",
 					onSelect: function(files) {
-						console.log(files);
 						for(var i=0; i<files.length; i++) {
 							var tmpl = $("#UploadFileModule").text().trim();
 							var instance = tmpl.replace(/#FILE_ID#/g, files[i].id)
@@ -214,6 +209,13 @@
 							.replace(/#FILE_SIZE#/g, _t.formatBytes(files[i].size));
 
 							$("#demo-upload").append(instance);
+							
+							$("#"+ files[i].id).click(function(e) {
+								e.stopPropagation();
+								if ($(this).hasClass('dz-processing')) {
+									$(this).remove();
+								}
+							});
 						}
 					},
 					onMaxSizeExceed: function(file) {
@@ -237,6 +239,10 @@
 					onAddTask: function(file, dat) {
 						// 图片回显
 						if (dat && dat.file && dat.file.type && dat.file.type.indexOf('image') == 0) {
+							var $module = $("#"+ file.id);
+							$module.addClass('dz-image-preview');
+							$module.removeClass('dz-file-preview');
+							
 							var reader = new FileReader();
 			          reader.readAsDataURL(dat.file);
 			          reader.onload = function(evt) {
@@ -258,7 +264,6 @@
 						$("#" + file.id).remove();
 					},
 					onCancelAll: function(numbers) {
-						$("#i_error_tips > span.text-message").append(numbers + " 个文件已被取消上传！！！");
 					},
 					onComplete: function(file) {
 						/** 100% percent */
@@ -267,6 +272,7 @@
 						
 						var module = $("#"+file.id);
 						module.addClass("dz-complete dz-success");
+						module.removeClass('dz-processing dz-error');
 					},
 					onQueueComplete: function(msg) {
 						//console && console.log("-------------onQueueComplete-------------------");
