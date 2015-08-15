@@ -51,7 +51,7 @@ Stream 是根据某网的文件上传插件加工而来，支持不同平台（W
 	
 	Perl - https://github.com/iakuf/mojolicious-stream-upload
 	
-	.Net - ... 
+	.Net - https://github.com/oec2003/StreamAspNet
 
 
 # Demo
