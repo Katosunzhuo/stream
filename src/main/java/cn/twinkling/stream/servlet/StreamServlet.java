@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -124,15 +125,22 @@ public class StreamServlet extends HttpServlet {
 			/** rename the file */
 			if (range.getSize() == start) {
 				/** fix the `renameTo` bug */
-				File dst = IoUtil.getFile(fileName);
-				dst.delete();
-				f.renameTo(dst);
-				System.out.println("TK: `" + token + "`, NE: `" + fileName + "`");
-				
-				/** if `STREAM_DELETE_FINISH`, then delete it. */
-				if (Configurations.isDeleteFinished()) {
-					dst.delete();
+//				File dst = IoUtil.getFile(fileName);
+//				dst.delete();
+				// TODO: f.renameTo(dst); 重命名在Windows平台下可能会失败，stackoverflow建议使用下面这句
+				try {
+					Files.move(f.toPath(), f.toPath().resolveSibling(fileName));
+					System.out.println("TK: `" + token + "`, NE: `" + fileName + "`");
+					
+					/** if `STREAM_DELETE_FINISH`, then delete it. */
+					if (Configurations.isDeleteFinished()) {
+						IoUtil.getFile(fileName).delete();
+					}
+				} catch (IOException e) {
+					success = false;
+					message = "Rename file error: " + e.getMessage();
 				}
+				
 			}
 			try {
 				if (success)
