@@ -47,7 +47,7 @@ Stream 是根据某网的文件上传插件加工而来，支持不同平台（W
 
 
 # 其他后台语言实现
-	PHP - 由http://git.oschina.net/zhouhr提供，请参考http://www.twinkling.cn/提供的下载地址中，寻找文件`stream-php.rar`
+	PHP（未实现Form/Flash上传） - 由http://git.oschina.net/zhouhr提供，请参考http://www.twinkling.cn/提供的下载地址中，寻找文件`stream-php.rar`
 	
 	Perl - https://github.com/iakuf/mojolicious-stream-upload
 	
