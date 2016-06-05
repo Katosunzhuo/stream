@@ -1351,7 +1351,10 @@
 		cancelOne : function(file_id, stopping) {
 			var provider = this.uploadInfo[file_id].file, actived = this.uploadInfo[file_id].actived;
 			provider && provider.cancelUpload && provider.cancelUpload();
-			if (!!stopping) return true;
+			if (!!stopping) {
+				this.uploadInfo[file_id].actived = !1;
+				return true;
+			}
 			
 			var totalSize = this.totalFileSize - this.uploadInfo[file_id].file.config.size, info = {
 				id:   file_id,
