@@ -1128,6 +1128,7 @@
 			filesQueueHeight : cfg.filesQueueHeight || 450,
 			messagerId : cfg.messagerId || "i_stream_message_container",
 			onSelect : cfg.onSelect,
+			onRepeatedFile : cfg.onRepeatedFile,
 			onAddTask: cfg.onAddTask,
 			onMaxSizeExceed : cfg.onMaxSizeExceed,
 			onFileCountExceed : cfg.onFileCountExceed,

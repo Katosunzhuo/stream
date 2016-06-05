@@ -37,7 +37,11 @@
 		filesQueueId : "i_stream_files_queue", /** 文件上传容器的ID, 默认: i_stream_files_queue */
 		filesQueueHeight : 200, /** 文件上传容器的高度（px）, 默认: 450 */
 		messagerId : "i_stream_message_container", /** 消息显示容器的ID, 默认: i_stream_message_container */
-		multipleFiles: true /** 多个文件一起上传, 默认: false */
+		multipleFiles: true, /** 多个文件一起上传, 默认: false */
+		onRepeatedFile: function(f) {
+			alert("文件："+f.name +" 大小："+f.size + " 已存在于上传队列中。");
+			return false;	
+		}
 //		autoUploading: false, /** 选择文件后是否自动上传, 默认: true */
 //		autoRemoveCompleted : true, /** 是否自动删除容器中已上传完毕的文件, 默认: false */
 //		maxSize: 104857600//, /** 单个文件的最大大小，默认:2G */
