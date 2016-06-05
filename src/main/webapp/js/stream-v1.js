@@ -1268,6 +1268,10 @@
 		onSelect : function(list) {
 			fShowMessage("selected files: " + list.length);
 		},
+		onRepeatedFile : function(file) {
+			fShowMessage("File:" + file.name + " Size:" + file.size +" has been UPLOADED or ADDED.", true);
+			return false;
+		},
 		onFileCountExceed : function(selected, limit) {
 			fShowMessage("File counts:" + selected + ", but limited:" + limit, true);
 		},
@@ -1614,6 +1618,19 @@
 					formatLimitSize:  this.formatBytes(this.get("maxSize")),
 					filters:          filters
 				};
+			
+			// check the file been uploaded?
+			if (this.uploadInfo) {
+				var unique = uploader.get("name") + "_" + uploader.get("size");
+				for (var i in this.uploadInfo) {
+					var key = this.uploadInfo[i].file.get("name") + "_" + this.uploadInfo[i].file.get("size");
+					if (key === unique) {
+						var ignore = this.get("onRepeatedFile") ? this.get("onRepeatedFile")(info) : this.onRepeatedFile(info);
+						if (!ignore) return !1;
+					}
+				}
+			}
+				
 			if(!bStreaming && size > 2147483648){this.uploadError({status:100, statusText:"Flash最大只能上传2G的文件!"});return !1;}
 			if (this.get("maxSize") < size)
 				this.get("onMaxSizeExceed") ? this.get("onMaxSizeExceed")(info) : this.onMaxSizeExceed(info);

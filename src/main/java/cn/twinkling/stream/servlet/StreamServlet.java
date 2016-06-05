@@ -129,6 +129,9 @@ public class StreamServlet extends HttpServlet {
 //				dst.delete();
 				// TODO: f.renameTo(dst); 重命名在Windows平台下可能会失败，stackoverflow建议使用下面这句
 				try {
+					// 先删除
+					IoUtil.getFile(fileName).delete();
+					
 					Files.move(f.toPath(), f.toPath().resolveSibling(fileName));
 					System.out.println("TK: `" + token + "`, NE: `" + fileName + "`");
 					
@@ -157,7 +160,7 @@ public class StreamServlet extends HttpServlet {
 	@Override
 	protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		resp.setContentType("application/json");
+		resp.setContentType("application/json;charset=utf-8");
 		resp.setHeader("Access-Control-Allow-Headers", "Content-Range,Content-Type");
 		resp.setHeader("Access-Control-Allow-Origin", Configurations.getCrossOrigins());
 		resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
