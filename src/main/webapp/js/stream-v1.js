@@ -709,7 +709,7 @@
 					this.fire("dragleave");
 					break;
 				case "drop" :
-					var callback = function(files, self) {
+					var self = this, callback = function(files) {
 						for (var list = [], c = 0; c < files.length; c++)
 							list.push(new StreamUploader(files[c]));
 						0 < list.length && self.fire("fileselect", {fileList : list});
@@ -718,7 +718,11 @@
 						var items = evt.dataTransfer.items;
 						if (items.length && items[items.length - 1]) {
 							var entry = items[items.length - 1].webkitGetAsEntry() || items[items.length - 1].getAsEntry();
-							entry && this.traverseFileTree(entry.filesystem.root, callback);
+							var entries = [];
+							for (var i = 0; i < items.length; i++) {
+								entries.push(items[i].webkitGetAsEntry() || items[i].getAsEntry());
+							}
+							entry && this._handleFileTreeEntries(entries, callback);
 						}
 					} else {
 						var files = evt.dataTransfer.files;
@@ -732,32 +736,43 @@
 					this.fire("drop");
 			}
 		},
-		traverseFileTree : function (directory, callback) {
+		_handleFileTreeEntries: function(entries, callback) {
+			for (var i = 0; i < entries.length; i++) {
+				this._handleFileTreeEntry(entries[i], callback);
+			}
+		},
+		_handleFileTreeEntry: function(entry, callback) {
 			callback.pending || (callback.pending = 0);
-			callback.files || (callback.files = []);
 			callback.pending++;
-			var self = this, relativePath = directory.fullPath.replace(/^\//, "").replace(/(.+?)\/?$/, "$1/"), reader = directory.createReader();
-			reader.readEntries(function(entries) {
-				callback.pending--;
-				if (!entries.length) {
-					fShowMessage("\u5FFD\u7565\u7A7A\u6587\u4EF6\u5939\uFF1A`" + relativePath + directory.name + "`", true);
-				} else {
-					for (var i = 0; i < entries.length; i++) {
-						var entry = entries[i];
-						if (entry.isFile) {
-							callback.pending++;
-							entry.file(function(f) {
-								f.RelativePath = relativePath + f.name; /** self define argument */
-								callback.files.push(f);
-								(--callback.pending === 0) && callback(callback.files, self);
-							});
-							continue;
-						}
-						self.traverseFileTree(entry, callback);
+			callback.files || (callback.files = []);
+			var that = this, reader, path = entry.fullPath.replace(/^\//, "").replace(/(.+?)\/?$/, "$1"), entries = [], succeed = function(entries) {
+				that._handleFileTreeEntries(entries, callback);
+				(--callback.pending === 0) && callback(callback.files, self);
+			}, error = function(e) {
+				alert("Read file Error: " + e);
+				console && console.log(e);
+			}, read = function() {
+				reader.readEntries(function(results) {
+					if (results.length) {
+						entries = entries.concat(results);
+						read();
+					} else {
+						succeed(entries);
+						if (entries && entries.length === 0 && path != null && path != '' && path != '/')
+							fShowMessage("\u5FFD\u7565\u7A7A\u6587\u4EF6\u5939\uFF1A`" + path + "`", true);
 					}
-				}
-				(callback.pending === 0) && callback(callback.files, self);
-			});
+				}, error); 
+			};
+			if (entry.isFile) {
+				entry.file(function(f) {
+					f.RelativePath = path; /** self define argument */
+					callback.files.push(f);
+					(--callback.pending === 0) && callback(callback.files, self);
+				});
+			} else if (entry.isDirectory) {
+				reader = entry.createReader();
+				read();
+			}
 		},
 		rebindFileField : function() {
 			this.fileInputField = fCreateContentEle("<input type='file' style='visibility:hidden;width:0px;height:0px;opacity:0;position:absolute;left:-1000px;'>");
