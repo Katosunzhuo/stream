@@ -1130,6 +1130,7 @@
 		this.config = {
 			enabled : !0,
 			customered : !!cfg.customered,
+			formed : !!cfg.formed,
 			multipleFiles : !!cfg.multipleFiles,
 			autoRemoveCompleted : !!cfg.autoRemoveCompleted,
 			autoUploading : cfg.autoUploading == null ? true : !!cfg.autoUploading,
@@ -1472,7 +1473,7 @@
 							frmUploadURL = server + frmUploadURL;
 							uploadURL = server + uploadURL;
 						}
-						bStreaming && bFileSlice ? (self.uploadInfo[index].serverAddress = server,
+						bStreaming && bFileSlice && !self.config.formed ? (self.uploadInfo[index].serverAddress = server,
 										self.uploadFile(file, uploadURL, token, "resumeUpload"))
 								: self.uploadFile(file, frmUploadURL, token, "formUpload");
 					} else {
@@ -1495,7 +1496,7 @@
 		uploadFile : function(file, url, token, method) {
 			var token = {
 				token : token,
-				client : method == "formUpload" ? "form" : "html5"
+				client : method == "formUpload" || this.config.formed ? "formUpload" : "html5"
 			};
 			url = url || "";
 			method && file instanceof StreamUploader && file.set("uploadMethod", method);
