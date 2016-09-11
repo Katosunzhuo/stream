@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>New Style SWF/HTML5 Stream Uploading DEMO</title>
+    <title>Upyun表单上传例子</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link href="/css/stream-v1.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-    <p style="color: red;">由于不支持断点续传及Flash技术限制，Form表单上传请控制在2G大小以内文件。<br>（传统Flash上传文件最大2G，现代浏览器没有限制。互联网用户最好控制在100M以下）。</p>
+<p style="color: red;">Form表单上传是不支持断点续传。上传到又拍云，请勿上传太大的文件（流量与存储目前都是需要钱的）。</p>
 
 <div id="i_select_files">
 </div>
@@ -35,23 +35,60 @@ Messages:
 
 <script type="text/javascript" src="/js/stream-v1.js"></script>
 <script type="text/javascript">
-    /**
-     * 配置文件（如果没有默认字样，说明默认值就是注释下的值）
-     * 但是，on*（onSelect， onMaxSizeExceed...）等函数的默认行为
-     * 是在ID为i_stream_message_container的页面元素中写日志
-     */
-    var config = {
-        formed: true, /** 强制form表单的方式传输(此种方式不支持断点续传) */
-        browseFileId: "i_select_files", /** 选择文件的ID, 默认: i_select_files */
-        browseFileBtn: "<div>请选择文件</div>", /** 显示选择文件的样式, 默认: `<div>请选择文件</div>` */
-        dragAndDropArea: "i_select_files", /** 拖拽上传区域，Id（字符类型"i_select_files"）或者DOM对象, 默认: `i_select_files` */
-        dragAndDropTips: "<span>把文件(文件夹)拖拽到这里</span>", /** 拖拽提示, 默认: `<span>把文件(文件夹)拖拽到这里</span>` */
-        filesQueueId: "i_stream_files_queue", /** 文件上传容器的ID, 默认: i_stream_files_queue */
-        filesQueueHeight: 200, /** 文件上传容器的高度（px）, 默认: 450 */
-        multipleFiles: true,
-        maxSize: 2 * 1024 * 1024 * 1024, /** 2G */
-        messagerId: "i_stream_message_container" /** 消息显示容器的ID, 默认: i_stream_message_container */
-    };
-    var _t = new Stream(config);
+
+    var GLOBAL_UPYUN = null;
+    function fGetUpyunAuth() {
+        var xhr = window.XMLHttpRequest ? new XMLHttpRequest : new ActiveXObject("Microsoft.XMLHTTP");
+        var upyun = "https://impress.pw/api/upyun?" + new Date().getTime();
+        xhr.open("GET", upyun, !0);
+        /** IE7,8 兼容*/
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState != 4 || xhr.status < 200)
+                return false;
+
+            GLOBAL_UPYUN = eval("(" + xhr.responseText + ")");
+            GLOBAL_UPYUN && fInit();
+        }
+        xhr.send();
+    }
+
+    function fInit() {
+        /**
+         * 配置文件（如果没有默认字样，说明默认值就是注释下的值）
+         * 但是，on*（onSelect， onMaxSizeExceed...）等函数的默认行为
+         * 是在ID为i_stream_message_container的页面元素中写日志
+         */
+        var config = {
+            formed: true, /** 强制form表单的方式传输(此种方式不支持断点续传) */
+            browseFileId: "i_select_files", /** 选择文件的ID, 默认: i_select_files */
+            browseFileBtn: "<div>请选择文件</div>", /** 显示选择文件的样式, 默认: `<div>请选择文件</div>` */
+            dragAndDropArea: "i_select_files", /** 拖拽上传区域，Id（字符类型"i_select_files"）或者DOM对象, 默认: `i_select_files` */
+            dragAndDropTips: "<span>把文件(文件夹)拖拽到这里</span>", /** 拖拽提示, 默认: `<span>把文件(文件夹)拖拽到这里</span>` */
+            filesQueueId: "i_stream_files_queue", /** 文件上传容器的ID, 默认: i_stream_files_queue */
+            filesQueueHeight: 200, /** 文件上传容器的高度（px）, 默认: 450 */
+            multipleFiles: true,
+            maxSize: 10 * 1024 * 1024, /** 10M */
+            messagerId: "i_stream_message_container", /** 消息显示容器的ID, 默认: i_stream_message_container */
+
+            fileFieldName: 'file', /* upyun要求file参数。 */
+            frmUploadURL : GLOBAL_UPYUN['host'],
+            postVarsPerFile: {
+                bucket: GLOBAL_UPYUN['bucket'],
+                'save-key': GLOBAL_UPYUN['save-key'],
+                expiration: GLOBAL_UPYUN['expiration'],
+                signature: GLOBAL_UPYUN['signature'],
+                policy: GLOBAL_UPYUN['policy']
+            },
+            onComplete : function(file, msg) {
+                var j = JSON.parse(file.msg), link = GLOBAL_UPYUN['domain'] + j.url;
+
+                var o = document.getElementById("i_stream_message_container");
+                o && (o.innerHTML += "<br>" + "<span style='color:red;'>" + link + "</span>") && (o.scrollTop = o.scrollHeight);
+            }
+        };
+        var _t = new Stream(config);
+    }
+
+    fGetUpyunAuth();
 </script>
 </body>
