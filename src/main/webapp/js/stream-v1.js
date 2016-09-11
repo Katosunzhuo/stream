@@ -937,8 +937,9 @@
 			this.set("uploadMethod", "formUpload");
 			this.bytesStart = 0;
 			this.preTime = (new Date).getTime();
-			fd.append(fileFileName, this.file);
 			for (var I in this.get('parameters')) I && fd.append(I, this.get('parameters')[I]);
+			// need set file after normal form items.
+			fd.append(fileFileName, this.file);
 			_xhr.addEventListener("loadstart", this.uploadEventHandler, !1);
 			_upload.addEventListener("progress", this.uploadEventHandler, !1);
 			_xhr.addEventListener("load", this.uploadEventHandler, !1);

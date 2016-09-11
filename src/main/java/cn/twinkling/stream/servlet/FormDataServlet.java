@@ -74,12 +74,15 @@ public class FormDataServlet extends HttpServlet {
                     }
                     System.out.println(name + ":" + value);
                 } else {
-                    // 不能保证此处已经有token值。
                     if (token == null || token.trim().length() < 1)
                         token = req.getParameter(TokenServlet.TOKEN_FIELD);
                     /** TODO: validate your token. */
 
+                    // 这里不能保证token能有值
                     filename = item.getName();
+                    if (token == null || token.trim().length() < 1)
+                        token = filename;
+
                     start = IoUtil.streaming(in, token, filename);
                 }
             }
