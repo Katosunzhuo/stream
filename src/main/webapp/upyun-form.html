@@ -83,7 +83,7 @@ Messages:
                 var j = JSON.parse(file.msg), link = GLOBAL_UPYUN['domain'] + j.url;
 
                 var o = document.getElementById("i_stream_message_container");
-                o && (o.innerHTML += "<br>" + "<span style='color:red;'>" + link + "</span>") && (o.scrollTop = o.scrollHeight);
+                o && (o.innerHTML += "<br>" + "<span style='color:red;'>上传成功: " + link + "</span>") && (o.scrollTop = o.scrollHeight);
             }
         };
         var _t = new Stream(config);
