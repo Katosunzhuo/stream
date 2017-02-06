@@ -135,8 +135,7 @@
 	}
 	
 	function fRemoveClass(element, klass) {
-		element.className = element.className.replace(RegExp("(^| )" + klass + "( |$)"), " ")
-				.replace(/^\s+|\s+$/g, "");
+		element && (element.className = element.className.replace(RegExp("(^| )" + klass + "( |$)"), " ").replace(/^\s+|\s+$/g, ""));
 	}
 	
 	function fContains(container, klass) {
